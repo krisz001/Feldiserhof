@@ -1,6 +1,7 @@
 // Öffnungszeiten – Europe/Zurich, next open, kivételek, overrides
 (() => {
-  const CONFIG_URL = '/opening-hours.json'; // javítva
+  const CONFIG_URL = '/opening-hours.json';
+
   const FALLBACK = {
     timezone: 'Europe/Zurich',
     locale: 'de-CH',
@@ -22,7 +23,7 @@
     }
   };
 
-  // ---- Util ----
+  // ---------- Util ----------
   function dfParts(locale, tz, date) {
     return new Intl.DateTimeFormat(locale, {
       timeZone: tz, weekday: 'short', year: 'numeric', month: '2-digit', day: '2-digit',
@@ -37,8 +38,8 @@
     const H = parseInt(p.hour,10), M = parseInt(p.minute,10), S = parseInt(p.second,10);
     return { date: d, day: map[wd2], minutes: H*60+M, seconds: S, y:+p.year, m:+p.month, dd:+p.day, rawParts:p };
   }
-  const pad2 = (n)=> String(n).padStart(2,'0');
-  const toMin = (hhmm)=> { const [h,m]=hhmm.split(':').map(Number); return h*60+m; };
+  const pad2   = (n)=> String(n).padStart(2,'0');
+  const toMin  = (hhmm)=> { const [h,m]=hhmm.split(':').map(Number); return h*60+m; };
   const toHHMM = (min)=> `${pad2(Math.floor(min/60))}:${pad2(min%60)}`;
   const dateFromYMD = (y,m,d)=> new Date(Date.UTC(y, m-1, d));
   const addDaysUTC  = (y,m,d,add)=> new Date(Date.UTC(y, m-1, d + add));
@@ -46,7 +47,8 @@
   const shortDE = (locale,tz,date)=> { const p=dfParts(locale,tz,date); return `${p.day}.${p.month}.`; };
 
   function normalizeRanges(ranges) {
-    const out=[]; (ranges||[]).forEach(([a,b])=>{
+    const out=[];
+    (ranges||[]).forEach(([a,b])=>{
       const s=toMin(a), e=toMin(b);
       if (s<e) out.push([s,e]);
       else if (s>e) out.push([s, 24*60]); // átcsorgó sáv: ma éjfélig
@@ -69,6 +71,7 @@
   function getEffectiveWindows(cfg, date){
     const todayOrig = getOriginalRangesForDateRaw(cfg, date);
     const today = normalizeRanges(todayOrig);
+
     const prev  = addDaysUTC(date.getUTCFullYear(), date.getUTCMonth()+1, date.getUTCDate(), -1);
     const prevOrig = getOriginalRangesForDateRaw(cfg, prev);
     const spill = [];
@@ -76,6 +79,7 @@
       const s = toMin(a), e = toMin(b);
       if (s > e && e > 0) spill.push([0, e]); // ma 0:00–e
     });
+
     return [...spill, ...today].sort((x,y)=>x[0]-y[0]);
   }
 
@@ -100,8 +104,8 @@
   function findNextOpen(cfg, now){
     for (let i=0; i<30; i++) {
       const d = addDaysUTC(now.y, now.m, now.dd, i);
-      const todayEff = getEffectiveWindows(cfg, d);
-      const candidates = (i===0) ? todayEff.filter(([s]) => s > now.minutes) : todayEff;
+      const eff = getEffectiveWindows(cfg, d);
+      const candidates = (i===0) ? eff.filter(([s]) => s > now.minutes) : eff;
       if (candidates.length) {
         const [s] = candidates[0];
         let dayText = 'heute';
@@ -116,6 +120,7 @@
     return null;
   }
 
+  // ---------- Renderers ----------
   function renderTable(cfg, currentDow){
     const tbody = document.querySelector('#hoursTable tbody');
     if (!tbody) return;
@@ -140,15 +145,35 @@
     });
   }
 
+  function renderList(cfg){
+    const list = document.getElementById('hoursList');
+    if (!list) return;
+    const order = [1,2,3,4,5,6,0]; // Hétfő -> Vasárnap
+    list.innerHTML = order.map(d => {
+      const slots = (cfg.week[String(d)] || [])
+        .map(([a,b]) => `${a} – ${b==='24:00'?'00:00':b}`).join(', ') || 'geschlossen';
+      return `<li class="d-flex justify-content-between border-bottom border-secondary py-1">
+                <span>${cfg.labels.days[d]}</span><span>${slots}</span>
+              </li>`;
+    }).join('');
+  }
+
+  // ---------- UI wiring ----------
   function applyUI(cfg){
     const badgeOpen   = document.getElementById('badgeOpen');
     const badgeClosed = document.getElementById('badgeClosed');
     const statusText  = document.getElementById('statusText');
-    if (!badgeOpen || !badgeClosed || !statusText) return;
+    const hasAnyUI = statusText || badgeOpen || badgeClosed ||
+                     document.querySelector('#hoursTable tbody') || document.getElementById('hoursList');
+    if (!hasAnyUI) return;
 
     const tick = () => {
       const now = nowInTZ(cfg.locale, cfg.timezone);
+
+      // Lista/táblázat frissítése (ha vannak)
+      renderList(cfg);
       renderTable(cfg, now.day);
+
       const closureEnd = findClosureUntil(cfg, now);
       const state = isOpenNow(cfg, now);
 
@@ -156,32 +181,35 @@
         const closeAt = state.closesAt === 24*60 ? '00:00' : toHHMM(state.closesAt);
         const minutesLeft = Math.max(0, state.closesAt - now.minutes);
         let soonText = '';
-        if (minutesLeft === 0) soonText = ' – schließt jetzt';
+        if (minutesLeft === 0)      soonText = ' – schließt jetzt';
         else if (minutesLeft <= 15) soonText = ` – schließt in ${minutesLeft} Min`;
 
-        badgeClosed.classList.add('d-none');
-        badgeOpen.classList.remove('d-none');
-        statusText.textContent = cfg.labels.todayOpen.replace('{time}', closeAt) + soonText;
+        badgeClosed?.classList.add('d-none');
+        badgeOpen?.classList.remove('d-none');
+        if (statusText) statusText.textContent = cfg.labels.todayOpen.replace('{time}', closeAt) + soonText;
       } else {
-        badgeOpen.classList.add('d-none');
-        badgeClosed.classList.remove('d-none');
+        badgeOpen?.classList.add('d-none');
+        badgeClosed?.classList.remove('d-none');
 
+        let msg;
         if (closureEnd) {
-          statusText.textContent = cfg.labels.closedUntil.replace('{date}', shortDE(cfg.locale, cfg.timezone, closureEnd));
+          msg = cfg.labels.closedUntil.replace('{date}', shortDE(cfg.locale, cfg.timezone, closureEnd));
         } else {
           const next = findNextOpen(cfg, now);
-          statusText.textContent = next
+          msg = next
             ? cfg.labels.closedOpens.replace('{dayText}', next.dayText).replace('{time}', next.time)
             : cfg.labels.closedBadge;
         }
+        if (statusText) statusText.textContent = msg;
       }
     };
 
     tick();
-    setInterval(tick, 60000); // ritkábban elég
+    setInterval(tick, 60000);
     document.addEventListener('visibilitychange', () => { if (!document.hidden) tick(); }, { passive:true });
   }
 
+  // ---------- Init ----------
   (async function init(){
     let cfg = null;
     try {
@@ -190,15 +218,20 @@
         const text = await r.text();
         const j = text ? JSON.parse(text) : {};
         cfg = {
-          timezone: j.timezone || FALLBACK.timezone,
-          locale: j.locale || FALLBACK.locale,
-          week: j.week || FALLBACK.week,
-          exceptions: j.exceptions || [],
+          timezone:  j.timezone  || FALLBACK.timezone,
+          locale:    j.locale    || FALLBACK.locale,
+          week:      j.week      || FALLBACK.week,
+          exceptions:j.exceptions|| [],
           overrides: j.overrides || [],
           labels: Object.assign({}, FALLBACK.labels, j.labels || {})
         };
-      } else cfg = FALLBACK;
-    } catch(e){ console.warn('opening-hours.json nem elérhető, fallback indul.', e); cfg = FALLBACK; }
+      } else {
+        cfg = FALLBACK;
+      }
+    } catch(e){
+      console.warn('opening-hours.json nem elérhető, fallback indul.', e);
+      cfg = FALLBACK;
+    }
     applyUI(cfg);
   })();
 })();
