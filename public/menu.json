@@ -1,0 +1,32 @@
+[
+  {
+    "id": "starter1",
+    "category": "starters",
+    "title": "Nüsslisalat",
+    "desc": "Frischer Nüsslisalat mit Pilzen, gerösteten Brotwürfeln, hausgemachtem Dressing und gekochtem Ei",
+    "price": 9.50,
+    "badge": "Vorspeise",
+    "image": "img/menu/nussli salat.jpg",
+    "allergens": ["gluten", "egg"]
+  },
+  {
+    "id": "main1",
+    "category": "mains",
+    "title": "Hirschpfeffer mit Spätzli",
+    "desc": "Traditionelles Hirschragout in Rotweinsauce, serviert mit hausgemachten Spätzli",
+    "price": 24.90,
+    "badge": "Hauptgericht",
+    "image": "img/menu/hirsh.jpg",
+    "allergens": ["gluten"]
+  },
+  {
+    "id": "dessert1",
+    "category": "desserts",
+    "title": "Grosser Vermicelles",
+    "desc": "Feines Maronenpüree mit Schlagrahm und knusprigen Meringues",
+    "price": 11.50,
+    "badge": "Dessert",
+    "image": "img/menu/vermi.jpg",
+    "allergens": ["milk", "egg"]
+  }
+]

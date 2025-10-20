@@ -1,0 +1,19 @@
+{
+  "name": "bogdankrisztian",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bootstrap": "^5.2.2",
+    "express": "^4.19.2",
+    "react-bootstrap": "^2.5.0"
+  }
+}

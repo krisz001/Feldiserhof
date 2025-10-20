@@ -1,0 +1,42 @@
+<section id="contact" class="container-xxl py-5 bg-dark text-white">
+  <div class="container">
+    <div class="row g-5 align-items-start">
+      <!-- Kontakt Info -->
+      <div class="col-lg-6">
+        <h5 class="section-title ff-secondary text-start text-primary fw-normal">Kontakt</h5>
+        <h1 class="mb-4">So erreichen Sie uns</h1>
+
+        <p class="mb-4">
+          Haben Sie Fragen oder möchten reservieren? Rufen Sie uns an oder schreiben Sie uns eine Nachricht.
+        </p>
+
+        <p><i class="fa fa-map-marker-alt me-3 text-warning"></i>Feldiserhof, 7404 Feldis, Schweiz</p>
+        <p><i class="fa fa-phone-alt me-3 text-warning"></i>+41 81 651 30 30</p>
+        <p><i class="fa fa-envelope me-3 text-warning"></i>info@feldiserhof.ch</p>
+
+        <h5 class="mt-4 text-primary">Öffnungszeiten</h5>
+        <% if (hours && Array.isArray(hours.days) && hours.days.length > 0) { %>
+          <ul class="list-unstyled mt-2">
+            <% hours.days.forEach(day => { %>
+              <li><%= day.day %>: <%= day.hours %></li>
+            <% }) %>
+          </ul>
+        <% } else { %>
+          <p class="text-muted">Aktuelle Öffnungszeiten werden geladen...</p>
+        <% } %>
+      </div>
+
+      <!-- Google Maps -->
+      <div class="col-lg-6">
+        <div class="ratio ratio-4x3 rounded shadow-sm overflow-hidden">
+          <iframe
+            src="https://www.google.com/maps?q=Feldiserhof,+Feldis,+Schweiz&output=embed"
+            allowfullscreen
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade">
+          </iframe>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

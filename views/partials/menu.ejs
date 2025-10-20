@@ -1,0 +1,33 @@
+<section id="menu" class="container-xxl py-5 bg-light">
+  <div class="container">
+    <div class="text-center mb-5">
+      <h5 class="section-title ff-secondary text-primary fw-normal">Speisekarte</h5>
+      <h1 class="mb-4">Entdecken Sie unsere Küche</h1>
+      <p>Unsere Speisekarte wird regelmäßig aktualisiert, um Ihnen frische, saisonale Gerichte anzubieten.</p>
+    </div>
+
+    <div class="row justify-content-center g-4">
+      <% if (menu && Array.isArray(menu.items) && menu.items.length > 0) { %>
+        <% menu.items.forEach(item => { %>
+          <div class="col-md-6 col-lg-4">
+            <div class="card shadow-sm border-0 h-100">
+              <div class="card-body text-center p-4">
+                <h5 class="card-title text-primary"><%= item.name %></h5>
+                <% if (item.description) { %>
+                  <p class="card-text text-muted mb-3"><%= item.description %></p>
+                <% } %>
+                <% if (item.price) { %>
+                  <p class="fw-bold mb-0"><%= item.price %> CHF</p>
+                <% } %>
+              </div>
+            </div>
+          </div>
+        <% }) %>
+      <% } else { %>
+        <div class="col-12">
+          <p class="text-center text-muted">Menü wird geladen oder ist derzeit nicht verfügbar.</p>
+        </div>
+      <% } %>
+    </div>
+  </div>
+</section>

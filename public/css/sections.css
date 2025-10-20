@@ -1,0 +1,209 @@
+/* =================== SECTIONS =================== */
+
+/* ===== Hero Section ===== */
+.hero-header {
+  position: relative;
+  min-height: calc(100vh - var(--nav-height));
+  padding: 5rem 0 4rem;
+  background-image:
+    linear-gradient(rgba(11,31,45,.58), rgba(11,31,45,.78)),
+    url("../img/background.jpeg");
+  background-size: cover;
+  background-position: center 38%;
+  background-repeat: no-repeat;
+}
+.hero-header::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 100px;
+  background: linear-gradient(180deg, rgba(11,31,45,0) 0%, rgba(11,31,45,.75) 85%);
+  pointer-events: none;
+}
+.hero-header .display-3 {
+  font-family: "Heebo", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  font-weight: 900;
+  line-height: 1.1;
+  color: #fff;
+  font-size: 4rem;
+}
+.hero-header p {
+  color: rgba(255,255,255,.88);
+  max-width: 760px;
+  margin: 0 auto 1.5rem;
+  font-size: 1.05rem;
+  text-align: center;
+}
+
+/* ===== Base Section ===== */
+section {
+  padding: 80px 0;
+  position: relative;
+}
+section + section::before {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; top: -1px;
+  height: 1px;
+  background: rgba(0,0,0,.05);
+}
+
+/* ===== About Section ===== */
+#about {
+  background: #fffaf0;
+}
+#about .container {
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 12px 28px rgba(0,0,0,.12);
+  padding: 3rem 2rem;
+}
+
+/* ===== Menu (Speisekarte) Section ===== */
+#menu {
+  background: linear-gradient(180deg, #fef8e7 0%, #fbeecb 100%);
+}
+#menu .container {
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 12px 28px rgba(0,0,0,.12);
+  padding: 3rem 2rem 4rem;
+}
+#menu h2 {
+  text-align: center;
+  font-weight: 800;
+  margin-bottom: 1.5rem;
+}
+#menu .text-warning {
+  color: var(--brand-primary);
+}
+#menu .btn-outline-brand {
+  margin: 0 .25rem;
+}
+#menu .d-flex.flex-md-row {
+  justify-content: center !important;
+}
+.menu-book {
+  margin-top: 2rem;
+}
+
+/* ===== Wellness Section ===== */
+#wellness {
+  background: linear-gradient(180deg, #fef8e7 0%, #fbeecb 100%);
+}
+#wellness .container {
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 12px 28px rgba(0,0,0,.12);
+  padding: 3rem 2rem 4rem;
+}
+#wellness .section-title {
+  font-weight: 800;
+  margin-bottom: 1rem;
+}
+#wellness .section-subtitle {
+  color: #555;
+  line-height: 1.6;
+}
+.wellness-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+.wellness-grid .tile {
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition: transform .25s ease, box-shadow .25s ease;
+}
+.wellness-grid .tile:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+}
+.wellness-grid img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+@media (max-width: 992px) {
+  .wellness-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ===== Reservation Section ===== */
+#reservation {
+  background: #0b1f2d;
+  color: #fff;
+}
+#reservation .container {
+  background: rgba(255,255,255,.05);
+  border-radius: 20px;
+  box-shadow: 0 12px 28px rgba(0,0,0,.25);
+  padding: 3rem 2rem 4rem;
+}
+#reservation h2 span {
+  color: #ffc107;
+}
+#reservation .form-label {
+  color: rgba(255,255,255,.85);
+}
+#reservation .form-control, #reservation .form-select {
+  background: rgba(255,255,255,.1);
+  border: 1px solid rgba(255,255,255,.2);
+  color: #fff;
+}
+#reservation .form-control::placeholder {
+  color: rgba(255,255,255,.5);
+}
+
+/* ===== Gallery Section ===== */
+#gallery {
+  background: linear-gradient(180deg, #fef8e7 0%, #fbeecb 100%);
+}
+#gallery .container {
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 12px 28px rgba(0,0,0,.12);
+  padding: 3rem 2rem 4rem;
+}
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.4rem;
+}
+.gallery-card {
+  position: relative;
+  border-radius: 1rem;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: var(--shadow-sm);
+  aspect-ratio: 4/3;
+  transition: transform .25s ease, box-shadow .25s ease;
+}
+.gallery-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+}
+.gallery-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform .35s;
+}
+.gallery-card:hover img {
+  transform: scale(1.03);
+}
+.album-section h3 {
+  font-family: "Heebo", sans-serif;
+  font-weight: 800;
+  color: #0b1f2d;
+  text-align: left;
+}
+
+.album-section + .album-section {
+  border-top: 1px solid rgba(0,0,0,0.1);
+  padding-top: 2rem;
+}

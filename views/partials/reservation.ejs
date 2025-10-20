@@ -1,0 +1,39 @@
+<section id="reservation" class="container-xxl py-5 bg-light">
+  <div class="container">
+    <div class="text-center mb-5">
+      <h5 class="section-title ff-secondary text-primary fw-normal">Reservieren</h5>
+      <h1 class="mb-4">Tisch oder Zimmer reservieren</h1>
+      <p>
+        Füllen Sie das Formular aus, um eine Reservierungsanfrage zu senden.
+        Wir melden uns so schnell wie möglich bei Ihnen.
+      </p>
+    </div>
+
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <form class="p-4 bg-white shadow rounded" id="reservationForm">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <input type="text" name="name" class="form-control" placeholder="Ihr Name" required>
+            </div>
+            <div class="col-md-6">
+              <input type="email" name="email" class="form-control" placeholder="E-Mail-Adresse" required>
+            </div>
+            <div class="col-md-6">
+              <input type="date" name="date" class="form-control" required>
+            </div>
+            <div class="col-md-6">
+              <input type="time" name="time" class="form-control" required>
+            </div>
+            <div class="col-12">
+              <textarea name="message" class="form-control" rows="4" placeholder="Ihre Nachricht oder Anfrage..."></textarea>
+            </div>
+            <div class="col-12 text-center">
+              <button class="btn btn-warning py-3 px-5" type="submit">Anfrage senden</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>

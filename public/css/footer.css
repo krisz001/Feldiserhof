@@ -1,0 +1,9 @@
+/* =================== FOOTER =================== */
+footer.bg-dark{
+  background:transparent !important;
+  color:#212529;
+  border-top:1px solid rgba(0,0,0,.10);
+  box-shadow:0 -1px 0 rgba(255,255,255,.25) inset;
+}
+footer .text-white-50{ color:#6c757d !important; }
+footer a{ color:#212529; }
