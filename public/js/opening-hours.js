@@ -1,115 +1,6 @@
-// ===========================================================
-// Év a láblécben
-// ===========================================================
-(() => {
-  const el = document.getElementById('year');
-  if (el) el.textContent = new Date().getFullYear();
-})();
-
-// ===========================================================
-// (Opcionális) Menü-szűrés rácshoz – ha nincs #menuGrid, csendben kilép
-// ===========================================================
-(() => {
-  const filterBtns = document.querySelectorAll('[data-filter]');
-  const menuItems  = document.querySelectorAll('#menuGrid .menu-item');
-  if (!filterBtns.length || !menuItems.length) return;
-
-  filterBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      filterBtns.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      const cat = btn.getAttribute('data-filter');
-
-      menuItems.forEach(item => {
-        const match = (cat === 'all') || (item.getAttribute('data-cat') === cat);
-        item.classList.toggle('d-none', !match);
-      });
-    });
-  });
-})();
-
-// ===========================================================
-// Dinamikus könyv: kategória-gombok → ugorjanak a megfelelő oldalra
-// (menu.js tegye ki: window.__flipbookGoto('starters'|'mains'|'desserts'))
-// ===========================================================
-(() => {
-  const byId = (id) => document.getElementById(id);
-  const hook = (el, key) => el && el.addEventListener('click', () => {
-    if (typeof window.__flipbookGoto === 'function') {
-      window.__flipbookGoto(key);
-    } else {
-      // ha még nincs kész a flipbook, guruljunk a menühöz
-      const sec = document.getElementById('menu');
-      sec && sec.scrollIntoView({ behavior: 'smooth' });
-    }
-  });
-
-  hook(byId('gotoStarters'), 'starters');
-  hook(byId('gotoMains'),    'mains');
-  hook(byId('gotoDesserts'), 'desserts');
-})();
-
-// ===========================================================
-// Formspree – egyszerű foglalás visszajelzés
-// ===========================================================
-(() => {
-  const FORMSPREE_ENDPOINT = 'https://formspree.io/f/xblzjyqr';
-  const reserveForm = document.getElementById('reserveForm');
-  if (!reserveForm) return;
-
-  reserveForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const ok = reserveForm.checkValidity();
-    reserveForm.classList.add('was-validated');
-    if (!ok) return;
-
-    const fd = new FormData(reserveForm);
-    const emailField = document.getElementById('email');
-    if (emailField) fd.set('_replyto', emailField.value);
-
-    const btn = reserveForm.querySelector('button[type="submit"]');
-    const btnText = btn ? btn.textContent : null;
-    if (btn) { btn.disabled = true; btn.textContent = 'Küldés…'; }
-
-    try {
-      const r = await fetch(FORMSPREE_ENDPOINT, { method:'POST', body:fd, headers:{ 'Accept':'application/json' } });
-      const text = await r.text();
-      if (r.ok) {
-        document.getElementById('reserveSuccess')?.classList.remove('d-none');
-        document.getElementById('reserveError')?.classList.add('d-none');
-        reserveForm.reset();
-        reserveForm.classList.remove('was-validated');
-      } else {
-        let msg = 'Sikertelen küldés. Próbálja újra később.';
-        try {
-          const data = JSON.parse(text);
-          if (data?.errors?.length) msg = data.errors.map(e => e.message).join(' | ');
-        } catch {}
-        const err = document.getElementById('reserveError');
-        if (err) {
-          err.textContent = msg.includes('Form not found')
-            ? 'Form nem található: ellenőrizd az endpointot a Formspree-ben.'
-            : msg;
-          err.classList.remove('d-none');
-        }
-      }
-    } catch (e2) {
-      console.error('Network error:', e2);
-      document.getElementById('reserveError')?.classList.remove('d-none');
-    } finally {
-      if (btn) { btn.disabled = false; btn.textContent = btnText; }
-    }
-  });
-})();
-
-// ===========================================================
 // Öffnungszeiten – Europe/Zurich, next open, kivételek, overrides
-// - opening-hours.json-ból tölt; ha nincs, fallback
-// - HTML: #badgeOpen, #badgeClosed, #statusText, #hoursTable tbody
-// ===========================================================
 (() => {
-  // FONTOS: a fájl nálad a gyökérben van, ne /js alatt:
-  const CONFIG_URL = 'js/opening-hours.json';
+  const CONFIG_URL = '/opening-hours.json'; // javítva
   const FALLBACK = {
     timezone: 'Europe/Zurich',
     locale: 'de-CH',
@@ -155,8 +46,7 @@
   const shortDE = (locale,tz,date)=> { const p=dfParts(locale,tz,date); return `${p.day}.${p.month}.`; };
 
   function normalizeRanges(ranges) {
-    const out=[];
-    (ranges||[]).forEach(([a,b])=>{
+    const out=[]; (ranges||[]).forEach(([a,b])=>{
       const s=toMin(a), e=toMin(b);
       if (s<e) out.push([s,e]);
       else if (s>e) out.push([s, 24*60]); // átcsorgó sáv: ma éjfélig
@@ -179,24 +69,20 @@
   function getEffectiveWindows(cfg, date){
     const todayOrig = getOriginalRangesForDateRaw(cfg, date);
     const today = normalizeRanges(todayOrig);
-
     const prev  = addDaysUTC(date.getUTCFullYear(), date.getUTCMonth()+1, date.getUTCDate(), -1);
     const prevOrig = getOriginalRangesForDateRaw(cfg, prev);
-    const prevSpillToday = [];
+    const spill = [];
     prevOrig.forEach(([a,b])=>{
       const s = toMin(a), e = toMin(b);
-      if (s > e && e > 0) prevSpillToday.push([0, e]); // ma 0:00–e
+      if (s > e && e > 0) spill.push([0, e]); // ma 0:00–e
     });
-
-    return [...prevSpillToday, ...today].sort((x,y)=>x[0]-y[0]);
+    return [...spill, ...today].sort((x,y)=>x[0]-y[0]);
   }
 
   function isOpenNow(cfg, now){
     const date = dateFromYMD(now.y, now.m, now.dd);
     const windows = getEffectiveWindows(cfg, date);
-    for (const [s,e] of windows) {
-      if (now.minutes >= s && now.minutes < e) return { open:true, closesAt:e };
-    }
+    for (const [s,e] of windows) if (now.minutes >= s && now.minutes < e) return { open:true, closesAt:e };
     return { open:false };
   }
 
@@ -235,7 +121,6 @@
     if (!tbody) return;
     tbody.innerHTML = '';
     const order = [1,2,3,4,5,6,0]; // Hétfő -> Vasárnap
-
     order.forEach(d => {
       const tr = document.createElement('tr');
       if (d === currentDow) tr.classList.add('active');
@@ -245,7 +130,6 @@
 
       const tdTime = document.createElement('td');
       tdTime.className = 'text-end';
-
       const orig = (cfg.week[String(d)] || []);
       tdTime.textContent = orig.length
         ? orig.map(([a,b]) => `${a} – ${b==='24:00'?'00:00':b}`).join(', ')
@@ -265,7 +149,6 @@
     const tick = () => {
       const now = nowInTZ(cfg.locale, cfg.timezone);
       renderTable(cfg, now.day);
-
       const closureEnd = findClosureUntil(cfg, now);
       const state = isOpenNow(cfg, now);
 
@@ -295,10 +178,8 @@
     };
 
     tick();
-    const intervalId = setInterval(tick, 15 * 1000);
+    setInterval(tick, 60000); // ritkábban elég
     document.addEventListener('visibilitychange', () => { if (!document.hidden) tick(); }, { passive:true });
-
-    // ha valaha szükséges: visszatéréshez clearInterval(intervalId)
   }
 
   (async function init(){
@@ -306,7 +187,6 @@
     try {
       const r = await fetch(CONFIG_URL, { cache: 'no-store', headers:{ 'Accept':'application/json' } });
       if (r.ok) {
-        // védett JSON parse
         const text = await r.text();
         const j = text ? JSON.parse(text) : {};
         cfg = {
@@ -317,57 +197,8 @@
           overrides: j.overrides || [],
           labels: Object.assign({}, FALLBACK.labels, j.labels || {})
         };
-      } else {
-        cfg = FALLBACK;
-      }
-    } catch(e){
-      console.warn('opening-hours.json nem elérhető, fallback indul.', e);
-      cfg = FALLBACK;
-    }
+      } else cfg = FALLBACK;
+    } catch(e){ console.warn('opening-hours.json nem elérhető, fallback indul.', e); cfg = FALLBACK; }
     applyUI(cfg);
   })();
-})();
-
-// ===========================================================
-// Scroll-reveal (Animate.css v3)
-// ===========================================================
-(() => {
-  const els = document.querySelectorAll('.reveal');
-  if(!('IntersectionObserver' in window) || !els.length) return;
-
-  const io = new IntersectionObserver((entries, obs)=>{
-    entries.forEach(e=>{
-      if(e.isIntersecting){
-        e.target.classList.add('animated','fadeInUp');
-        e.target.style.setProperty('--animate-duration', '700ms');
-        obs.unobserve(e.target);
-      }
-    });
-  }, { threshold: .15 });
-
-  els.forEach(el=>{
-    el.style.opacity = 0;
-    io.observe(el);
-  });
-})();
-
-// ===========================================================
-// Navbar auto-hide (finom)
-// ===========================================================
-(() => {
-  const nav = document.querySelector('.navbar.sticky-top');
-  if(!nav) return;
-  let lastY = window.scrollY, hidden = false;
-
-  window.addEventListener('scroll', ()=>{
-    const y = window.scrollY;
-    const down = y > lastY;
-    lastY = y;
-    if(down && y > 120 && !hidden){
-      hidden = true; nav.style.transition='transform .25s ease';
-      nav.style.transform='translateY(-100%)';
-    } else if(!down && hidden){
-      hidden = false; nav.style.transform='translateY(0)';
-    }
-  }, { passive:true });
 })();

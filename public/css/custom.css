@@ -1,0 +1,10 @@
+/* Kontakt blokk finomhangolás */
+#contact .contact-card { border-radius: 1rem; }
+#contact .map-shell { background:#0f1113; }
+#contact .map-placeholder { filter:none; transition:filter .4s ease; }
+#contact .map-placeholder.loaded { filter:blur(0); }
+#contact .map-load-btn { border-radius:999px; box-shadow:0 8px 20px rgba(0,0,0,.35); }
+#contact #map-frame iframe { border:0; width:100%; height:100%; border-radius:1rem; }
+/* tipó/spacing apróságok */
+#contact h1 { letter-spacing:.2px }
+#contact ul.fs-5 li + li { margin-top:.35rem }

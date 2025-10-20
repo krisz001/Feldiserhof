@@ -14,14 +14,16 @@
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-<!-- Saját JS -->
-<script defer src="/js/main.js"></script>
-<script defer src="/js/menu.js"></script>
-<script src="/js/gallery.js"></script>
-<script>
-  // Automatikus évszám a láblécben
-  document.addEventListener("DOMContentLoaded", () => {
-    const yearEl = document.getElementById("year");
-    if (yearEl) yearEl.textContent = new Date().getFullYear();
-  });
-</script>
+<!-- Saját JS modulok (szétszedve) -->
+<script src="/js/footer-year.js" defer></script>
+<script src="/js/menu-filter.js" defer></script>
+<script src="/js/flipbook-nav.js" defer></script>
+<script src="/js/reserve-form.js" defer></script>
+<script src="/js/opening-hours.js" defer></script>
+<script src="/js/effects.js" defer></script>
+<script src="/js/navbar-autohide.js" defer></script>
+<script src="/js/contact-map.js" defer></script>
+
+<!-- Meglévő fájlok (ha használod őket) -->
+<script src="/js/menu.js" defer></script>
+<script src="/js/gallery.js" defer></script>
