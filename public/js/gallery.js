@@ -3,7 +3,7 @@
   const root = document.getElementById("galleryGrid") || document.getElementById("galleryView");
   if (!root) return;
 
-  // ---- Lightbox (ha van Bootstrap modal) ----
+  // ---- Lightbox (Bootstrap modal, ha elérhető) ----
   const modalEl = document.getElementById("lightbox");
   const imgEl   = document.getElementById("lightboxImg");
   const capEl   = document.getElementById("lightboxCap");
@@ -28,10 +28,15 @@
   };
   const setAlbumHash = (name) => {
     const newHash = name ? `#album=${encodeURIComponent(name)}` : "";
-    if (newHash !== location.hash) history.pushState({}, "", newHash || location.pathname + location.search);
+    // ha üres, töröljük a hash-t
+    if (newHash) {
+      if (newHash !== location.hash) history.pushState({}, "", newHash);
+    } else {
+      history.pushState({}, "", location.pathname + location.search);
+    }
   };
 
-  // Üveges, pill vissza-gomb (ikon + sticky)
+  // Vissza gomb + cím (sticky sor)
   function backBar(label){
     const wrap = document.createElement("div");
     wrap.className = "gallery-subnav";
@@ -42,11 +47,10 @@
       </a>
       <h3 class="m-0 fw-bold">${label}</h3>
     `;
-    // gomb logika
     const goBack = (e) => {
       if (e) e.preventDefault();
-      setAlbumHash("");               // hash törlés
-      renderAlbums();                 // album lista
+      setAlbumHash("");     // hash törlés
+      renderAlbums();       // album lista
     };
     wrap.querySelector("#backToAlbums").addEventListener("click", goBack, { passive:true });
 
@@ -56,72 +60,79 @@
 
     return wrap;
   }
-function folderCard(name, items){
-  const card = document.createElement("button");
-  card.type = "button";
-  card.className = "folder-card text-start";
-  const cover = (items && items[0]?.src) || "/img/placeholder.png";
-  const label = titleMap[name] || name;
 
-  card.innerHTML = `
-    <div class="folder-cover">
-      <img alt="${label}" loading="lazy" decoding="async" style="opacity:0">
+  // ===== Albumkártya: kártya + felirat alatta (caption) =====
+  function folderItem(name, items){
+    const wrap  = document.createElement("div");
+    wrap.className = "folder-item";
+
+    const label = titleMap[name] || name;
+    const cover = (items && items[0]?.src) || "/img/placeholder.png";
+
+    // Kattintható kártya
+    const card = document.createElement("button");
+    card.type = "button";
+    card.className = "folder-card";
+    card.setAttribute("aria-label", label);
+    card.innerHTML = `
+      <div class="folder-cover">
+        <img alt="${label}" loading="lazy" decoding="async" style="opacity:0">
+        <div class="skel"></div>
+      </div>
+    `;
+
+    const img  = card.querySelector("img");
+    const skel = card.querySelector(".skel");
+    img.addEventListener("load",  () => { skel?.remove(); img.style.opacity = "1"; });
+    img.addEventListener("error", () => { skel?.remove(); img.style.opacity = "1"; });
+    img.src = cover;
+
+    // Felirat a kártya alatt
+    const cap = document.createElement("div");
+    cap.className = "folder-caption";
+    cap.textContent = label;
+
+    const open = () => renderPhotos(name);
+    card.addEventListener("click", open, { passive:true });
+    cap.addEventListener("click", open, { passive:true });
+
+    wrap.appendChild(card);
+    wrap.appendChild(cap);
+    return wrap;
+  }
+
+  // ===== Fotó kártya a rácsban (egységes méret, CSS szabályozza) =====
+  function photoCard(item){
+    const a = document.createElement("a");
+    a.href = item.src;
+    a.className = "gallery-card";
+    a.innerHTML = `
+      <img alt="${item.alt || ''}" loading="lazy" decoding="async" style="opacity:0">
       <div class="skel"></div>
-    </div>
-    <div class="folder-meta">
-      <div class="folder-name">${label}</div>
-      <div class="folder-count">${items?.length || 0} Fotos</div>
-    </div>
-  `;
+    `;
 
-  // kép betöltés + skeleton eltüntetés
-  const img = card.querySelector("img");
-  const skel = card.querySelector(".skel");
-  img.addEventListener("load", () => {
-    skel?.remove();
-    img.style.opacity = "1";
-  });
-  img.addEventListener("error", () => {
-    // hiba esetén is tüntessük el, hogy ne villogjon
-    skel?.remove();
-    img.style.opacity = "1";
-  });
-  img.src = cover;
+    const img  = a.querySelector("img");
+    const skel = a.querySelector(".skel");
+    img.addEventListener("load",  () => { skel?.remove(); img.style.opacity = "1"; });
+    img.addEventListener("error", () => { skel?.remove(); img.style.opacity = "1"; });
+    img.src = item.src;
 
-  card.addEventListener("click", () => renderPhotos(name), { passive:true });
-  return card;
-}
+    // Lightbox
+    a.addEventListener("click", (e) => {
+      if (!modal) return;
+      e.preventDefault();
+      if (imgEl) { imgEl.src = item.src; imgEl.alt = item.alt || ""; }
+      if (capEl) capEl.textContent = item.alt || "";
+      modal.show();
+    });
 
-function photoCard(item){
-  const a = document.createElement("a");
-  a.href = item.src;
-  a.className = "gallery-card";
-  a.innerHTML = `
-    <img alt="${item.alt || ''}" loading="lazy" decoding="async" style="opacity:0">
-    <div class="skel"></div>
-  `;
-
-  const img = a.querySelector("img");
-  const skel = a.querySelector(".skel");
-  img.addEventListener("load", () => { skel?.remove(); img.style.opacity = "1"; });
-  img.addEventListener("error", () => { skel?.remove(); img.style.opacity = "1"; });
-  img.src = item.src;
-
-  a.addEventListener("click", (e) => {
-    if (!modal) return;
-    e.preventDefault();
-    if (imgEl) { imgEl.src = item.src; imgEl.alt = item.alt || ""; }
-    if (capEl) capEl.textContent = item.alt || "";
-    modal.show();
-  });
-
-  return a;
-}
-
+    return a;
+  }
 
   // ================= renderers =================
   function renderAlbums(){
     currentAlbum = "";
+    setAlbumHash(""); // biztos ami biztos
     clear(root);
 
     const names = Object.keys(ALBUMS);
@@ -132,14 +143,16 @@ function photoCard(item){
 
     const grid = document.createElement("div");
     grid.className = "folder-grid";
-    names.forEach(name => grid.appendChild(folderCard(name, ALBUMS[name])));
+    names.forEach(name => grid.appendChild(folderItem(name, ALBUMS[name])));
     root.appendChild(grid);
   }
 
   function renderPhotos(albumName){
     currentAlbum = albumName;
+    setAlbumHash(albumName); // fontos: hash frissítés belépéskor
     clear(root);
 
+    // Vissza + cím
     root.appendChild(backBar(titleMap[albumName] || albumName));
 
     const items = ALBUMS[albumName] || [];
@@ -151,6 +164,7 @@ function photoCard(item){
       return;
     }
 
+    // Egységes fotórács (NINCS hero)
     const grid = document.createElement("div");
     grid.className = "gallery-grid";
     items.forEach(it => grid.appendChild(photoCard(it)));
@@ -165,7 +179,6 @@ function photoCard(item){
       const data = await r.json();
       ALBUMS = data.albums || {};
 
-      // Hash alapján nyitunk albumot, ha van (#album=hotel)
       const initial = getAlbumFromHash();
       if (initial && ALBUMS[initial]) {
         renderPhotos(initial);
@@ -178,7 +191,7 @@ function photoCard(item){
     }
   }
 
-  // Hash változás figyelése (vissza/előre gomb)
+  // Hash változás (vissza/előre)
   window.addEventListener("hashchange", () => {
     const name = getAlbumFromHash();
     if (!name) return renderAlbums();

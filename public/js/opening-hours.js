@@ -145,15 +145,19 @@
     });
   }
 
-  function renderList(cfg){
+  // **MÓDOSÍTOTT**: kapja meg a mai nap indexét, és tegye rá az .is-today osztályt
+  function renderList(cfg, currentDow){
     const list = document.getElementById('hoursList');
     if (!list) return;
     const order = [1,2,3,4,5,6,0]; // Hétfő -> Vasárnap
+
     list.innerHTML = order.map(d => {
       const slots = (cfg.week[String(d)] || [])
         .map(([a,b]) => `${a} – ${b==='24:00'?'00:00':b}`).join(', ') || 'geschlossen';
-      return `<li class="d-flex justify-content-between border-bottom border-secondary py-1">
-                <span>${cfg.labels.days[d]}</span><span>${slots}</span>
+      const cls = d === currentDow ? 'is-today' : '';
+      return `<li class="${cls}">
+                <span>${cfg.labels.days[d]}</span>
+                <span>${slots}</span>
               </li>`;
     }).join('');
   }
@@ -171,11 +175,12 @@
       const now = nowInTZ(cfg.locale, cfg.timezone);
 
       // Lista/táblázat frissítése (ha vannak)
-      renderList(cfg);
+      renderList(cfg, now.day);
       renderTable(cfg, now.day);
 
       const closureEnd = findClosureUntil(cfg, now);
       const state = isOpenNow(cfg, now);
+      const next  = closureEnd ? null : findNextOpen(cfg, now);
 
       if (state.open) {
         const closeAt = state.closesAt === 24*60 ? '00:00' : toHHMM(state.closesAt);
@@ -195,7 +200,6 @@
         if (closureEnd) {
           msg = cfg.labels.closedUntil.replace('{date}', shortDE(cfg.locale, cfg.timezone, closureEnd));
         } else {
-          const next = findNextOpen(cfg, now);
           msg = next
             ? cfg.labels.closedOpens.replace('{dayText}', next.dayText).replace('{time}', next.time)
             : cfg.labels.closedBadge;
