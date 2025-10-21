@@ -3,10 +3,8 @@
 'use strict';
 
 (() => {
-  // --- Config ---
-  var FORMSPREE_ENDPOINT = 'https://formspree.io/f/xblzjyqr'; // <- ha más, írd át
+  var FORMSPREE_ENDPOINT = 'https://formspree.io/f/xblzjyqr';
 
-  // --- DOM refs ---
   var form       = document.getElementById('reservationForm');
   if (!form) return;
 
@@ -16,79 +14,18 @@
   var dateInput  = document.getElementById('resDate');
   var timeInput  = document.getElementById('resTime');
 
-  // --- Min dátum: ma ---
+  // --- Helyi idő szerinti min-dátum (YYYY-MM-DD) ---
+  function formatLocalDate(d){
+    var y = d.getFullYear();
+    var m = String(d.getMonth() + 1).padStart(2, '0');
+    var dd = String(d.getDate()).padStart(2, '0');
+    return y + '-' + m + '-' + dd;
+  }
   if (dateInput) {
     var today = new Date();
-    today.setHours(0, 0, 0, 0);
-    dateInput.min = today.toISOString().slice(0, 10);
+    today.setHours(0,0,0,0);
+    dateInput.min = formatLocalDate(today);
   }
-
-  // --- JAVÍTOTT Floating label sync (minden mezőre) ---
-  (function syncFloating() {
-    function updateWrap(el) {
-      var wrap = el && el.closest ? el.closest('.form-floating') : null;
-      if (!wrap) return;
-      
-      // Minden mezőtípus kezelése
-      if (el.type === 'date' || el.type === 'time') {
-        // Dátum/idő mezők
-        if (el.value) {
-          wrap.classList.add('has-value');
-        } else {
-          wrap.classList.remove('has-value');
-        }
-      } else if (el.type === 'email' || el.type === 'text' || el.type === 'tel') {
-        // Szöveges mezők
-        if (el.value && String(el.value).trim() !== '') {
-          wrap.classList.add('has-value');
-        } else {
-          wrap.classList.remove('has-value');
-        }
-      } else if (el.tagName === 'SELECT') {
-        // Select mezők
-        if (el.value && el.value !== '') {
-          wrap.classList.add('has-value');
-        } else {
-          wrap.classList.remove('has-value');
-        }
-      } else if (el.tagName === 'TEXTAREA') {
-        // Textarea
-        if (el.value && String(el.value).trim() !== '') {
-          wrap.classList.add('has-value');
-        } else {
-          wrap.classList.remove('has-value');
-        }
-      }
-    }
-    
-    // Összes floating mező kezelése
-    var floatingInputs = form.querySelectorAll('.form-floating input, .form-floating select, .form-floating textarea');
-    floatingInputs.forEach(function (el) {
-      if (!el) return;
-      
-      // Inicializálás
-      updateWrap(el);
-      
-      // Eseményfigyelők
-      el.addEventListener('change', function(){ updateWrap(el); });
-      el.addEventListener('input',  function(){ updateWrap(el); });
-      el.addEventListener('blur',   function(){ updateWrap(el); });
-      
-      // Autofill kezelése
-      el.addEventListener('animationstart', function(e) {
-        if (e.animationName === 'autoFillStart') {
-          setTimeout(function() { updateWrap(el); }, 100);
-        }
-      });
-    });
-    
-    // Oldal betöltése után ellenőrzés (autofill miatt)
-    setTimeout(function() {
-      floatingInputs.forEach(function(el) {
-        updateWrap(el);
-      });
-    }, 500);
-  })();
 
   // --- Gäste számláló ---
   var gHidden = document.getElementById('guests');
@@ -98,7 +35,6 @@
 
   function clampGuests(v){ return Math.max(1, Math.min(12, v)); }
   function toInt(v){ var n = parseInt(v, 10); return isNaN(n) ? 0 : n; }
-
   function setGuests(v){
     var x = clampGuests(toInt(v) || 1);
     if (gHidden) gHidden.value = String(x);
@@ -106,125 +42,107 @@
     if (gDec)    gDec.disabled = x <= 1;
     if (gInc)    gInc.disabled = x >= 12;
   }
-
-  // init + gombok
   setGuests((gHidden && gHidden.value) ? gHidden.value : '2');
-  if (gDec) gDec.addEventListener('click', function(){ setGuests(toInt(gHidden.value) - 1); });
-  if (gInc) gInc.addEventListener('click', function(){ setGuests(toInt(gHidden.value) + 1); });
+  if (gDec) gDec.addEventListener('click', () => setGuests(toInt(gHidden.value) - 1));
+  if (gInc) gInc.addEventListener('click', () => setGuests(toInt(gHidden.value) + 1));
 
-  // --- Helper: alert megjelenítés ---
+  // --- Floating label sync (wrap + input .has-value) ---
+  (function syncFloating() {
+    var inputs = form.querySelectorAll('.form-floating input, .form-floating select, .form-floating textarea');
+
+    function apply(el){
+      var has = !!(el && String(el.value).trim());
+      var wrap = el.closest('.form-floating');
+      if (wrap) wrap.classList.toggle('has-value', has);
+      el.classList.toggle('has-value', has);
+    }
+    function wire(el){
+      ['input','change','blur'].forEach(ev => el.addEventListener(ev, () => apply(el)));
+      apply(el);                    // azonnal
+      setTimeout(() => apply(el), 100);  // autofill késleltetve
+      setTimeout(() => apply(el), 500);
+    }
+    inputs.forEach(wire);
+
+    // Visszalépés BFCache-ből
+    window.addEventListener('pageshow', e => { if (e.persisted) inputs.forEach(apply); });
+
+    // Reset után tisztítás
+    form.addEventListener('reset', () => setTimeout(() => {
+      inputs.forEach(el => {
+        var wrap = el.closest('.form-floating');
+        if (wrap) wrap.classList.remove('has-value');
+        el.classList.remove('has-value');
+      });
+      setGuests(2);
+    }, 0));
+  })();
+
   function showAlert(type, msg) {
     if (!alertBox) return;
     alertBox.className = 'alert alert-' + type;
     alertBox.setAttribute('role','alert');
     alertBox.textContent = msg;
     alertBox.classList.remove('d-none');
-    try { alertBox.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (e) {}
+    try { alertBox.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch(e){}
   }
 
-  // --- Form reset handler (floating label újraszinkronizáláshoz) ---
-  function handleFormReset() {
-    // Várakozás a reset befejezésére
-    setTimeout(function() {
-      var floatingInputs = form.querySelectorAll('.form-floating input, .form-floating select, .form-floating textarea');
-      floatingInputs.forEach(function(el) {
-        var wrap = el.closest('.form-floating');
-        if (wrap) {
-          wrap.classList.remove('has-value');
-        }
-      });
-      
-      // Gäste számláló reset
-      setGuests(2);
-    }, 10);
-  }
-
-  // Form reset esemény figyelése
-  form.addEventListener('reset', handleFormReset);
-
-  // --- Submit handler ---
+  // --- Submit ---
   form.addEventListener('submit', function (e) {
     e.preventDefault();
 
-    // Honeypot (spam)
+    // honeypot
     var honey = form.querySelector('input[name="company"]');
     if (honey && honey.value) return;
 
-    // Bootstrap kliensvalidáció
     form.classList.add('was-validated');
     if (!form.checkValidity()) return;
 
-    var originalText = submitBtn ? submitBtn.textContent : null;
+    var btnText = submitBtn && submitBtn.querySelector('.btn-text');
+    var btnLoad = submitBtn && submitBtn.querySelector('.btn-loading');
+    var origTxt = submitBtn ? submitBtn.textContent : null;
+
     if (submitBtn) {
       submitBtn.disabled = true;
       submitBtn.setAttribute('aria-busy','true');
-      submitBtn.textContent = 'Senden…';
+      if (btnText && btnLoad) { btnText.classList.add('d-none'); btnLoad.classList.remove('d-none'); }
+      else submitBtn.textContent = 'Senden…';
     }
     if (alertBox) alertBox.classList.add('d-none');
 
-    // FormData (ne állíts kézzel Content-Type-ot!)
     var fd = new FormData(form);
     if (emailInput && emailInput.value) fd.set('_replyto', emailInput.value);
     fd.set('_subject', 'Neue Reservierungsanfrage – Feldiserhof');
 
-    fetch(FORMSPREE_ENDPOINT, {
-      method: 'POST',
-      body: fd,
-      headers: { Accept: 'application/json' }
-    })
-    .then(function (res) {
-      return res.text().then(function (raw) {
-        var payload = null;
-        try { payload = JSON.parse(raw); } catch (e) {}
+    fetch(FORMSPREE_ENDPOINT, { method:'POST', body:fd, headers:{ Accept:'application/json' } })
+      .then(res => res.text().then(raw => {
+        let payload = null; try { payload = JSON.parse(raw); } catch(e){}
         if (res.ok) {
-          showAlert('success', 'Vielen Dank! Wir haben Ihre Anfrage erhalten.');
+          showAlert('success','Vielen Dank! Wir haben Ihre Anfrage erhalten.');
           form.reset();
           form.classList.remove('was-validated');
-          
-          // Floating label újraszinkronizálás reset után
-          setTimeout(function() {
-            var floatingInputs = form.querySelectorAll('.form-floating input, .form-floating select, .form-floating textarea');
-            floatingInputs.forEach(function(el) {
-              var wrap = el.closest('.form-floating');
-              if (wrap) wrap.classList.remove('has-value');
-            });
-          }, 50);
-          
+          setGuests(2);
         } else {
-          var msg = 'Leider ist ein Fehler aufgetreten. Bitte versuchen Sie es später erneut.';
+          let msg = 'Leider ist ein Fehler aufgetreten. Bitte versuchen Sie es später erneut.';
           if (payload && Array.isArray(payload.errors) && payload.errors.length) {
-            msg = payload.errors.map(function (er) { return er.message; }).join(' | ');
+            msg = payload.errors.map(er => er.message).join(' | ');
           } else if (/Form not found/i.test(raw)) {
             msg = 'Formular-Endpunkt nicht gefunden. Bitte prüfen Sie die Formspree-Einstellungen.';
           }
           showAlert('danger', msg);
         }
-      });
-    })
-    .catch(function (err) {
-      console.error('Network error:', err);
-      showAlert('danger', 'Netzwerkfehler. Bitte versuchen Sie es später erneut.');
-    })
-    .finally(function () {
-      if (submitBtn) {
-        submitBtn.disabled = false;
-        submitBtn.removeAttribute('aria-busy');
-        submitBtn.textContent = originalText;
-      }
-    });
-  });
-
-  // --- Oldal betöltése utáni inicializálás ---
-  document.addEventListener('DOMContentLoaded', function() {
-    // Floating label állapot ellenőrzése oldal betöltésekor
-    setTimeout(function() {
-      var floatingInputs = form.querySelectorAll('.form-floating input, .form-floating select, .form-floating textarea');
-      floatingInputs.forEach(function(el) {
-        var wrap = el.closest('.form-floating');
-        if (wrap && el.value) {
-          wrap.classList.add('has-value');
+      }))
+      .catch(err => {
+        console.error('Network error:', err);
+        showAlert('danger','Netzwerkfehler. Bitte versuchen Sie es später erneut.');
+      })
+      .finally(() => {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.removeAttribute('aria-busy');
+          if (btnText && btnLoad) { btnText.classList.remove('d-none'); btnLoad.classList.add('d-none'); }
+          else submitBtn.textContent = origTxt || 'Anfrage senden';
         }
       });
-    }, 100);
   });
 })();

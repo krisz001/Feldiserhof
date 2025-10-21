@@ -9,133 +9,136 @@
     </div>
 
     <div class="row justify-content-center">
-      <div class="col-lg-8">
+      <div class="col-lg-10 col-xl-8">
+        
+        <!-- Visszajelzés doboz -->
+        <div id="resAlert" class="alert d-none mb-4" role="alert" aria-live="polite"></div>
 
-        <!-- visszajelzés doboz -->
-        <div id="resAlert" class="alert d-none" role="alert" aria-live="polite"></div>
+        <!-- Modern, egységes űrlap kártya -->
+        <div class="reserve-card">
+          <form id="reservationForm" class="needs-validation" novalidate>
+            <!-- Honeypot (spam ellen) -->
+            <input type="text" name="company" class="d-none" tabindex="-1" autocomplete="off">
 
-        <!-- Airbnb-warm: tiszta fehér kártya -->
-        <form id="reservationForm" class="reserve-card needs-validation" novalidate>
-          <!-- honeypot (spam ellen) -->
-          <input type="text" name="company" class="d-none" tabindex="-1" autocomplete="off">
-
-          <div class="row g-4">
-            <!-- Név -->
-            <div class="col-md-6">
-              <div class="form-floating">
-                <input
-                  type="text"
-                  id="resName"
-                  name="name"
-                  class="form-control"
-                  placeholder="Ihr Name"
-                  autocomplete="name"
-                  required
-                >
-                <label for="resName">Ihr Name</label>
-                <div class="invalid-feedback">Bitte geben Sie Ihren Namen ein.</div>
-              </div>
-            </div>
-
-            <!-- E-mail -->
-            <div class="col-md-6">
-              <div class="form-floating">
-                <input
-                  type="email"
-                  id="resEmail"
-                  name="email"
-                  class="form-control"
-                  placeholder="E-Mail"
-                  autocomplete="email"
-                  required
-                >
-                <label for="resEmail">E-Mail</label>
-                <div class="invalid-feedback">Bitte gültige E-Mail angeben.</div>
-              </div>
-            </div>
-
-            <!-- Dátum -->
-            <div class="col-md-4">
-              <div class="form-floating">
-                <input
-                  type="date"
-                  id="resDate"
-                  name="date"
-                  class="form-control"
-                  placeholder="Datum"
-                  required
-                >
-                <label for="resDate">Datum</label>
-                <div class="invalid-feedback">Bitte ein Datum wählen.</div>
-              </div>
-            </div>
-
-            <!-- Idő -->
-            <div class="col-md-4">
-              <div class="form-floating">
-                <input
-                  type="time"
-                  id="resTime"
-                  name="time"
-                  class="form-control"
-                  placeholder="Uhrzeit"
-                  required
-                >
-                <label for="resTime">Uhrzeit</label>
-                <div class="invalid-feedback">Bitte eine Uhrzeit wählen.</div>
-              </div>
-            </div>
-
-            <!-- Gäste számláló -->
-            <div class="col-md-4">
-              <div class="guests-field" role="group" aria-label="Gäste">
-                <span class="label">Gäste</span>
-                <div class="ctrl">
-                  <button type="button" class="btn-ghost" id="gDec" aria-label="Weniger">−</button>
-                  <span class="count" id="gNum" aria-live="polite">2</span>
-                  <button type="button" class="btn-ghost" id="gInc" aria-label="Mehr">+</button>
+            <div class="row g-3">
+              <!-- Első sor: Név + Email -->
+              <div class="col-md-6">
+                <div class="form-floating">
+                  <input
+                    type="text"
+                    id="resName"
+                    name="name"
+                    class="form-control"
+                    placeholder="Ihr Name"
+                    autocomplete="name"
+                    required
+                  >
+                  <label for="resName" class="form-label">Ihr Name</label>
+                  <div class="invalid-feedback">Bitte geben Sie Ihren Namen ein.</div>
                 </div>
-                <input type="hidden" name="guests" id="guests" value="2">
+              </div>
+
+              <div class="col-md-6">
+                <div class="form-floating">
+                  <input
+                    type="email"
+                    id="resEmail"
+                    name="email"
+                    class="form-control"
+                    placeholder="E-Mail"
+                    autocomplete="email"
+                    required
+                  >
+                  <label for="resEmail" class="form-label">E-Mail</label>
+                  <div class="invalid-feedback">Bitte gültige E-Mail angeben.</div>
+                </div>
+              </div>
+
+              <!-- Második sor: Dátum, Idő, Vendégek -->
+              <div class="col-md-4">
+                <div class="form-floating">
+                  <input
+                    type="date"
+                    id="resDate"
+                    name="date"
+                    class="form-control"
+                    placeholder="Datum"
+                    required
+                  >
+                  <label for="resDate" class="form-label">Datum</label>
+                  <div class="invalid-feedback">Bitte ein Datum wählen.</div>
+                </div>
+              </div>
+
+              <div class="col-md-4">
+                <div class="form-floating">
+                  <input
+                    type="time"
+                    id="resTime"
+                    name="time"
+                    class="form-control"
+                    placeholder="Uhrzeit"
+                    required
+                  >
+                  <label for="resTime" class="form-label">Uhrzeit</label>
+                  <div class="invalid-feedback">Bitte eine Uhrzeit wählen.</div>
+                </div>
+              </div>
+
+              <div class="col-md-4">
+                <div class="guests-field" role="group" aria-label="Gäste">
+                  <span class="label">Gäste</span>
+                  <div class="ctrl">
+                    <button type="button" class="btn-ghost" id="gDec" aria-label="Weniger">−</button>
+                    <span class="count" id="gNum" aria-live="polite">2</span>
+                    <button type="button" class="btn-ghost" id="gInc" aria-label="Mehr">+</button>
+                  </div>
+                  <input type="hidden" name="guests" id="guests" value="2">
+                </div>
+              </div>
+
+              <!-- Harmadik sor: Telefon -->
+              <div class="col-12">
+                <div class="form-floating">
+                  <input
+                    type="tel"
+                    id="resPhone"
+                    name="phone"
+                    class="form-control"
+                    placeholder="Telefon (optional)"
+                    autocomplete="tel"
+                  >
+                  <label for="resPhone" class="form-label">Telefon (optional)</label>
+                </div>
+              </div>
+
+              <!-- Negyedik sor: Üzenet -->
+              <div class="col-12">
+                <div class="form-floating">
+                  <textarea
+                    id="resMsg"
+                    name="message"
+                    class="form-control"
+                    placeholder="Ihre Nachricht oder Anfrage…"
+                    style="height: 120px"
+                  ></textarea>
+                  <label for="resMsg" class="form-label">Ihre Nachricht oder Anfrage …</label>
+                </div>
+              </div>
+
+              <!-- CTA -->
+              <div class="col-12 text-center pt-2">
+                <button id="resSubmit" class="btn btn-primary-air btn-lg" type="submit">
+                  <span class="btn-text">Anfrage senden</span>
+                  <span class="btn-loading d-none">
+                    <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                    Senden…
+                  </span>
+                </button>
               </div>
             </div>
-
-            <!-- Telefon (opcionális) -->
-            <div class="col-md-6">
-              <div class="form-floating">
-                <input
-                  type="tel"
-                  id="resPhone"
-                  name="phone"
-                  class="form-control"
-                  placeholder="Telefon"
-                  autocomplete="tel"
-                >
-                <label for="resPhone">Telefon (optional)</label>
-              </div>
-            </div>
-
-            <!-- Üzenet -->
-            <div class="col-12">
-              <div class="form-floating">
-                <textarea
-                  id="resMsg"
-                  name="message"
-                  class="form-control"
-                  placeholder="Ihre Nachricht oder Anfrage…"
-                  style="height: 132px"
-                ></textarea>
-                <label for="resMsg">Ihre Nachricht oder Anfrage …</label>
-              </div>
-            </div>
-
-            <!-- CTA -->
-            <div class="col-12 text-center">
-              <button id="resSubmit" class="btn btn-primary-air" type="submit">
-                Anfrage senden
-              </button>
-            </div>
-          </div>
-        </form>
+          </form>
+        </div>
 
       </div>
     </div>

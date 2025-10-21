@@ -198,7 +198,106 @@
 #reservation #resAlert.alert-danger{
   background: #fff1f1; border-color: #f1c0c0; color: #7a1e1e;
 }
+/* =======================================================
+   Továbbfejlesztett RESERVIEREN design
+   ======================================================= */
 
+/* Egységesebb form kártya */
+#reservation .reserve-card {
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 2rem;
+  border-radius: 20px;
+  background: #fff;
+  border: 1px solid rgba(13,22,33,.08);
+  box-shadow: 0 8px 40px rgba(13,22,33,.12);
+  transition: all 0.3s ease;
+}
+
+#reservation .reserve-card:hover {
+  box-shadow: 0 12px 50px rgba(13,22,33,.15);
+}
+
+/* Jobb rács elrendezés */
+#reservation .reserve-card .row {
+  --bs-gutter-x: 1.5rem;
+  --bs-gutter-y: 1rem;
+}
+
+/* Egységes mező magasságok */
+#reservation .form-floating > .form-control,
+#reservation .form-floating > .form-select {
+  min-height: 58px;
+  padding: 1rem 1rem 0.5rem;
+  border-radius: 12px;
+  border: 2px solid rgba(13,22,33,.1);
+  transition: all 0.2s ease;
+}
+
+#reservation .form-floating > .form-control:focus,
+#reservation .form-floating > .form-select:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(194,138,55,.15);
+}
+
+/* Label stílusok */
+#reservation .form-label {
+  font-weight: 500;
+  color: #4a5568;
+}
+
+/* Gäste számláló finomítás */
+.guests-field {
+  height: 58px;
+  padding: 12px 16px;
+  border: 2px solid rgba(13,22,33,.1);
+  border-radius: 12px;
+  background: #fff;
+  transition: all 0.2s ease;
+}
+
+.guests-field:focus-within {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(194,138,55,.15);
+}
+
+.guests-field .label {
+  color: #4a5568;
+  font-weight: 500;
+}
+
+/* Gomb finomítások */
+#reservation .btn-primary-air {
+  padding: 1rem 3rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+/* Reszponzív továbbfejlesztés */
+@media (max-width: 768px) {
+  #reservation .reserve-card {
+    padding: 1.5rem;
+    border-radius: 16px;
+  }
+  
+  #reservation .reserve-card .row {
+    --bs-gutter-y: 0.75rem;
+  }
+  
+  #reservation .btn-primary-air {
+    width: 100%;
+    padding: 0.875rem 2rem;
+  }
+}
+
+@media (max-width: 576px) {
+  #reservation .reserve-card {
+    padding: 1.25rem;
+    border-radius: 12px;
+  }
+}
 /* 7) Reszponzív finomítások */
 @media (max-width: 992px){
   #reservation{ padding-top: 56px; padding-bottom: 64px; }
