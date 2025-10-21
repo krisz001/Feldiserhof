@@ -1,38 +1,142 @@
-<section id="reservation" class="container-xxl py-5 bg-light">
+<section id="reservation" class="container-xxl py-5">
   <div class="container">
     <div class="text-center mb-5">
-      <h5 class="section-title ff-secondary text-primary fw-normal">Reservieren</h5>
-      <h1 class="mb-4">Tisch oder Zimmer reservieren</h1>
-      <p>
-        Füllen Sie das Formular aus, um eine Reservierungsanfrage zu senden.
-        Wir melden uns so schnell wie möglich bei Ihnen.
+      <h5 class="title-kicker ff-secondary fw-normal">Reservieren</h5>
+      <h1 class="mb-3">Tisch oder Zimmer reservieren</h1>
+      <p class="text-muted mb-0">
+        Wann möchten Sie uns besuchen? Füllen Sie das kurze Formular aus – wir melden uns schnell.
       </p>
     </div>
 
     <div class="row justify-content-center">
       <div class="col-lg-8">
-        <form class="p-4 bg-white shadow rounded" id="reservationForm">
-          <div class="row g-3">
+
+        <!-- visszajelzés doboz -->
+        <div id="resAlert" class="alert d-none" role="alert" aria-live="polite"></div>
+
+        <!-- Airbnb-warm: tiszta fehér kártya -->
+        <form id="reservationForm" class="reserve-card needs-validation" novalidate>
+          <!-- honeypot (spam ellen) -->
+          <input type="text" name="company" class="d-none" tabindex="-1" autocomplete="off">
+
+          <div class="row g-4">
+            <!-- Név -->
             <div class="col-md-6">
-              <input type="text" name="name" class="form-control" placeholder="Ihr Name" required>
+              <div class="form-floating">
+                <input
+                  type="text"
+                  id="resName"
+                  name="name"
+                  class="form-control"
+                  placeholder="Ihr Name"
+                  autocomplete="name"
+                  required
+                >
+                <label for="resName">Ihr Name</label>
+                <div class="invalid-feedback">Bitte geben Sie Ihren Namen ein.</div>
+              </div>
             </div>
+
+            <!-- E-mail -->
             <div class="col-md-6">
-              <input type="email" name="email" class="form-control" placeholder="E-Mail-Adresse" required>
+              <div class="form-floating">
+                <input
+                  type="email"
+                  id="resEmail"
+                  name="email"
+                  class="form-control"
+                  placeholder="E-Mail"
+                  autocomplete="email"
+                  required
+                >
+                <label for="resEmail">E-Mail</label>
+                <div class="invalid-feedback">Bitte gültige E-Mail angeben.</div>
+              </div>
             </div>
+
+            <!-- Dátum (floating label fix: placeholder=" ") -->
+            <div class="col-md-4">
+              <div class="form-floating">
+                <input
+                  type="date"
+                  id="resDate"
+                  name="date"
+                  class="form-control"
+                  placeholder=" "
+                  required
+                >
+                <label for="resDate">Datum</label>
+                <div class="invalid-feedback">Bitte ein Datum wählen.</div>
+              </div>
+            </div>
+
+            <!-- Idő (floating label fix: placeholder=" ") -->
+            <div class="col-md-4">
+              <div class="form-floating">
+                <input
+                  type="time"
+                  id="resTime"
+                  name="time"
+                  class="form-control"
+                  placeholder=" "
+                  required
+                >
+                <label for="resTime">Uhrzeit</label>
+                <div class="invalid-feedback">Bitte eine Uhrzeit wählen.</div>
+              </div>
+            </div>
+
+            <!-- Gäste számláló -->
+            <div class="col-md-4">
+              <div class="guests-field" role="group" aria-label="Gäste">
+                <span class="label">Gäste</span>
+                <div class="ctrl">
+                  <button type="button" class="btn-ghost" id="gDec" aria-label="Weniger">−</button>
+                  <span class="count" id="gNum" aria-live="polite">2</span>
+                  <button type="button" class="btn-ghost" id="gInc" aria-label="Mehr">+</button>
+                </div>
+                <input type="hidden" name="guests" id="guests" value="2">
+              </div>
+            </div>
+
+            <!-- Telefon (opcionális) -->
             <div class="col-md-6">
-              <input type="date" name="date" class="form-control" required>
+              <div class="form-floating">
+                <input
+                  type="tel"
+                  id="resPhone"
+                  name="phone"
+                  class="form-control"
+                  placeholder="Telefon"
+                  autocomplete="tel"
+                >
+                <label for="resPhone">Telefon (optional)</label>
+              </div>
             </div>
-            <div class="col-md-6">
-              <input type="time" name="time" class="form-control" required>
-            </div>
+
+            <!-- Üzenet -->
             <div class="col-12">
-              <textarea name="message" class="form-control" rows="4" placeholder="Ihre Nachricht oder Anfrage..."></textarea>
+              <div class="form-floating">
+                <textarea
+                  id="resMsg"
+                  name="message"
+                  class="form-control"
+                  placeholder="Ihre Nachricht oder Anfrage…"
+                  style="height: 132px"
+                ></textarea>
+                <label for="resMsg">Ihre Nachricht oder Anfrage …</label>
+              </div>
             </div>
+
+            <!-- CTA -->
             <div class="col-12 text-center">
-              <button class="btn btn-warning py-3 px-5" type="submit">Anfrage senden</button>
+              <button id="resSubmit" class="btn btn-primary-air" type="submit">
+                Anfrage senden
+              </button>
             </div>
           </div>
         </form>
+
       </div>
     </div>
   </div>

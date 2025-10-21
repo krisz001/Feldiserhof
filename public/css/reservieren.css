@@ -1,0 +1,197 @@
+/* =======================================================
+   RESERVIEREN – Airbnb warm, clean & responsive (final, cleaned)
+   ======================================================= */
+
+/* 0) Full-bleed krém sáv + anchor offset */
+#reservation{
+  --gold:  #c28a37;
+  --text:  #0f1418;
+  --muted: #6b7785;
+
+  background: linear-gradient(180deg,#fdeecf 0%, #fff4df 100%);
+  padding-top: 64px;
+  padding-bottom: 80px;
+  position: relative;
+  scroll-margin-top: calc(var(--nav-height,80px) + 16px);
+}
+
+/* ne legyen másodlagos panel a belső .container-en */
+#reservation > .container{
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+/* 1) Fejléc */
+#reservation .title-kicker{ color: var(--gold); font-weight: 700; letter-spacing: .06em; }
+#reservation h1{ color: var(--text); font-weight: 800; letter-spacing: .005em; }
+#reservation .text-center p{ color: var(--muted); }
+
+/* 2) Form-kártya */
+#reservation .reserve-card{
+  width: 100%;
+  max-width: 880px;
+  margin: 24px auto 0;
+  padding: 24px;
+  border-radius: 16px;
+  background: #fff;
+  border: 1px solid rgba(13,22,33,.06);
+  box-shadow: 0 10px 24px rgba(13,22,33,.08);
+}
+
+/* 2/a – kényelmesebb rács */
+#reservation .reserve-card .row{
+  --bs-gutter-x: 1.25rem;
+  --bs-gutter-y: 1rem;
+}
+
+/* 3) Mezők – nagy, kerek, Airbnb-hangulat */
+#reservation .form-control,
+#reservation .form-select,
+#reservation textarea{
+  border-radius: 14px;
+  border: 1px solid rgba(13,22,33,.14);
+  background: #fff;
+}
+
+/* Floating label kompatibilitás + egységes magasság */
+#reservation .form-floating > .form-control,
+#reservation .form-floating > .form-select{
+  min-height: 56px;
+  padding: .9rem 1rem .5rem;
+  line-height: 1.25;
+}
+#reservation .form-floating > label{
+  color: #8894a2;
+  transition: transform .15s ease, opacity .15s ease;
+}
+
+/* Safari/WebKit: date/time is legyen 56px és legyen hely a labelnek.
+   (HTML-ben a placeholder legyen egy szóköz: placeholder=" ") */
+#reservation input[type="date"],
+#reservation input[type="time"]{
+  height: 56px;
+  padding-top: .9rem;
+  padding-bottom: .5rem;
+}
+
+/* textarea kényelmes magasság */
+#reservation textarea{ min-height: 132px; }
+
+/* Autofill szín helyrerakás */
+#reservation input:-webkit-autofill{
+  box-shadow: 0 0 0 30px #fff inset !important;
+  -webkit-text-fill-color: var(--text) !important;
+}
+
+/* Fókusz: arany gyűrű */
+#reservation .form-control:focus,
+#reservation .form-select:focus,
+#reservation textarea:focus{
+  border-color: var(--gold);
+  box-shadow: 0 0 0 .2rem rgba(194,138,55,.20);
+  outline: none;
+}
+
+/* Floating label kicsinyítése:
+   – ha fókuszban van,
+   – ha NEM üres a mező (szövegesek: :not(:placeholder-shown)),
+   – ha JS ráteszi a .has-value-t (date/time). */
+#reservation .form-floating > .form-control:focus + label,
+#reservation .form-floating > .form-control:not(:placeholder-shown) + label,
+#reservation .form-floating.has-value > label{
+  transform: scale(.85) translateY(-.55rem) translateX(.15rem);
+  opacity: .65;
+  pointer-events: none;
+}
+
+/* 4) CTA – arany pill gomb */
+#reservation .btn-primary-air{
+  background: var(--gold);
+  border-color: var(--gold);
+  color: #1f2328;
+  border-radius: 999px;
+  font-weight: 700;
+  padding: .9rem 2.2rem;
+  box-shadow: 0 10px 20px rgba(194,138,55,.22);
+}
+#reservation .btn-primary-air:hover{
+  background: #ad7a2f;
+  border-color: #ad7a2f;
+  box-shadow: 0 14px 28px rgba(173,122,47,.26);
+}
+#reservation .btn-primary-air:disabled{
+  opacity: .65;
+  box-shadow: none;
+}
+
+/* 5) Gäste számláló – kontrasztos, jól látható */
+.guests-field{
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; height: 56px;
+  padding: 10px 12px;
+  border: 1px solid rgba(13,22,33,.14);
+  border-radius: 14px; background: #fff;
+}
+.guests-field .label{ color:#3b2f17; font-weight:600; }
+.guests-field .ctrl{ display:flex; align-items:center; gap:10px; }
+
+.guests-field .count{
+  min-width: 48px; height: 36px;
+  display:inline-flex; align-items:center; justify-content:center;
+  padding: 0 .6rem;
+  border-radius: 999px;
+  font-weight: 800;
+  color:#0f1418;
+  background: #f2f4f7;
+  border: 1px solid rgba(13,22,33,.12);
+}
+.guests-field .btn-ghost{
+  width: 36px; height: 36px;
+  display:inline-flex; align-items:center; justify-content:center;
+  border-radius: 50%;
+  border: 1px solid rgba(13,22,33,.18);
+  background: #fff; font-weight: 800; line-height: 1;
+  box-shadow: 0 1px 0 rgba(255,255,255,.6) inset;
+  transition: transform .06s ease, box-shadow .15s ease, border-color .15s ease;
+}
+.guests-field .btn-ghost:hover{
+  border-color: rgba(13,22,33,.28);
+  box-shadow: 0 2px 8px rgba(13,22,33,.12);
+  transform: translateY(-1px);
+}
+.guests-field .btn-ghost:active{
+  transform: translateY(0);
+  box-shadow: 0 1px 4px rgba(13,22,33,.10);
+}
+.guests-field .btn-ghost:disabled{
+  opacity: .45; cursor: not-allowed; box-shadow: none;
+}
+
+/* 6) Alert színezés (#resAlert) */
+#reservation #resAlert.alert-success{
+  background: #f0f7ec; border-color: #b7e1a1; color: #205b1f;
+}
+#reservation #resAlert.alert-danger{
+  background: #fff1f1; border-color: #f1c0c0; color: #7a1e1e;
+}
+
+/* 7) Reszponzív finomítások */
+@media (max-width: 992px){
+  #reservation{ padding-top: 56px; padding-bottom: 64px; }
+  #reservation .reserve-card{ max-width: 720px; }
+}
+@media (max-width: 768px){
+  #reservation{ padding-top: 48px; padding-bottom: 56px; }
+  #reservation .reserve-card{ max-width: 100%; border-radius: 14px; padding: 18px; }
+  #reservation .text-center.mb-5{ margin-bottom: 1.25rem !important; }
+  #reservation .form-floating > .form-control,
+  #reservation .form-floating > .form-select{ min-height: 52px; }
+  .guests-field{ height: 52px; padding: 8px 10px; }
+  .guests-field .btn-ghost{ width: 34px; height: 34px; }
+  .guests-field .count{ min-width: 44px; height: 34px; }
+}
+@media (prefers-reduced-motion: reduce){
+  #reservation *{ transition: none !important; animation: none !important; }
+}

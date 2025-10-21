@@ -10,11 +10,14 @@
   --muted:      #7b8a9a;
   --border:     rgba(13,22,33,.10);
 
-  /* full-bleed szekció – NINCS fehér panel a szekción */
+  /* egységes thumb beállítások */
+  --thumb-min: 240px;
+  --thumb-max: 360px;
+  --thumb-ratio: 16/10;
+
   background: transparent;
   border-radius: 0;
   box-shadow: none;
-
   margin-top: 40px;
   padding: 48px 0 56px;
 }
@@ -32,85 +35,91 @@
 #gallery .text-primary{ color: var(--fh-primary) !important; }
 
 #gallery .gallery-head .kicker{
-  display:inline-block;
-  font-weight:600;
-  letter-spacing:.06em;
-  text-transform:uppercase;
-  color: var(--fh-primary);
+  display:inline-block; font-weight:600; letter-spacing:.06em;
+  text-transform:uppercase; color: var(--fh-primary);
 }
 #gallery .gallery-head .title{
-  margin:.25rem 0 .25rem;
-  font-weight:800;
-  color:#0f1418;
+  margin:.25rem 0 .25rem; font-weight:800; color:#0f1418;
 }
 #gallery .gallery-head .lead{
-  color: var(--fg-soft);
-  max-width:720px;
-  margin:0 auto;
+  color: var(--fg-soft); max-width:720px; margin:0 auto;
 }
 
-/* ---------- Album (mappa) rács ---------- */
+/* =======================================================
+   FOLDER (album) GRID – CENTER FIX
+   ======================================================= */
 .folder-grid{
   display:grid;
-  grid-template-columns:repeat(auto-fit, minmax(280px,1fr));
+  /* a cellák szélessége: min 240px, a kártya max 360px – szépen törik 3/2/1 oszlopra */
+  grid-template-columns: repeat(auto-fit, minmax(var(--thumb-min), 1fr));
   gap:24px;
   margin-top:1rem;
+
+  /* a teljes rács középre kerül a konténerben */
+  justify-items:center;            /* a kártyák a cellán belül középen */
+  max-width: 1200px;               /* ne nőjön végtelenre */
+  margin-left:auto; margin-right:auto;  /* CENTER FIX */
+}
+
+.folder-item{
+  display:flex; flex-direction:column; align-items:center;
 }
 
 .folder-card{
-  display:block;
-  width:100%;
-  background:#fff;
-  border:0;
-  border-radius:18px;
-  overflow:hidden;
-  text-align:left;
+  display:block; width:100%;
+  max-width: var(--thumb-max);     /* egységes kártyaszélesség */
+  background:#fff; border:0; border-radius:18px; overflow:hidden; text-align:left;
   box-shadow:0 10px 24px rgba(13,22,33,.10);
   transition:transform .18s ease, box-shadow .2s ease;
-  cursor:pointer;
+  cursor:pointer; position:relative; /* skeleton miatt */
 }
 .folder-card:focus-visible{
-  outline:3px solid rgba(194,138,55,.45);
-  outline-offset:2px;
+  outline:3px solid rgba(194,138,55,.45); outline-offset:2px;
 }
 .folder-card:hover{
-  transform:translateY(-4px);
+  transform:translateY(-3px);
   box-shadow:0 16px 36px rgba(13,22,33,.16);
 }
 
-.folder-cover{
-  position:relative;
-  aspect-ratio:16/9;
-  overflow:hidden;
-}
+.folder-cover{ position:relative; aspect-ratio: var(--thumb-ratio); overflow:hidden; }
 .folder-cover img{
   width:100%; height:100%; object-fit:cover; display:block;
   transition:transform .35s ease;
 }
-.folder-card:hover .folder-cover img{ transform:scale(1.04); }
+.folder-card:hover .folder-cover img{ transform:scale(1.03); }
 
 /* kis badge a képen */
 .folder-badge{
   position:absolute; left:12px; bottom:12px;
-  padding:.25rem .55rem; font-size:.85rem;
-  color:#fff; background:rgba(20,20,20,.65);
-  border:1px solid rgba(255,255,255,.12);
+  padding:.25rem .55rem; font-size:.85rem; color:#fff;
+  background:rgba(20,20,20,.65); border:1px solid rgba(255,255,255,.12);
   border-radius:999px; backdrop-filter:blur(4px);
 }
 
-.folder-meta{ padding:12px 14px 14px; }
-.folder-name{ font-weight:700; color:var(--fg); }
-.folder-count{ font-size:.9rem; color:var(--muted); margin-top:2px; }
+/* felirat a kártya alatt */
+.folder-caption{
+  margin-top:8px; font-weight:600; font-size:.95rem; letter-spacing:.01em;
+  color:#3b2f17; text-align:center; user-select:none;
+}
 
-/* ---------- Fotó rács ---------- */
+/* =======================================================
+   GALLERY (fotók) GRID
+   ======================================================= */
 .gallery-grid{
   display:grid;
-  grid-template-columns:repeat(auto-fit, minmax(280px,1fr));
+  grid-template-columns: repeat(auto-fit, minmax(var(--thumb-min), 1fr));
   gap:24px;
   margin-top:1rem;
+
+  justify-items:center;            /* CENTER FIX – a képkártyák is középen */
+  max-width: 1400px;
+  margin-left:auto; margin-right:auto;
 }
+
 .gallery-card{
-  position:relative; display:block;
+  position:relative; display:block; width:100%;
+  max-width: var(--thumb-max);
+  aspect-ratio: var(--thumb-ratio);
   border-radius:16px; overflow:hidden; background:#fff;
   box-shadow:0 10px 24px rgba(13,22,33,.10);
   transition:transform .18s ease, box-shadow .2s ease;
@@ -120,7 +129,7 @@
   box-shadow:0 16px 36px rgba(13,22,33,.16);
 }
 .gallery-card img{
-  width:100%; height:250px; object-fit:cover; display:block;
+  width:100%; height:100%; object-fit:cover; display:block;
   transition:transform .35s ease;
 }
 .gallery-card:hover img{ transform:scale(1.04); }
@@ -166,7 +175,7 @@
   border-left:4px solid var(--fh-primary); padding-left:10px;
 }
 
-/* ---------- Album (detail) – hero kép fix (nincs fehér csík) ---------- */
+/* ---------- Album (detail) – hero kép fix ---------- */
 #gallery .album-hero{
   position:relative;
   border-radius:16px; overflow:hidden;
@@ -179,12 +188,14 @@
 #gallery .album-hero > img{
   position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block;
 }
+
 /* ha nincs wrapper: az első kép legyen a hero */
 #gallery #galleryView > img:first-child{
   display:block; width:100%; aspect-ratio:16/9; height:auto;
   object-fit:cover; border-radius:16px; overflow:hidden;
   background:#f3f5f7; box-shadow:0 10px 24px rgba(13,22,33,.10); margin-bottom:14px;
 }
+
 /* album fejléc sor */
 #gallery .album-bar,
 #gallery .album-titlebar{
@@ -194,22 +205,8 @@
 #gallery .album-titlebar .album-name{ font-weight:700; color:#0f1418; }
 #gallery .album-titlebar .album-meta{ color:#7b8a9a; font-weight:600; }
 
-/* ---------- Responsive ---------- */
-@media (max-width:768px){
-  .gallery-card img{ height:200px; }
-  .folder-grid{ grid-template-columns:repeat(auto-fit, minmax(200px,1fr)); }
-}
-/* egységes, szép kártyamagasság – nem marad alul üres tér */
-#gallery .gallery-card{
-  aspect-ratio: 4 / 3;       /* 4:3-as kártya; ha panorámát szeretnél: 16/10 vagy 16/9 */
-  padding: 0;                /* biztos ami biztos */
-}
-#gallery .gallery-card img{
-  width: 100%;
-  height: 100%;              /* kitölti a kártyát */
-  object-fit: cover;         /* szépen vágott */
-  display: block;
-}
+/* rács ne tapadjon a hero-hoz */
+#gallery .gallery-grid{ margin-top: 12px; }
 
 /* ---------- Skeleton loader ---------- */
 .skel{
@@ -218,174 +215,21 @@
   background-size:400% 100%;
   animation:skel-shimmer 1.2s infinite linear;
 }
-
-/* ===== Album nézet – fix hero, nincs fehér panel, stabil cím-sor ===== */
-
-/* bármilyen „kártya/panel” fehér hátteret kiütjük a galériában */
-#gallery .card,
-#gallery .panel,
-#gallery .album,
-#gallery .album-wrap,
-#gallery .album-inner {
-  background: transparent !important;
-  box-shadow: none !important;
-}
-
-/* vissza + cím egy sorban, ne csússzanak */
-#gallery .album-bar,
-#gallery .album-titlebar{
-  display:flex; align-items:center; justify-content:space-between;
-  gap:12px; margin: 8px 0 12px;
-}
-#gallery .album-titlebar .album-name{ font-weight:700; color:#0f1418; }
-#gallery .album-titlebar .album-meta{ color:#7b8a9a; font-weight:600; }
-
-/* HERO – wrapperrel */
-#gallery .album-hero{
-  position: relative;
-  border-radius: 16px;
-  overflow: hidden;
-  background: #f3f5f7;                 /* töltés közben se rikítson */
-  box-shadow: 0 10px 24px rgba(13,22,33,.10);
-  margin-bottom: 14px;
-}
-#gallery .album-hero::before{
-  content: "";
-  display: block;
-  width: 100%;
-  aspect-ratio: 16 / 9;                /* itt állítod az arányt (pl 21/9, 4/3) */
-}
-#gallery .album-hero > img{
-  position: absolute; inset: 0;
-  width: 100%; height: 100%;
-  object-fit: cover; display: block;
-}
-
-/* HERO – ha nincs wrapper, az első kép legyen a hero */
-#gallery #galleryView > img:first-child{
-  display: block;
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  height: auto;                         /* aspect-ratio miatt elég */
-  object-fit: cover;
-  border-radius: 16px;
-  overflow: hidden;
-  background: #f3f5f7;
-  box-shadow: 0 10px 24px rgba(13,22,33,.10);
-  margin-bottom: 14px;
-}
-
-/* rács ne tapadjon a hero-hoz */
-#gallery .gallery-grid{ margin-top: 12px; }
-
 @keyframes skel-shimmer{
   0%{ background-position:100% 0; }
   100%{ background-position:0 0; }
 }
-/* skeleton referenciapont */
-.folder-card, .gallery-card{ position:relative; }
 
-/* kisebb motion, ha kéri a user */
-@media (prefers-reduced-motion: reduce){ .skel{ animation:none; } }
-
-/* =======================================================
-   OVERRIDES – small, uniform thumbs (mint a képen)
-   ======================================================= */
-
-/* kényelmes változók a mérethez/arányhoz */
-#gallery{
-  --thumb-min: 240px;     /* legkisebb oszlop-szélesség */
-  --thumb-max: 320px;     /* kártya max. szélessége (így „kicsi” marad) */
-  --thumb-ratio: 16/10;   /* 16:10 – mint a screenshoton; cserélheted 4/3-ra */
+/* ---------- Responsive finomítások ---------- */
+@media (max-width:768px){
+  .gallery-card{ aspect-ratio: 4/3; }
 }
-
-/* rács: sok oszlop, kis kártyák, középre igazítva */
-#gallery .gallery-grid,
-#gallery .folder-grid{
-  grid-template-columns: repeat(auto-fill, minmax(var(--thumb-min), 1fr));
-  justify-items: center;              /* minden kártya középen a saját cellájában */
-  gap: 22px;
-  max-width: 1400px;                  /* ne nőjön végtelenre; szép sorok */
-  margin-left: auto;
-  margin-right: auto;
-}
-
-/* kártya: egységes arány + max szélesség (így maradnak kicsik) */
-#gallery .gallery-card,
-#gallery .folder-card{
-  width: 100%;
-  max-width: var(--thumb-max);
-  aspect-ratio: var(--thumb-ratio);
-}
-
-/* kép mindig kitölti a kártyát */
-#gallery .gallery-card img{ height: 100%; object-fit: cover; }
-#gallery .folder-cover{ aspect-ratio: var(--thumb-ratio); }
-#gallery .folder-cover img{ height: 100%; object-fit: cover; }
-
-/* --- Album (mappa) rács + caption a kártya alatt --- */
-.folder-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));
-  gap:24px;
-  margin-top:1rem;
-}
-
-.folder-item{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-}
-
-.folder-card{
-  width:100%;
-  max-width:360px;                 /* hogy ne nőjön túl */
-  border:0;
-  border-radius:18px;
-  overflow:hidden;
-  background:#fff;
-  box-shadow:0 10px 24px rgba(13,22,33,.10);
-  transition:transform .18s ease, box-shadow .2s ease;
-  cursor:pointer;
-}
-.folder-card:hover{
-  transform:translateY(-3px);
-  box-shadow:0 16px 36px rgba(13,22,33,.16);
-}
-
-.folder-cover{ position:relative; aspect-ratio:16/10; overflow:hidden; }
-.folder-cover img{ width:100%; height:100%; object-fit:cover; display:block; transition:transform .35s ease; }
-.folder-card:hover .folder-cover img{ transform:scale(1.03); }
-
-/* a felirat a kártya alatt – mint a mocked */
-.folder-caption{
-  margin-top:8px;
-  font-weight:600;
-  font-size:.95rem;
-  letter-spacing:.01em;
-  color:#3b2f17;                   /* finom barna, mint a mock */
-  text-align:center;
-  user-select:none;
-}
-
-/* skeleton referenciapont */
-.folder-card{ position:relative; }
-.skel{
-  position:absolute; inset:0; border-radius:inherit; overflow:hidden;
-  background:linear-gradient(90deg, rgba(0,0,0,0.06) 25%, rgba(0,0,0,0.12) 37%, rgba(0,0,0,0.06) 63%);
-  background-size:400% 100%;
-  animation:skel-shimmer 1.2s infinite linear;
-}
-@keyframes skel-shimmer{ 0%{background-position:100% 0} 100%{background-position:0 0} }
-
 @media (max-width:576px){
   .folder-card{ max-width:100%; }
 }
 
-/* opcionális: nagy kijelzőn még több oszlop (kicsik maradnak) */
-@media (min-width: 1600px){
+/* opcionális: nagy kijelzőn több oszlop */
+@media (min-width:1600px){
   #gallery .gallery-grid,
-  #gallery .folder-grid{
-    max-width: 1600px;
-  }
+  #gallery .folder-grid{ max-width:1600px; }
 }
