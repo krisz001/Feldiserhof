@@ -1,5 +1,5 @@
 /* =======================================================
-   RESERVIEREN – Airbnb warm, clean & responsive (final, cleaned)
+   RESERVIEREN – Airbnb warm, clean & responsive (final)
    ======================================================= */
 
 /* 0) Full-bleed krém sáv + anchor offset */
@@ -8,7 +8,7 @@
   --text:  #0f1418;
   --muted: #6b7785;
 
-  background: linear-gradient(180deg,#fdeecf 0%, #fff4df 100%);
+ 
   padding-top: 64px;
   padding-bottom: 80px;
   position: relative;
@@ -62,18 +62,52 @@
   padding: .9rem 1rem .5rem;
   line-height: 1.25;
 }
+
 #reservation .form-floating > label{
   color: #8894a2;
   transition: transform .15s ease, opacity .15s ease;
+  pointer-events: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: calc(100% - 1rem);
 }
 
-/* Safari/WebKit: date/time is legyen 56px és legyen hely a labelnek.
-   (HTML-ben a placeholder legyen egy szóköz: placeholder=" ") */
-#reservation input[type="date"],
-#reservation input[type="time"]{
+/* === JAVÍTOTT FLOATING LABEL SZABÁLYOK === */
+#reservation .form-floating > .form-control:focus ~ label,
+#reservation .form-floating > .form-control:not(:placeholder-shown) ~ label,
+#reservation .form-floating > .form-select:focus ~ label,
+#reservation .form-floating > .form-select:not([value=""]):valid ~ label,
+#reservation .form-floating.has-value > label,
+#reservation .form-floating > input[type="date"]:valid ~ label,
+#reservation .form-floating > input[type="time"]:valid ~ label,
+#reservation .form-floating > input[type="date"].has-value ~ label,
+#reservation .form-floating > input[type="time"].has-value ~ label {
+  opacity: .65;
+  transform: scale(.85) translateY(-0.55rem) translateX(0.15rem);
+  background: var(--bs-body-bg, #fff);
+  padding: 0 .25rem;
+  z-index: 3;
+}
+
+/* Dátum/idő mezők speciális kezelése */
+#reservation .form-floating > input[type="date"],
+#reservation .form-floating > input[type="time"] {
   height: 56px;
-  padding-top: .9rem;
-  padding-bottom: .5rem;
+  padding-top: 1rem;
+  padding-bottom: 0.5rem;
+}
+
+/* Placeholder elrejtése dátum/idő mezőkben */
+#reservation .form-floating > input[type="date"]::placeholder,
+#reservation .form-floating > input[type="time"]::placeholder {
+  color: transparent;
+}
+
+/* Fókusz állapot javítása */
+#reservation .form-floating > .form-control:focus {
+  padding-top: 1rem;
+  padding-bottom: 0.5rem;
 }
 
 /* textarea kényelmes magasság */
@@ -92,18 +126,6 @@
   border-color: var(--gold);
   box-shadow: 0 0 0 .2rem rgba(194,138,55,.20);
   outline: none;
-}
-
-/* Floating label kicsinyítése:
-   – ha fókuszban van,
-   – ha NEM üres a mező (szövegesek: :not(:placeholder-shown)),
-   – ha JS ráteszi a .has-value-t (date/time). */
-#reservation .form-floating > .form-control:focus + label,
-#reservation .form-floating > .form-control:not(:placeholder-shown) + label,
-#reservation .form-floating.has-value > label{
-  transform: scale(.85) translateY(-.55rem) translateX(.15rem);
-  opacity: .65;
-  pointer-events: none;
 }
 
 /* 4) CTA – arany pill gomb */

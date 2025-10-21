@@ -23,21 +23,71 @@
     dateInput.min = today.toISOString().slice(0, 10);
   }
 
-  // --- Floating label sync (date/time) ---
+  // --- JAVÍTOTT Floating label sync (minden mezőre) ---
   (function syncFloating() {
     function updateWrap(el) {
       var wrap = el && el.closest ? el.closest('.form-floating') : null;
       if (!wrap) return;
-      if (el.value && String(el.value).trim() !== '') wrap.classList.add('has-value');
-      else wrap.classList.remove('has-value');
+      
+      // Minden mezőtípus kezelése
+      if (el.type === 'date' || el.type === 'time') {
+        // Dátum/idő mezők
+        if (el.value) {
+          wrap.classList.add('has-value');
+        } else {
+          wrap.classList.remove('has-value');
+        }
+      } else if (el.type === 'email' || el.type === 'text' || el.type === 'tel') {
+        // Szöveges mezők
+        if (el.value && String(el.value).trim() !== '') {
+          wrap.classList.add('has-value');
+        } else {
+          wrap.classList.remove('has-value');
+        }
+      } else if (el.tagName === 'SELECT') {
+        // Select mezők
+        if (el.value && el.value !== '') {
+          wrap.classList.add('has-value');
+        } else {
+          wrap.classList.remove('has-value');
+        }
+      } else if (el.tagName === 'TEXTAREA') {
+        // Textarea
+        if (el.value && String(el.value).trim() !== '') {
+          wrap.classList.add('has-value');
+        } else {
+          wrap.classList.remove('has-value');
+        }
+      }
     }
-    [dateInput, timeInput].forEach(function (el) {
+    
+    // Összes floating mező kezelése
+    var floatingInputs = form.querySelectorAll('.form-floating input, .form-floating select, .form-floating textarea');
+    floatingInputs.forEach(function (el) {
       if (!el) return;
+      
+      // Inicializálás
       updateWrap(el);
+      
+      // Eseményfigyelők
       el.addEventListener('change', function(){ updateWrap(el); });
       el.addEventListener('input',  function(){ updateWrap(el); });
       el.addEventListener('blur',   function(){ updateWrap(el); });
+      
+      // Autofill kezelése
+      el.addEventListener('animationstart', function(e) {
+        if (e.animationName === 'autoFillStart') {
+          setTimeout(function() { updateWrap(el); }, 100);
+        }
+      });
     });
+    
+    // Oldal betöltése után ellenőrzés (autofill miatt)
+    setTimeout(function() {
+      floatingInputs.forEach(function(el) {
+        updateWrap(el);
+      });
+    }, 500);
   })();
 
   // --- Gäste számláló ---
@@ -71,6 +121,26 @@
     alertBox.classList.remove('d-none');
     try { alertBox.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (e) {}
   }
+
+  // --- Form reset handler (floating label újraszinkronizáláshoz) ---
+  function handleFormReset() {
+    // Várakozás a reset befejezésére
+    setTimeout(function() {
+      var floatingInputs = form.querySelectorAll('.form-floating input, .form-floating select, .form-floating textarea');
+      floatingInputs.forEach(function(el) {
+        var wrap = el.closest('.form-floating');
+        if (wrap) {
+          wrap.classList.remove('has-value');
+        }
+      });
+      
+      // Gäste számláló reset
+      setGuests(2);
+    }, 10);
+  }
+
+  // Form reset esemény figyelése
+  form.addEventListener('reset', handleFormReset);
 
   // --- Submit handler ---
   form.addEventListener('submit', function (e) {
@@ -110,10 +180,16 @@
           showAlert('success', 'Vielen Dank! Wir haben Ihre Anfrage erhalten.');
           form.reset();
           form.classList.remove('was-validated');
-          setGuests(2); // számláló reset
-          // floating label re-sync (autofill/reset után)
-          if (dateInput) dateInput.dispatchEvent(new Event('change'));
-          if (timeInput) timeInput.dispatchEvent(new Event('change'));
+          
+          // Floating label újraszinkronizálás reset után
+          setTimeout(function() {
+            var floatingInputs = form.querySelectorAll('.form-floating input, .form-floating select, .form-floating textarea');
+            floatingInputs.forEach(function(el) {
+              var wrap = el.closest('.form-floating');
+              if (wrap) wrap.classList.remove('has-value');
+            });
+          }, 50);
+          
         } else {
           var msg = 'Leider ist ein Fehler aufgetreten. Bitte versuchen Sie es später erneut.';
           if (payload && Array.isArray(payload.errors) && payload.errors.length) {
@@ -136,5 +212,19 @@
         submitBtn.textContent = originalText;
       }
     });
+  });
+
+  // --- Oldal betöltése utáni inicializálás ---
+  document.addEventListener('DOMContentLoaded', function() {
+    // Floating label állapot ellenőrzése oldal betöltésekor
+    setTimeout(function() {
+      var floatingInputs = form.querySelectorAll('.form-floating input, .form-floating select, .form-floating textarea');
+      floatingInputs.forEach(function(el) {
+        var wrap = el.closest('.form-floating');
+        if (wrap && el.value) {
+          wrap.classList.add('has-value');
+        }
+      });
+    }, 100);
   });
 })();
