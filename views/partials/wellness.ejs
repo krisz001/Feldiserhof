@@ -1,35 +1,148 @@
-<section id="wellness" class="container-xxl py-5">
-  <div class="container">
-    <div class="text-center mb-5">
-      <h5 class="section-title ff-secondary text-primary fw-normal">Wellness</h5>
-      <h1 class="mb-4">Entspannung im Feldiserhof</h1>
-      <p>
-        Gönnen Sie sich eine Auszeit in unserer kleinen, feinen Wellness-Oase mit Sauna und Ruheraum.
-      </p>
-    </div>
+<!-- views/partials/wellness.ejs -->
+<section class="wellness-section py-5">
+  <div class="container wellness-container">
+    <div class="row g-5 align-items-center">
 
-    <div class="row g-4 justify-content-center">
-      <!-- Sauna -->
-      <div class="col-lg-4 col-md-6 text-center">
-        <div class="p-4 border rounded-3 shadow-sm h-100">
-          <h5 class="text-primary mb-3">Sauna</h5>
-          <p class="text-muted">
-            Wohltuende Wärme und Entspannung für Körper und Geist.
-          </p>
-          <p class="fw-bold mb-0">CHF 25 / Stunde</p>
+      <% /* ---------- SAFE FALLBACKS ---------- */ %>
+      <%
+        const F = (typeof wellnessFeatures !== 'undefined' && Array.isArray(wellnessFeatures))
+          ? wellnessFeatures
+          : [
+              { icon: 'fas fa-fire',  name: 'Finnische Sauna' },
+              { icon: 'fas fa-sun',   name: 'Infrarot-Kabine' },
+              { icon: 'fas fa-tint',  name: 'Kalter Bottich' },
+              { icon: 'fas fa-shower',name: 'Regendusche' }
+            ];
+
+        const I = (typeof includedServices !== 'undefined' && Array.isArray(includedServices))
+          ? includedServices
+          : [
+              'Aromatisiertes Wasser & Wellness-Tee',
+              'Frische und getrocknete Früchte',
+              'Frottee- und Saunatuch'
+            ];
+
+        const P = (typeof pricingOptions !== 'undefined' && Array.isArray(pricingOptions))
+          ? pricingOptions
+          : [
+              { title: 'Sauna',      meta: '2 Std · Fr. 45.00',           sub: 'pro Person',               highlighted: false },
+              { title: 'Privat Spa', meta: '3 Std · 2 Pers · Fr. 240.00', sub: 'inkl. Snacks & Prosecco',  highlighted: true  }
+            ];
+
+        const NOTE     = (typeof note    !== 'undefined' && String(note).trim())    ? note    : 'Nur nach Voranmeldung.';
+        const CTA_TEXT = (typeof ctaText !== 'undefined' && String(ctaText).trim()) ? ctaText : 'Jetzt anfragen';
+        const CTA_LINK = (typeof ctaLink !== 'undefined' && String(ctaLink).trim()) ? ctaLink : '#contact';
+
+        // Galéria: 1 nagy + 1-2 kicsi. Ha semmit nem adsz át: jpg1 nagy, jpg2 kicsi.
+        const GRAW = (typeof galleryImages !== 'undefined' && Array.isArray(galleryImages) && galleryImages.length)
+          ? galleryImages
+          : [
+              { src: '/img/jpg1.jpg', alt: 'Finnische Sauna – Holzfass', size: 'large', width: 1280, height: 720 },
+              { src: '/img/jpg2.jpg', alt: 'Infrarot-Kabine',            size: 'small', width: 640,  height: 360 }
+            ];
+        const LARGE  = GRAW.find(g => g.size === 'large') || GRAW[0];
+        const SMALLS = GRAW.filter(g => g !== LARGE).slice(0, 2); // max 2 kicsi
+
+        const getW = (img, fallback) => Number(img?.width)  || fallback || 1280;
+        const getH = (img, fallback) => Number(img?.height) || fallback || 720;
+      %>
+
+      <!-- Left: Text Content -->
+      <div class="col-lg-6">
+        <span class="wellness-badge">WELLNESS ERLEBNIS</span>
+        <h1 class="wellness-title">
+          Ihre <span>Wellness-Oase</span> im Feldiserhof
+        </h1>
+        <p class="wellness-lead">
+          Klein, fein und ganz auf Erholung ausgerichtet: Schwitzen in der 90&nbsp;°C
+          finnischen Sauna, sanfte Wärme in der Infrarot-Kabine und Erfrischung im kalten Bottich
+          oder unter der Regendusche.
+        </p>
+
+        <!-- Feature Chips (accessibility-ready) -->
+        <div class="wellness-features" role="list" aria-label="Ausstattung">
+          <% F.forEach(f => { %>
+            <button type="button"
+                    class="feature-chip"
+                    role="listitem"
+                    aria-label="<%= f.name %>">
+              <i class="<%= f.icon %> feature-icon" aria-hidden="true"></i>
+              <span><%= f.name %></span>
+            </button>
+          <% }) %>
+        </div>
+
+        <!-- Included Services -->
+        <h3 class="included-title" id="inkl">Inklusivleistungen</h3>
+        <ul class="included-list" role="list" aria-labelledby="inkl">
+          <% I.forEach(s => { %>
+            <li role="listitem">
+              <span class="tick-icon" aria-hidden="true"><i class="fas fa-check"></i></span>
+              <span><%= s %></span>
+            </li>
+          <% }) %>
+        </ul>
+
+        <!-- Note -->
+        <div class="alert-note" role="note" aria-label="Hinweis">
+          <strong>Hinweis:</strong> <%= NOTE %>
+        </div>
+
+        <!-- Pricing Cards -->
+        <div class="pricing-cards" aria-label="Preise" role="list">
+          <% P.forEach((p,i) => { %>
+            <article class="price-card <%= p.highlighted ? 'highlighted' : '' %>"
+                     role="listitem"
+                     aria-labelledby="pc-title-<%= i %>">
+              <div class="pc-title" id="pc-title-<%= i %>"><%= p.title %></div>
+              <div class="pc-meta"><%= p.meta %></div>
+              <div class="pc-sub"><%= p.sub %></div>
+            </article>
+          <% }) %>
+        </div>
+
+        <!-- CTA Button (sticky on mobile) -->
+        <div class="cta-wrap sticky-mobile mt-3">
+          <a href="<%= CTA_LINK %>" class="btn btn-primary-custom">
+            <%= CTA_TEXT %>
+            <i class="fas fa-arrow-right" aria-hidden="true"></i>
+          </a>
         </div>
       </div>
 
-      <!-- Ruheraum -->
-      <div class="col-lg-4 col-md-6 text-center">
-        <div class="p-4 border rounded-3 shadow-sm h-100">
-          <h5 class="text-primary mb-3">Ruheraum</h5>
-          <p class="text-muted">
-            Nach der Sauna entspannen Sie in ruhiger Atmosphäre.
-          </p>
-          <p class="fw-bold mb-0">Im Preis inbegriffen</p>
+      <!-- Right: Gallery -->
+      <div class="col-lg-6">
+        <div class="gallery-container">
+          <div class="gallery-stack">
+            <% if (LARGE) { %>
+              <a class="gallery-item large" href="<%= LARGE.src %>" data-lightbox="wellness">
+                <img
+                  src="<%= LARGE.src %>"
+                  alt="<%= LARGE.alt || '' %>"
+                  class="gallery-img"
+                  width="<%= getW(LARGE,1280) %>"
+                  height="<%= getH(LARGE,720) %>"
+                  loading="lazy"
+                  decoding="async">
+              </a>
+            <% } %>
+
+            <% SMALLS.forEach(small => { %>
+              <a class="gallery-item small" href="<%= small.src %>" data-lightbox="wellness">
+                <img
+                  src="<%= small.src %>"
+                  alt="<%= small.alt || '' %>"
+                  class="gallery-img"
+                  width="<%= getW(small,640) %>"
+                  height="<%= getH(small,360) %>"
+                  loading="lazy"
+                  decoding="async">
+              </a>
+            <% }) %>
+          </div>
         </div>
       </div>
+
     </div>
   </div>
 </section>

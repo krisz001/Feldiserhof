@@ -1,0 +1,43 @@
+<div id="admCreative" class="adm-creative" aria-hidden="true">
+  <div class="adm-creative__backdrop" data-close></div>
+  
+  <div class="adm-creative__stage">
+    <div class="admin-modal-container">
+      <button class="admin-close-btn" data-close aria-label="<%= t('adminModal.close') %>">
+        <i class="fas fa-times"></i>
+      </button>
+      
+      <div class="admin-modal-content">
+        <div class="admin-header">
+          <div class="admin-logo">
+            <i class="fas fa-crown"></i>
+          </div>
+          <h2 class="admin-title"><%= t('adminModal.title') %></h2>
+          <p class="admin-subtitle"><%= t('adminModal.subtitle') %></p>
+        </div>
+        
+        <form id="adminLoginForm" class="admin-form">
+          <div class="input-group">
+            <input type="password" id="adm-pass" placeholder=" " required>
+            <label for="adm-pass"><%= t('adminModal.passwordPlaceholder') %></label>
+            <i class="fas fa-key"></i>
+          </div>
+          
+          <button type="submit" class="admin-submit-btn">
+            <span class="btn-text"><%= t('adminModal.submit') %></span>
+            <span class="btn-loader">
+              <i class="fas fa-spinner fa-spin"></i>
+            </span>
+          </button>
+        </form>
+        
+        <div class="admin-footer">
+          <div class="security-notice">
+            <i class="fas fa-shield-alt"></i>
+            <span><%= t('adminModal.security') %></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

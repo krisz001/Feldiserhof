@@ -1,11 +1,57 @@
-<%- include('partials/head', { title: title, description: description }) %>
+<%- include('partials/head', {
+  title: (typeof title !== 'undefined' && title) ? title : 'Feldiserhof – Alpenhotel',
+  description: (typeof description !== 'undefined' && description) ? description : 'Willkommen im Feldiserhof. Genuss, Natur und Erholung im Herzen der Berge.'
+}) %>
+
 <%- include('partials/navbar') %>
-<%- include('partials/hero') %>
-<%- include('partials/about') %>
-<%- include('partials/menu', { menu: menu }) %>
-<%- include('partials/wellness') %>
-<%- include('partials/reservation') %>
-<%- include('partials/gallery') %>
-<%- include('partials/contact') %>
+
+<main id="main-content">
+  <%- include('partials/hero') %>
+  <%- include('partials/about') %>
+
+  <%- include('partials/menu', {
+    menuData: (typeof menuData !== 'undefined')
+                ? menuData
+                : ((typeof menu !== 'undefined') ? menu : null),
+    menuTitle: t('menu.title'),
+    menuSubtitle: t('menu.subtitle'),
+    menuIntro: t('menu.intro')
+  }) %>
+
+  <%- include('partials/reservation') %>
+
+  <%- include('partials/wellness', {
+    wellnessFeatures: [
+      { icon:'fas fa-fire',  name: t('wellness.features.sauna') },
+      { icon:'fas fa-sun',   name: t('wellness.features.infrared') },
+      { icon:'fas fa-tint',  name: t('wellness.features.cold') },
+      { icon:'fas fa-shower',name: t('wellness.features.rain') }
+    ],
+    includedServices: [
+      t('wellness.services.water'),
+      t('wellness.services.fruits'),
+      t('wellness.services.towels')
+    ],
+    pricingOptions: [
+      { title: t('wellness.pricing.sauna.title'), meta: t('wellness.pricing.sauna.meta'), sub: t('wellness.pricing.sauna.sub'), highlighted:false },
+      { title: t('wellness.pricing.spa.title'), meta: t('wellness.pricing.spa.meta'), sub: t('wellness.pricing.spa.sub'), highlighted:true }
+    ],
+    note: t('wellness.note'),
+    ctaText: t('wellness.cta'),
+    ctaLink: '#contact',
+    galleryImages: [
+      { src:'/img/jpg1.jpg', alt: t('wellness.images.sauna'), size:'large', width:1280, height:720 },
+      { src:'/img/jpg2.jpg', alt: t('wellness.images.infrared'), size:'small', width:640, height:360 }
+    ]
+  }) %>
+
+  <%- include('partials/gallery') %>
+  <%- include('partials/contact') %>
+</main>
+
 <%- include('partials/footer') %>
 
+<!-- Admin login modal (password-only) -->
+<link rel="stylesheet" href="/css/admin-modal.css">
+<%- include('partials/admin-login-modal') %>
+<script src="/js/secret-admin.js" defer></script>

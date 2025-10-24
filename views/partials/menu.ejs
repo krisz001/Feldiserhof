@@ -1,33 +1,49 @@
-<section id="menu" class="container-xxl py-5 bg-light">
-  <div class="container">
-    <div class="text-center mb-5">
-      <h5 class="section-title ff-secondary text-primary fw-normal">Speisekarte</h5>
-      <h1 class="mb-4">Entdecken Sie unsere Küche</h1>
-      <p>Unsere Speisekarte wird regelmäßig aktualisiert, um Ihnen frische, saisonale Gerichte anzubieten.</p>
-    </div>
+<section class="menu-section">
+  <div class="menu-container">
+    <header class="menu-header">
+      <div class="logo">RESTAURANT</div>
+      <h1 class="menu-title">Speisekarte</h1>
+      <p class="menu-subtitle">Unsere kulinarischen Kreationen</p>
+    </header>
 
-    <div class="row justify-content-center g-4">
-      <% if (menu && Array.isArray(menu.items) && menu.items.length > 0) { %>
-        <% menu.items.forEach(item => { %>
-          <div class="col-md-6 col-lg-4">
-            <div class="card shadow-sm border-0 h-100">
-              <div class="card-body text-center p-4">
-                <h5 class="card-title text-primary"><%= item.name %></h5>
-                <% if (item.description) { %>
-                  <p class="card-text text-muted mb-3"><%= item.description %></p>
-                <% } %>
-                <% if (item.price) { %>
-                  <p class="fw-bold mb-0"><%= item.price %> CHF</p>
-                <% } %>
-              </div>
-            </div>
+    <section class="menu-intro">
+      <p>Alle Gerichte werden frisch zubereitet</p>
+    </section>
+
+    <!-- Flipbook container -->
+    <div class="flipbook-container">
+      <div id="book" class="book">
+        <div class="page" id="page-starters">
+          <div class="page-content">
+            <h3>Vorspeisen</h3>
+            <div id="page-starters-content" class="menu-items-grid"></div>
           </div>
-        <% }) %>
-      <% } else { %>
-        <div class="col-12">
-          <p class="text-center text-muted">Menü wird geladen oder ist derzeit nicht verfügbar.</p>
         </div>
-      <% } %>
+        <div class="page" id="page-mains">
+          <div class="page-content">
+            <h3>Hauptgerichte</h3>
+            <div id="page-mains-content" class="menu-items-grid"></div>
+          </div>
+        </div>
+        <div class="page" id="page-desserts">
+          <div class="page-content">
+            <h3>Desserts</h3>
+            <div id="page-desserts-content" class="menu-items-grid"></div>
+          </div>
+        </div>
+        <div class="page" id="page-drinks">
+          <div class="page-content">
+            <h3>Getränke</h3>
+            <div id="page-drinks-content" class="menu-items-grid"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="book-controls">
+        <button class="book-btn prev">‹</button>
+        <h4 id="bookTitle" class="book-title">Vorspeisen</h4>
+        <button class="book-btn next">›</button>
+      </div>
     </div>
   </div>
 </section>

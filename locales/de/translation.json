@@ -1,0 +1,87 @@
+{
+  "home": {
+    "title": "Feldiserhof – Hotel & Restaurant",
+    "description": "Hotel, Restaurant & Café Feldis – feine Küche, regionale Zutaten, kleine Wellness-Oase."
+  },
+  "gallery": {
+    "title": "Galerie – Feldiserhof",
+    "description": "Einblick in unser Hotel, Restaurant und den Wellnessbereich."
+  },
+  "admin": {
+    "title": "Admin-Dashboard – Feldiserhof",
+    "description": "Administrationsbereich der Feldiserhof-Website",
+    "dashboardTitle": "Admin-Dashboard",
+    "logout": "Abmelden",
+
+    "welcome": "Erfolgreich angemeldet! Willkommen im Admin-Bereich.",
+    "welcomeOk": "Erfolgreich angemeldet!",
+    "welcomeText": "Willkommen im Admin-Bereich.",
+
+    "menuEditor": "Speisekarte bearbeiten",
+    "menuEditorDesc": "Speisen, Getränke und Kategorien verwalten, Preise aktualisieren.",
+
+    "gallery": "Galerie verwalten",
+    "galleryDesc": "Bilder hochladen, sortieren und Kategorien verwalten.",
+
+    "bookings": "Buchungen",
+    "bookingsDesc": "Buchungen verwalten, prüfen und Status ändern.",
+
+    "hours": "Öffnungszeiten",
+    "hoursDesc": "Öffnungszeiten anpassen und Feiertagsregelungen verwalten.",
+
+    "staff": "Mitarbeitende",
+    "staffDesc": "Teammitglieder verwalten und Dienstpläne bearbeiten.",
+
+    "analytics": "Statistiken",
+    "analyticsDesc": "Website-Traffic und weitere Statistiken einsehen.",
+
+    "open": "Öffnen"
+  },
+  "adminModal": {
+    "title": "Admin-Login",
+    "subtitle": "Nur für autorisierte Personen",
+    "passwordPlaceholder": "Admin-Passwort",
+    "submit": "Anmelden",
+    "security": "Sichere Verbindung",
+    "close": "Schließen"
+  },
+  "menu": {
+    "title": "Speisekarte",
+    "subtitle": "Entdecken Sie unsere Küche",
+    "intro": "Frisch, saisonal, regional – täglich für Sie."
+  },
+  "wellness": {
+    "features": {
+      "sauna": "Finnische Sauna",
+      "infrared": "Infrarotkabine",
+      "cold": "Kalter Bottich",
+      "rain": "Regendusche"
+    },
+    "services": {
+      "water": "Aromatisiertes Wasser & Wellness-Tee",
+      "fruits": "Frische und getrocknete Früchte",
+      "towels": "Frottee- und Saunatuch"
+    },
+    "pricing": {
+      "sauna": {
+        "title": "Sauna",
+        "meta": "2 Std · Fr. 45.00",
+        "sub": "pro Person"
+      },
+      "spa": {
+        "title": "Privat-Spa",
+        "meta": "3 Std · 2 Pers · Fr. 240.00",
+        "sub": "inkl. Snacks & Prosecco"
+      }
+    },
+    "note": "Nur nach Voranmeldung.",
+    "cta": "Jetzt anfragen",
+    "images": {
+      "sauna": "Finnische Sauna – Holzfass",
+      "infrared": "Infrarotkabine"
+    }
+  },
+  "errors": {
+    "404": "404 – Seite nicht gefunden."
+  }
+}

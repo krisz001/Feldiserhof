@@ -1,0 +1,142 @@
+:root{
+  --dark-green:#2a4a3a;
+  --ivory:#f8f4e9;
+  --gold:#c8a97e;
+  --dark-gold:#a88a66;
+  --gray:#5a5a5a;
+
+  --radius:4px;
+  --shadow:0 10px 30px rgba(0,0,0,.08);
+  --transition: all .3s ease;
+}
+
+/* reset alapok – a projektben már lehet, akkor nyugodtan vedd ki */
+.menu-section *{ box-sizing:border-box; margin:0; padding:0; }
+
+.menu-section{
+  background-color: var(--ivory);
+  color: var(--dark-green);
+  line-height:1.6;
+  padding:20px;
+  /* finom textúra háttér */
+  background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" opacity="0.03"><rect fill="%232a4a3a" width="100" height="100"/></svg>');
+  font-family: 'Lato', system-ui, -apple-system, sans-serif;
+}
+
+.menu-container{
+  max-width: 800px;
+  margin: 0 auto;
+  background:#fff;
+  box-shadow: var(--shadow);
+  border-radius: var(--radius);
+  overflow: hidden;
+  position: relative;
+}
+
+/* header */
+.menu-header{
+  background: var(--dark-green);
+  color: var(--ivory);
+  padding: 40px 30px;
+  text-align:center;
+  position: relative;
+  overflow: hidden;
+}
+.menu-header::before{
+  content:"";
+  position:absolute; inset:0;
+  background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><path fill="%23c8a97e" opacity="0.1" d="M20,20 L80,20 L80,80 L20,80 Z" stroke="%23c8a97e" stroke-width="2" fill="none"/></svg>');
+  background-size:100px 100px;
+  opacity:.1;
+}
+.logo{
+  font-family: "Playfair Display", serif;
+  font-size:24px; letter-spacing:2px;
+  margin-bottom:10px; color: var(--gold);
+}
+.menu-title{
+  font-family:"Playfair Display", serif;
+  font-size:42px; letter-spacing:4px;
+  margin:20px 0 10px; color:var(--gold);
+  text-transform:uppercase;
+}
+.menu-subtitle{
+  font-size:18px; font-weight:300; font-style:italic;
+  margin-bottom:20px; color:#fff;
+}
+
+/* intro */
+.menu-intro{
+  padding:30px; text-align:center;
+  border-bottom:1px solid rgba(200,169,126,.3);
+}
+.menu-intro p{
+  font-size:16px; max-width:600px; margin:0 auto; line-height:1.8;
+}
+
+/* categories */
+.menu-categories{ padding:0 30px 30px; }
+.category{
+  margin:40px 0;
+  opacity:0; transform:translateY(20px);
+  transition: opacity .8s ease, transform .8s ease;
+}
+.category.visible{ opacity:1; transform:translateY(0); }
+
+.category-title{
+  font-family:"Playfair Display", serif;
+  font-size:24px; color:var(--gold);
+  text-transform:uppercase; letter-spacing:2px;
+  margin-bottom:20px; padding-bottom:10px;
+  border-bottom:1px solid rgba(200,169,126,.5);
+  position:relative;
+}
+.category-title::after{
+  content:""; position:absolute; bottom:-1px; left:0;
+  width:80px; height:2px; background:var(--gold);
+}
+
+/* items */
+.menu-item{
+  margin:25px 0; display:flex; flex-wrap:wrap; align-items:flex-start;
+}
+.item-content{ flex:1; min-width:300px; }
+.item-name{
+  font-weight:700; font-size:18px; margin-bottom:5px; color:var(--dark-green);
+}
+.item-description{
+  font-size:15px; color:var(--gray); font-weight:300; line-height:1.5;
+}
+.item-price{
+  font-family:"Playfair Display", serif;
+  font-size:18px; color:var(--dark-gold);
+  font-weight:700; white-space:nowrap; margin-left:15px;
+}
+
+/* footer */
+.menu-footer{
+  padding:30px; text-align:center;
+  background: rgba(248,244,233,.5);
+  border-top:1px solid rgba(200,169,126,.3);
+  font-style:italic; font-size:14px; color:var(--gray);
+}
+
+/* state */
+.loading-message{
+  text-align:center; padding:40px; font-style:italic; color:var(--gray);
+}
+
+/* badge */
+.seasonal-badge{
+  display:inline-block; background:var(--gold); color:#fff;
+  font-size:10px; padding:2px 6px; border-radius:3px;
+  margin-left:8px; vertical-align:super; text-transform:uppercase; letter-spacing:.5px;
+}
+
+/* responsive */
+@media (max-width: 600px){
+  .menu-title{ font-size:32px; }
+  .menu-header, .menu-intro, .menu-categories, .menu-footer{ padding-left:20px; padding-right:20px; }
+  .item-content{ min-width:100%; }
+  .item-price{ margin-left:0; margin-top:5px; width:100%; }
+}

@@ -1,0 +1,184 @@
+<%- include('../partials/head', { 
+  title: t('admin.title'),
+  description: t('admin.description')
+}) %>
+
+<%- include('../partials/navbar') %>
+
+<main class="container py-5 mt-5">
+  <div class="row">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="d-flex align-items-center">
+          <h1 class="h2 text-primary mb-0">
+            <i class="fas fa-crown me-2"></i>
+            <span id="dashboard-title"><%= t('admin.dashboardTitle') %></span>
+          </h1>
+
+          <!-- Nyelvválasztó - admin session megőrzésével -->
+          <div class="dropdown ms-3">
+            <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="languageDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="fas fa-globe me-1"></i>
+              <span id="current-language"><%- (i18n.language === 'de' ? 'Deutsch' : 'Magyar') %></span>
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="languageDropdown">
+              <li>
+                <a class="dropdown-item language-option <%- i18n.language === 'hu' ? 'active' : '' %>" href="/set-language/hu?admin=true" rel="nofollow">
+                  <i class="flag-icon flag-icon-hu me-2"></i><span>Magyar</span>
+                </a>
+              </li>
+              <li>
+                <a class="dropdown-item language-option <%- i18n.language === 'de' ? 'active' : '' %>" href="/set-language/de?admin=true" rel="nofollow">
+                  <i class="flag-icon flag-icon-de me-2"></i><span>Deutsch</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <form id="logoutForm" method="post" action="/admin/logout">
+          <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+          <button class="btn btn-outline-danger" id="logout-button" type="submit">
+            <i class="fas fa-sign-out-alt me-1"></i>
+            <span id="logout-text"><%= t('admin.logout') %></span>
+          </button>
+        </form>
+      </div>
+
+      <div class="alert alert-success d-flex align-items-center" id="welcome-alert" role="status" aria-live="polite">
+        <i class="fas fa-check-circle me-2 fs-5"></i>
+        <div>
+          <span id="welcome-text"><%= t('admin.welcome') %></span>
+        </div>
+      </div>
+
+      <div class="row mt-4">
+        <!-- Menü szerkesztése -->
+        <div class="col-md-6 col-lg-4 mb-4">
+          <div class="card border-primary h-100">
+            <div class="card-body d-flex flex-column">
+              <h5 class="card-title text-primary">
+                <i class="fas fa-utensils me-2"></i>
+                <span id="menu-editor-title"><%= t('admin.menuEditor') %></span>
+              </h5>
+              <p class="card-text flex-grow-1" id="menu-editor-desc"><%= t('admin.menuEditorDesc') %></p>
+              <a href="/admin/menu" class="btn btn-primary mt-auto" id="menu-editor-button"><%= t('admin.open') %></a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Galéria kezelése -->
+        <div class="col-md-6 col-lg-4 mb-4">
+          <div class="card border-success h-100">
+            <div class="card-body d-flex flex-column">
+              <h5 class="card-title text-success">
+                <i class="fas fa-image me-2"></i>
+                <span id="gallery-title"><%= t('admin.gallery') %></span>
+              </h5>
+              <p class="card-text flex-grow-1" id="gallery-desc"><%= t('admin.galleryDesc') %></p>
+              <a href="/admin/gallery" class="btn btn-success mt-auto" id="gallery-button"><%= t('admin.open') %></a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Foglalások -->
+        <div class="col-md-6 col-lg-4 mb-4">
+          <div class="card border-info h-100">
+            <div class="card-body d-flex flex-column">
+              <h5 class="card-title text-info">
+                <i class="fas fa-calendar-alt me-2"></i>
+                <span id="bookings-title"><%= t('admin.bookings') %></span>
+              </h5>
+              <p class="card-text flex-grow-1" id="bookings-desc"><%= t('admin.bookingsDesc') %></p>
+              <a href="/admin/bookings" class="btn btn-info mt-auto" id="bookings-button"><%= t('admin.open') %></a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Nyitvatartás -->
+        <div class="col-md-6 col-lg-4 mb-4">
+          <div class="card border-warning h-100">
+            <div class="card-body d-flex flex-column">
+              <h5 class="card-title text-warning">
+                <i class="fas fa-clock me-2"></i>
+                <span id="hours-title"><%= t('admin.hours') %></span>
+              </h5>
+              <p class="card-text flex-grow-1" id="hours-desc"><%= t('admin.hoursDesc') %></p>
+              <a href="/admin/hours" class="btn btn-warning mt-auto" id="hours-button"><%= t('admin.open') %></a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Alkalmazottak -->
+        <div class="col-md-6 col-lg-4 mb-4">
+          <div class="card border-secondary h-100">
+            <div class="card-body d-flex flex-column">
+              <h5 class="card-title text-secondary">
+                <i class="fas fa-users me-2"></i>
+                <span id="staff-title"><%= t('admin.staff') %></span>
+              </h5>
+              <p class="card-text flex-grow-1" id="staff-desc"><%= t('admin.staffDesc') %></p>
+              <a href="/admin/staff" class="btn btn-secondary mt-auto" id="staff-button"><%= t('admin.open') %></a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Statisztikák -->
+        <div class="col-md-6 col-lg-4 mb-4">
+          <div class="card border-dark h-100">
+            <div class="card-body d-flex flex-column">
+              <h5 class="card-title text-dark">
+                <i class="fas fa-chart-bar me-2"></i>
+                <span id="analytics-title"><%= t('admin.analytics') %></span>
+              </h5>
+              <p class="card-text flex-grow-1" id="analytics-desc"><%= t('admin.analyticsDesc') %></p>
+              <a href="/admin/analytics" class="btn btn-dark mt-auto" id="analytics-button"><%= t('admin.open') %></a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<%- include('../partials/footer') %>
+
+<!-- Zászló ikonok stílusa -->
+<style>
+.flag-icon {
+  width: 20px;
+  height: 15px;
+  display: inline-block;
+  background-size: cover;
+  border-radius: 2px;
+}
+/* Magyar: piros-fehér-zöld felülről lefelé */
+.flag-icon-hu {
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2"><path fill="%23CE2939" d="M0 0h3v0.6667H0z"/><path fill="%23FFFFFF" d="M0 0.6667h3v0.6666H0z"/><path fill="%2300903B" d="M0 1.3333h3V2H0z"/></svg>');
+}
+/* Német: fekete-vörös-arany felülről lefelé */
+.flag-icon-de {
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2"><path fill="%23000000" d="M0 0h3v0.6667H0z"/><path fill="%23DD0000" d="M0 0.6667h3v0.6666H0z"/><path fill="%23FFCE00" d="M0 1.3333h3V2H0z"/></svg>');
+}
+.dropdown-item.active { background-color: #e9ecef; }
+</style>
+
+<!-- CSRF token lekérése (cookie-val, hibakezeléssel) -->
+<script>
+(async () => {
+  try {
+    const resp = await fetch('/api/csrf-token', {
+      method: 'GET',
+      credentials: 'same-origin',
+      headers: { 'Accept': 'application/json' }
+    });
+    if (!resp.ok) throw new Error('CSRF fetch failed: ' + resp.status);
+    const data = await resp.json();
+    document.querySelectorAll('input[name="_csrf"]').forEach(input => {
+      input.value = data.token || '';
+    });
+  } catch (err) {
+    console.error('❌ CSRF token lekérési hiba:', err);
+  }
+})();
+</script>

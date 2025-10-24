@@ -18,32 +18,18 @@ const allergenIcons = {
 
 let allMenuItems = [];
 
-/* ===== kategória normalizáló: bármi → starters | mains | desserts ===== */
-function normalizeCategory(c) {
-  const v = String(c || "").toLowerCase().trim();
-  if (["starters", "starter", "vorspeise", "vorspeisen", "appetizer"].includes(v)) return "starters";
-  if (["mains", "main", "hauptgericht", "hauptgerichte", "plate"].includes(v)) return "mains";
-  if (["dessert", "desserts", "nachspeise", "nachspeisen", "sweets"].includes(v)) return "desserts";
-  return v; // ha már jó volt
-}
-
-/* ===== Betöltés + render három oldalra ===== */
+/* ===== Betöltés + render ===== */
 async function loadMenu() {
   try {
-    // FONTOS: http:// alatt fusson, ne file://
-    const res = await fetch("js/menu.json", { cache: "no-store" });
+    // JAVÍTVA: helyes útvonal
+    const res = await fetch("/menu.json", { cache: "no-store" });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    allMenuItems = await res.json();
+    const menuData = await res.json();
 
-    // gyors normalizálás + szóközös képek
-    allMenuItems = (Array.isArray(allMenuItems) ? allMenuItems : []).map(i => ({
-      ...i,
-      category: normalizeCategory(i.category),
-      image: typeof i.image === "string" ? i.image.replace(/ /g, "%20") : i.image
-    }));
-
+    // JAVÍTVA: Admin-kompatibilis formátum feldolgozása
+    processMenuData(menuData);
+    
     console.log("[menu] betöltve:", allMenuItems.length, "tétel", allMenuItems);
-
     renderBook();
     setBookTitle(0);
   } catch (e) {
@@ -52,10 +38,65 @@ async function loadMenu() {
     if (starters) {
       starters.innerHTML = `
         <div class="alert alert-danger">
-          Nem sikerült betölteni a <code>menu.json</code>-t (futtasd HTTP-ről és ellenőrizd az útvonalat).
+          Nem sikerült betölteni a menüt. Kérjük, próbálja újra később.
         </div>`;
     }
   }
+}
+
+/* ===== Admin formátum feldolgozása ===== */
+function processMenuData(menuData) {
+  allMenuItems = [];
+  
+  if (!menuData || !menuData.categories) return;
+  
+  menuData.categories.forEach(category => {
+    const categoryName = category.name;
+    
+    if (category.items && Array.isArray(category.items)) {
+      category.items.forEach(item => {
+        // Átalakítás a flipbook formátumra
+        allMenuItems.push({
+          category: mapCategory(categoryName),
+          title: item.name || '',
+          desc: item.description || '',
+          price: parseFloat(item.price) || 0,
+          image: '/img/menu/placeholder.jpg', // alapértelmezett kép
+          allergens: item.allergens || []
+        });
+      });
+    }
+  });
+}
+
+/* ===== Kategória leképezés admin → flipbook ===== */
+function mapCategory(categoryName) {
+  const name = String(categoryName || "").toLowerCase();
+  
+  if (name.includes('vorspeis') || name.includes('starter') || name.includes('előétel')) {
+    return "starters";
+  }
+  if (name.includes('haupt') || name.includes('main') || name.includes('főétel')) {
+    return "mains";
+  }
+  if (name.includes('dessert') || name.includes('nachspeis') || name.includes('édesség')) {
+    return "desserts";
+  }
+  if (name.includes('getränk') || name.includes('drink') || name.includes('ital')) {
+    return "drinks";
+  }
+  
+  return "mains"; // alapértelmezett
+}
+
+/* ===== kategória normalizáló ===== */
+function normalizeCategory(c) {
+  const v = String(c || "").toLowerCase().trim();
+  if (["starters", "starter", "vorspeise", "vorspeisen", "appetizer"].includes(v)) return "starters";
+  if (["mains", "main", "hauptgericht", "hauptgerichte", "plate"].includes(v)) return "mains";
+  if (["dessert", "desserts", "nachspeise", "nachspeisen", "sweets"].includes(v)) return "desserts";
+  if (["drinks", "getränke", "drink", "italok"].includes(v)) return "drinks";
+  return v;
 }
 
 /* Egy tétel kártyájának HTML-je */
@@ -78,7 +119,7 @@ function itemCardHTML(item) {
   return `
     <div class="card menu-item">
       <img src="${item.image}" class="card-img-top" alt="${escapeHtml(item.title || "")}"
-           onerror="this.src='img/menu/placeholder.jpg'">
+           onerror="this.src='/img/menu/placeholder.jpg'">
       <div class="card-body">
         <h5 class="card-title mb-1">${escapeHtml(item.title || "")}</h5>
         <p class="text-muted small mb-2">${escapeHtml(desc)}</p>
@@ -100,7 +141,8 @@ function renderBook() {
   const containers = {
     starters: document.getElementById("page-starters"),
     mains:    document.getElementById("page-mains"),
-    desserts: document.getElementById("page-desserts")
+    desserts: document.getElementById("page-desserts"),
+    drinks:   document.getElementById("page-drinks")
   };
 
   // ha bármelyik hiányzik, ne folytassuk
@@ -109,9 +151,9 @@ function renderBook() {
     return;
   }
 
-  Object.values(containers).forEach(el => { el.innerHTML = ""; });
+  Object.values(containers).forEach(el => { if(el) el.innerHTML = ""; });
 
-  let counts = { starters:0, mains:0, desserts:0 };
+  let counts = { starters:0, mains:0, desserts:0, drinks:0 };
 
   allMenuItems.forEach(item => {
     const key = normalizeCategory(item.category);
@@ -124,10 +166,10 @@ function renderBook() {
 
   // üres oldal jelzés
   Object.entries(containers).forEach(([key, el]) => {
-    if (!counts[key]) {
+    if (el && !counts[key]) {
       el.innerHTML = `
         <div class="alert alert-light border">
-          Jelenleg nincs tétel ebben a kategóriában (${key}).
+          Jelenleg nincs tétel ebben a kategóriában.
         </div>`;
     }
   });
@@ -135,7 +177,7 @@ function renderBook() {
   console.log("[menu] oldalankénti darab:", counts);
 }
 
-/* ===== Flipbook vezérlés (nyilak, pöttyök, gyorsugrók) ===== */
+/* ===== Flipbook vezérlés ===== */
 function initFlipbook() {
   const book   = document.getElementById('book');
   if (!book) return;
@@ -157,11 +199,9 @@ function initFlipbook() {
 
     animating = true;
 
-    // azonnal látszódjon a következő oldal
     nxt.classList.add('current');
     nxt.style.zIndex = 2;
 
-    // ha van animációs CSS-ed, ezek érvényesülnek
     curr.classList.add('animate-out');
     nxt.classList.add('animate-in');
 
@@ -177,8 +217,8 @@ function initFlipbook() {
     }, ANIM_MS);
   }
 
-  prev?.addEventListener('click', () => go(idx - 1));
-  next?.addEventListener('click', () => go(idx + 1));
+  if (prev) prev.addEventListener('click', () => go(idx - 1));
+  if (next) next.addEventListener('click', () => go(idx + 1));
   dots.forEach(d => d.addEventListener('click', () => go(+d.dataset.goto)));
   chips.forEach(c => c.addEventListener('click', () => go(+c.dataset.goto)));
 

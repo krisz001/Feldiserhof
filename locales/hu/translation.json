@@ -1,0 +1,77 @@
+{
+  "home": {
+    "title": "Feldiserhof – Hotel & Restaurant",
+    "description": "Hotel, Restaurant & Café Feldis – finom konyha, regionális hozzávalók, kis wellness oázis."
+  },
+  "gallery": {
+    "title": "Galéria – Feldiserhof",
+    "description": "Bepillantás a hotelünkbe, éttermünkbe és wellness részlegünkbe."
+  },
+  "admin": {
+    "title": "Admin",
+    "description": "Feldiserhof Admin",
+    "dashboardTitle": "Admin Dashboard",
+    "logout": "Kilépés",
+    "welcome": "Sikeresen bejelentkezve! Üdvözöljük az admin felületen.",
+    "menuEditor": "Menü szerkesztése",
+    "menuEditorDesc": "Ételek, italok és kategóriák kezelése, árak frissítése.",
+    "gallery": "Galéria kezelése",
+    "galleryDesc": "Képek feltöltése, rendezése és kategóriák kezelése.",
+    "bookings": "Foglalások",
+    "bookingsDesc": "Foglalások kezelése, áttekintése és státusz módosítása.",
+    "hours": "Nyitvatartás",
+    "hoursDesc": "Nyitvatartási idők módosítása és ünnepi rendszeresség.",
+    "staff": "Alkalmazottak",
+    "staffDesc": "Csapattagok kezelése és beosztások szerkesztése.",
+    "analytics": "Statisztikák",
+    "analyticsDesc": "Weboldal forgalom és egyéb statisztikák megtekintése.",
+    "open": "Megnyitás"
+  },
+  "adminModal": {
+    "title": "Admin Belépés",
+    "subtitle": "Csak felhatalmazott személyek számára",
+    "passwordPlaceholder": "Admin Jelszó",
+    "submit": "Belépés",
+    "security": "Biztonságos kapcsolat",
+    "close": "Bezárás"
+  },
+  "menu": {
+    "title": "Speisekarte",
+    "subtitle": "Entdecken Sie unsere Küche",
+    "intro": "Frisch, saisonal, regional – täglich für Sie."
+  },
+  "wellness": {
+    "features": {
+      "sauna": "Finnische Sauna",
+      "infrared": "Infrarot-Kabine",
+      "cold": "Kalter Bottich",
+      "rain": "Regendusche"
+    },
+    "services": {
+      "water": "Aromatisiertes Wasser & Wellness-Tee",
+      "fruits": "Frische und getrocknete Früchte",
+      "towels": "Frottee- und Saunatuch"
+    },
+    "pricing": {
+      "sauna": {
+        "title": "Sauna",
+        "meta": "2 Std · Fr. 45.00",
+        "sub": "pro Person"
+      },
+      "spa": {
+        "title": "Privat Spa",
+        "meta": "3 Std · 2 Pers · Fr. 240.00",
+        "sub": "inkl. Snacks & Prosecco"
+      }
+    },
+    "note": "Nur nach Voranmeldung.",
+    "cta": "Jetzt anfragen",
+    "images": {
+      "sauna": "Finnische Sauna – Holzfass",
+      "infrared": "Infrarot-Kabine"
+    }
+  },
+  "errors": {
+    "404": "404 – Az oldal nem található."
+  }
+}

@@ -1,0 +1,225 @@
+/* =======================================================
+   WELLNESS – egységes krém háttér + modern, hozzáférhető UI
+   ======================================================= */
+
+:root{
+  --primary:   #0a2540;
+  --accent:    #ff6b6b;
+  --secondary: #4ecdc4;
+  --light:     #f8f9fa;
+  --dark:      #212529;
+  --gray:      #6c757d;
+  --transition: all .3s ease;
+
+  --warm-bg-start: #f6ddb0;  /* ugyanaz a meleg háttér, mint a Reservieren sáv */
+  --warm-bg-end:   #edd09a;
+
+  --radius-sm: 12px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --shadow-sm: 0 2px 8px rgba(0,0,0,.05);
+  --shadow-md: 0 5px 20px rgba(0,0,0,.06);
+  --shadow-lg: 0 12px 30px rgba(0,0,0,.12);
+}
+
+@media (prefers-reduced-motion: reduce){
+  :root { --transition: none; }
+}
+
+body{
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  line-height: 1.6;
+  color: var(--dark);
+}
+
+/* ===== Szekció (meleg háttér) ===== */
+.wellness-section{
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(180deg, var(--warm-bg-start) 0%, var(--warm-bg-end) 100%) !important;
+}
+.wellness-section::before,
+.wellness-section::after{ content: none !important; }
+
+.wellness-container{ position: relative; z-index: 1; }
+
+/* ===== Fejléc ===== */
+.wellness-badge{
+  background: var(--primary);
+  color:#fff;
+  font-size:.85rem;
+  font-weight:600;
+  letter-spacing:.5px;
+  padding:.5rem 1.25rem;
+  border-radius:50px;
+  display:inline-block;
+  margin-bottom:1.5rem;
+  box-shadow:0 4px 12px rgba(10,37,64,.1);
+}
+
+.wellness-title{
+  font-weight:800;
+  font-size:2.8rem;
+  line-height:1.2;
+  margin-bottom:1.5rem;
+  color:var(--primary);
+}
+.wellness-title span{
+  color:var(--accent);
+  position:relative;
+}
+.wellness-title span::after{
+  content:'';
+  position:absolute;
+  bottom:5px; left:0;
+  width:100%; height:8px;
+  background-color: rgba(255,107,107,.2);
+  z-index:-1; border-radius:4px;
+}
+
+.wellness-lead{
+  font-size:1.2rem;
+  color:var(--gray);
+  margin-bottom:2rem;
+  font-weight:400;
+}
+
+/* ===== Feature chipek (gombok, fókusz) ===== */
+.wellness-features{
+  display:flex; flex-wrap:wrap;
+  gap:1rem; margin-bottom:2.5rem;
+}
+.feature-chip{
+  appearance: none;
+  background:#fff;
+  border:1px solid rgba(0,0,0,.08);
+  border-radius:50px;
+  padding:.7rem 1.2rem;
+  font-weight:500;
+  box-shadow:var(--shadow-sm);
+  transition:var(--transition);
+  display:flex; align-items:center; gap:.5rem;
+  cursor:default;
+}
+.feature-chip:hover{
+  transform:translateY(-3px);
+  box-shadow:0 6px 15px rgba(0,0,0,.1);
+  border-color:var(--secondary);
+}
+.feature-chip:focus-visible{
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(78,205,196,.4);
+}
+.feature-icon{ color:var(--secondary); font-size:1.1rem; }
+
+/* ===== Inklusivleistungen ===== */
+.included-title{
+  font-weight:700; font-size:1.2rem;
+  margin-bottom:1rem; color:var(--primary);
+}
+.included-list{ list-style:none; padding:0; margin-bottom:2.5rem; }
+.included-list li{ margin-bottom:.9rem; display:flex; align-items:center; gap:.8rem; }
+.tick-icon{
+  color:var(--secondary); font-size:1.2rem;
+  width:24px; height:24px; display:flex; align-items:center; justify-content:center;
+  background:rgba(78,205,196,.1); border-radius:50%;
+}
+
+/* ===== Note ===== */
+.alert-note{
+  background:#fff9e8;
+  border: 1px solid #ffe3b0;
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+  margin-bottom: 2.5rem;
+  color: var(--primary);
+}
+.alert-note strong{ color:var(--accent); }
+
+/* ===== Árkártyák ===== */
+.pricing-cards{
+  display:grid;
+  grid-template-columns: repeat( auto-fit, minmax(220px, 1fr) );
+  gap:1.5rem; margin-bottom:2.5rem;
+}
+.price-card{
+  background:#fff; border-radius:var(--radius-md);
+  padding:1.75rem;
+  box-shadow:var(--shadow-md);
+  transition:var(--transition);
+  border:1px solid rgba(0,0,0,.05);
+  display:flex; flex-direction:column;
+  min-height: 170px;
+}
+.price-card:hover{ transform:translateY(-5px); box-shadow:var(--shadow-lg); }
+.price-card.highlighted{
+  border:1px solid var(--accent);
+  position:relative; overflow:hidden;
+}
+.price-card.highlighted::before{
+  content:'Empfohlen';
+  position:absolute; top:0; right:0;
+  background:var(--accent); color:#fff;
+  font-size:.75rem; font-weight:600;
+  padding:.4rem 1rem; border-bottom-left-radius:12px;
+}
+.pc-title{ font-weight:700; font-size:1.25rem; color:var(--primary); margin-bottom:.5rem; }
+.pc-meta{ font-weight:700; font-size:1.1rem; color:var(--accent); margin-bottom:.35rem; }
+.pc-sub{ color:var(--gray); font-size:.95rem; margin-top:auto; }
+
+/* ===== CTA ===== */
+.btn-primary-custom{
+  background:var(--primary); color:#fff; border:none;
+  border-radius:50px; padding:.9rem 2rem;
+  font-weight:600; font-size:1.1rem; transition:var(--transition);
+  box-shadow:0 4px 12px rgba(10,37,64,.2);
+  display:inline-flex; align-items:center; gap:.7rem;
+  text-decoration:none;
+}
+.btn-primary-custom:hover{
+  background:#0d2f52; transform:translateY(-2px);
+  box-shadow:0 6px 18px rgba(10,37,64,.3);
+}
+.btn-primary-custom:focus-visible{
+  outline:none; box-shadow: 0 0 0 3px rgba(10,37,64,.35);
+}
+
+/* Sticky CTA mobilon */
+.sticky-mobile{ position: static; }
+@media (max-width: 768px){
+  .sticky-mobile{
+    position: sticky; bottom: .75rem; z-index: 10;
+    display:block;
+  }
+  .sticky-mobile .btn-primary-custom{ width:100%; justify-content:center; }
+}
+
+/* ===== Galéria (aspect-ratio -> nincs CLS) ===== */
+.gallery-container{ position:relative; }
+.gallery-stack{
+  display:grid; grid-template-columns:1fr 1fr;
+  gap:1.5rem; height:100%;
+}
+.gallery-item{
+  border-radius:var(--radius-md); overflow:hidden;
+  box-shadow:0 8px 25px rgba(0,0,0,.1);
+  transition:var(--transition);
+  background:#fff;
+  will-change: transform;
+}
+.gallery-item:hover{ transform:scale(1.02); box-shadow:0 12px 35px rgba(0,0,0,.15); }
+.gallery-item.large{ grid-column:1 / 3; aspect-ratio: 16 / 9; }
+.gallery-item.small{ aspect-ratio: 16 / 9; }
+.gallery-img{ width:100%; height:100%; object-fit:cover; display:block; }
+
+/* ===== Reszponzív ===== */
+@media (max-width: 992px){
+  .wellness-title{ font-size:2.3rem; }
+  .gallery-stack{ grid-template-columns:1fr; margin-top:2rem; }
+  .gallery-item.large{ grid-column:1; }
+}
+@media (max-width: 576px){
+  .wellness-title{ font-size:2rem; }
+  .wellness-features{ flex-direction:column; }
+  .feature-chip{ justify-content:center; }
+}
