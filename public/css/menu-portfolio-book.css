@@ -1,0 +1,452 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@500;700;800&display=swap');
+
+/* ===== Feldiserhof – Menü „könyv” ===== */
+.menu-portfolio{
+  /* Meleg, klasszikus paletta */
+  --accent: #c8a96a;             /* arany */
+  --accent-ink: #8f7745;         /* sötétebb arany */
+  --ink: #21322a;                /* sötétzöldes grafit címhez */
+  --text: #34404a;
+  --muted: #6e7a84;
+  --paper-1: #ffffff;
+  --paper-2: #fbfaf8;
+  --shadow-outer: 0 22px 50px rgba(0,0,0,.08);
+  --shadow-page: 0 12px 28px rgba(0,0,0,.10);
+  --radius-book: 16px;
+  --radius-page: 10px;
+  font-family:"Nunito",system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+}
+
+/* KERET */
+.menu-portfolio .wrapper{
+  position:relative;
+  max-width: 62rem;
+  margin:0 auto;
+  padding: 1.25rem 1rem 1.75rem;
+  perspective: 2000px;
+}
+
+/* A feltűnő kék borító helyett: finom, könyves gerinc */
+.menu-portfolio .cover{ display:none; }
+@media (max-width: 576px){
+  .menu-portfolio .cover{ display:none; }
+}
+
+/* KÖNYVTEST - finomabb gerinc és árnyékok */
+.menu-portfolio .book{
+  position:relative;
+  min-height: 32rem;
+  border-radius: var(--radius-book);
+  box-shadow: var(--shadow-outer);
+  background: radial-gradient(120% 120% at 50% -10%, #fff 0%, #f7f3ea 80%);
+  overflow:hidden;
+}
+
+/* Finomított gerinc - jobban látható és realisztikusabb */
+.menu-portfolio .book::before{
+  content:"";
+  position:absolute;
+  top:0; bottom:0; left:50%;
+  width: 4px;
+  transform: translateX(-2px);
+  background: linear-gradient(180deg, 
+    rgba(0,0,0,.25) 0%, 
+    rgba(0,0,0,.15) 20%, 
+    rgba(0,0,0,.08) 40%, 
+    rgba(0,0,0,.15) 60%, 
+    rgba(0,0,0,.25) 100%);
+  opacity:.25;
+  pointer-events:none;
+  z-index: 5;
+}
+
+/* Belső gerinc árnyék a könyvtesten */
+.menu-portfolio .book::after{
+  content:"";
+  position:absolute;
+  top:0; bottom:0; left:50%;
+  width: 1px;
+  transform: translateX(-0.5px);
+  background: linear-gradient(180deg, 
+    rgba(0,0,0,.15) 0%, 
+    rgba(0,0,0,.05) 40%, 
+    rgba(0,0,0,.15) 100%);
+  opacity:.15;
+  pointer-events:none;
+  z-index: 4;
+}
+
+/* OLDALAK - papírtextúrával és peremekkel */
+.menu-portfolio .book-page{
+  position:absolute;
+  width:50%;
+  height:100%;
+  padding: 1.5rem 1.75rem;
+  background: 
+    /* Papírtextúra - szuper enyhe zaj */
+    linear-gradient(90deg, rgba(0,0,0,.015) 1px, transparent 1px),
+    linear-gradient(rgba(0,0,0,.015) 1px, transparent 1px),
+    /* Alapszín */
+    linear-gradient(180deg, var(--paper-1), var(--paper-2));
+  background-size: 20px 20px, 20px 20px, 100% 100%;
+  border-radius: var(--radius-page);
+  box-shadow: var(--shadow-page);
+}
+.menu-portfolio .page-left{ left:0; }
+.menu-portfolio .page-right{
+  right:0;
+  transform-style: preserve-3d;
+  transform-origin: left;
+  transition: transform 900ms cubic-bezier(.45,.04,.24,1);
+}
+.menu-portfolio .page-right.turn{ transform: rotateY(-180deg); }
+
+.menu-portfolio .page-front,
+.menu-portfolio .page-back{
+  position:absolute; 
+  inset:0;
+  padding: 1.5rem 2rem;
+  background: 
+    /* Papírtextúra - szuper enyhe zaj */
+    linear-gradient(90deg, rgba(0,0,0,.015) 1px, transparent 1px),
+    linear-gradient(rgba(0,0,0,.015) 1px, transparent 1px),
+    /* Alapszín */
+    linear-gradient(180deg, var(--paper-1), var(--paper-2));
+  background-size: 20px 20px, 20px 20px, 100% 100%;
+  border-radius: var(--radius-page);
+  backface-visibility: hidden;
+}
+.menu-portfolio .page-front{ transform: rotateY(0deg) translateZ(1px); }
+.menu-portfolio .page-back{  transform: rotateY(180deg) translateZ(1px); }
+
+/* Lap peremek - finom árnyék a szélek mentén */
+.menu-portfolio .page-front::before,
+.menu-portfolio .page-back::before{
+  content:"";
+  position:absolute; 
+  inset:0;
+  border-radius: var(--radius-page);
+  box-shadow: 
+    inset 0 0 0 1px rgba(255,255,255,0.8),
+    inset 0 0 0 2px rgba(0,0,0,0.03);
+  pointer-events: none;
+}
+
+/* FEJLÉC TIPÓ */
+.menu-portfolio .title{
+  text-align:center;
+  font-weight: 800;
+  font-size: 2rem;
+  letter-spacing: .02em;
+  color: var(--ink);
+  margin: .35rem 0 1.1rem;
+}
+
+/* RÁCS – menüsorok */
+.menu-portfolio .menu-items-grid{
+  display:grid;
+  grid-template-columns: repeat(2, minmax(0,1fr));
+  gap: 1rem 1.25rem;
+}
+
+/* MENÜTÉTEK – klasszikus vezetőpontozás az árhoz */
+.menu-portfolio .menu-item{
+  padding: .55rem 0 .6rem;
+  border-bottom: 1px dashed rgba(0,0,0,.08);
+}
+.menu-portfolio .menu-item:last-child{ border-bottom: none; }
+
+/* Pontozott vezetők - étlap-standard */
+.menu-portfolio .mi-head{
+  display:grid;
+  grid-template-columns: 1fr auto;
+  align-items: baseline;
+  column-gap: .75rem;
+  position: relative;
+}
+.menu-portfolio .mi-head::before{
+  content:"";
+  grid-column: 1 / -1;
+  height: 1px;
+  background-image: radial-gradient(circle, currentColor 1px, transparent 1.5px);
+  background-size: 6px 1px;
+  background-repeat: repeat-x;
+  opacity: .4; /* Kicsit sötétebb, hogy jobban látszódjon */
+  align-self: center;
+  margin: 0 .35rem;
+  order: 0;
+}
+
+.menu-portfolio .mi-name{
+  font-weight: 800;
+  font-size: 1.05rem;
+  color: var(--text);
+  margin: 0;
+  background: var(--paper-1);
+  z-index: 1;
+  padding-right: 0.5rem; /* Hely a pontozott vonal előtt */
+}
+.menu-portfolio .mi-price{
+  font-variant-numeric: tabular-nums;
+  font-weight: 800;
+  color: var(--accent-ink);
+  white-space: nowrap;
+  padding-left: .5rem; /* Hely a pontozott vonal után */
+  background: var(--paper-1);
+  z-index: 1;
+}
+.menu-portfolio .mi-desc{
+  color: var(--muted);
+  margin-top: .3rem;
+  font-size: .95rem;
+  line-height: 1.4;
+}
+.menu-portfolio .mi-tags{
+  margin:.25rem 0 0; padding:0; list-style:none;
+  display:flex; flex-wrap:wrap; gap:.25rem .5rem;
+}
+.menu-portfolio .mi-tags li{
+  font-size:.72rem; color:#3f4a52;
+  background:#eef1ee; padding:.08rem .5rem; border-radius:999px;
+}
+
+/* LAPSZÁM + SAROK NYILAK DISZKRÉTEN */
+.menu-portfolio .number-page{
+  position:absolute; left:50%; bottom: .9rem;
+  transform: translateX(-50%);
+  color: #8b969d; font-weight:600; font-size:.9rem;
+}
+
+/* Mini lapozó nyilak - finomított */
+.menu-portfolio .nextprev-btn{
+  position:absolute; bottom:.8rem; right:1.25rem;
+  width: 2rem; height:2rem; font-size: 1.6rem;
+  color:#8b969d; 
+  display:grid; place-items:center;
+  transition: all .25s ease;
+  cursor: pointer;
+  z-index: 10;
+  background: rgba(255,255,255,0.7);
+  border-radius: 50%;
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(0,0,0,0.05);
+}
+.menu-portfolio .nextprev-btn.back{ left:1.25rem; right:auto; }
+.menu-portfolio .nextprev-btn:hover{ 
+  color: var(--accent-ink); 
+  background: rgba(255,255,255,0.9);
+  transform: scale(1.1);
+}
+
+/* ALSÓ VEZÉRLŐSÁV */
+.menu-portfolio .book-controls{
+  display:flex; justify-content:center; align-items:center;
+  gap: .75rem; padding: .9rem 0 .1rem;
+}
+.menu-portfolio .book-btn{
+  border: 0; width: 44px; height: 44px; border-radius: 999px;
+  background: #fff; color:#333; display:grid; place-items:center;
+  box-shadow: 0 5px 14px rgba(0,0,0,.10);
+  transition: transform .2s ease, background .2s ease, color .2s ease;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+.menu-portfolio .book-btn:hover{ transform: scale(1.05); background: #fff7ea; color: #4b3b22; }
+.menu-portfolio .book-btn:disabled{ opacity:.45; cursor:not-allowed; }
+.menu-portfolio .book-title{ margin:0 .25rem; font-weight:800; letter-spacing:.02em; color: var(--ink); }
+
+/* PÖTTY NAVIGÁCIÓ */
+.menu-portfolio .book-dots{ display:flex; gap:.5rem; justify-content:center; margin-top:.35rem; }
+.menu-portfolio .book-dots .dot{
+  width:10px; height:10px; border-radius:50%;
+  border: 2px solid rgba(0,0,0,.18);
+  transition: background .2s, transform .2s, border-color .2s;
+  cursor:pointer;
+}
+.menu-portfolio .book-dots .dot.active{
+  background: var(--accent); border-color: var(--accent);
+  transform: scale(1.15);
+}
+
+/* Dinamikus lapérzet – élárnyék és hátoldal-sötétítés */
+.menu-portfolio .page-right{
+  transform-origin: left center;
+  transition: transform 900ms cubic-bezier(.45,.04,.24,1),
+              filter 300ms ease;
+  will-change: transform;
+}
+.menu-portfolio .page-right::before{
+  content:"";
+  position:absolute; top:0; bottom:0; left:0; width: 12px;
+  background: linear-gradient(90deg, rgba(0,0,0,.20), rgba(0,0,0,0));
+  opacity: .12;
+  pointer-events: none;
+  border-top-left-radius: var(--radius-page);
+  border-bottom-left-radius: var(--radius-page);
+}
+.menu-portfolio .page-right.turn::before{
+  opacity: .25;
+}
+
+/* A lap hátoldalára vetülő „futó” árnyék */
+.menu-portfolio .page-right .page-front{
+  box-shadow: inset -18px 0 28px -22px rgba(0,0,0,.35);
+}
+.menu-portfolio .page-right.turn .page-front{
+  box-shadow: inset -4px 0 18px -10px rgba(0,0,0,.25);
+}
+
+/* A papír enyhe vastagsága */
+.menu-portfolio .page-front::after,
+.menu-portfolio .page-back::after{
+  content:"";
+  position:absolute; inset:0;
+  border-radius: var(--radius-page);
+  box-shadow: 0 1px 0 rgba(0,0,0,.05), inset 0 0 0 1px rgba(0,0,0,.03);
+  pointer-events: none;
+}
+
+/* Profil oldal stílus */
+.menu-portfolio .profile-page {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  text-align: center;
+  padding: 2rem;
+}
+
+.menu-portfolio .profile-page h1 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  color: var(--ink);
+}
+
+.menu-portfolio .profile-page p {
+  font-size: 1.2rem;
+  color: var(--muted);
+  max-width: 80%;
+  line-height: 1.5;
+}
+
+/* MOBIL NÉZET - egyoldalas, swipe-barátságos */
+@media (max-width: 768px){
+  .menu-portfolio .menu-items-grid{ 
+    grid-template-columns: 1fr; 
+    gap: 0.75rem;
+  }
+  
+  .menu-portfolio .book{
+    min-height: 28rem;
+    overflow: visible;
+  }
+  
+  .menu-portfolio .book-page{
+    width: 100%;
+    padding: 1rem 1.25rem;
+  }
+  
+  .menu-portfolio .page-front,
+  .menu-portfolio .page-back{
+    padding: 1rem 1.5rem;
+  }
+  
+  .menu-portfolio .title{
+    font-size: 1.6rem;
+    margin: 0.25rem 0 0.75rem;
+  }
+  
+  .menu-portfolio .mi-name{
+    font-size: 1rem;
+  }
+  
+  .menu-portfolio .mi-desc{
+    font-size: 0.9rem;
+  }
+  
+  /* Mobil swipe indikátor */
+  .menu-portfolio .swipe-indicator{
+    display: block;
+    text-align: center;
+    margin-top: 1rem;
+    color: var(--muted);
+    font-size: 0.8rem;
+  }
+  
+  .menu-portfolio .book::before,
+  .menu-portfolio .book::after{
+    display: none; /* Gerinc elrejtése mobilon */
+  }
+}
+.menu-portfolio .nextprev-btn.is-disabled{ opacity:.35; pointer-events:none; filter:grayscale(.2); }
+
+
+/* Nagy mobil eszközök (tabletek) */
+@media (max-width: 1024px) and (min-width: 769px){
+  .menu-portfolio .wrapper{
+    max-width: 90%;
+  }
+  
+  .menu-portfolio .book{
+    min-height: 30rem;
+  }
+}
+
+/* Prefer-reduced-motion esetén visszafogjuk */
+@media (prefers-reduced-motion: reduce){
+  .menu-portfolio .page-right{ 
+    transition: none !important; 
+  }
+  .menu-portfolio .nextprev-btn,
+  .menu-portfolio .book-btn{
+    transition: none !important;
+  }
+}
+
+/* Kontraszt mód támogatása */
+@media (prefers-contrast: high){
+  .menu-portfolio{
+    --accent: #8a6d3b;
+    --accent-ink: #5d4d2a;
+    --ink: #000000;
+    --text: #111111;
+    --muted: #333333;
+  }
+  
+  .menu-portfolio .mi-head::before{
+    opacity: 0.7;
+  }
+}
+
+/* Sötét mód támogatása */
+@media (prefers-color-scheme: dark){
+  .menu-portfolio{
+    --paper-1: #1a1a1a;
+    --paper-2: #2d2d2d;
+    --ink: #e0e0e0;
+    --text: #cccccc;
+    --muted: #999999;
+    --shadow-outer: 0 22px 50px rgba(0,0,0,.3);
+    --shadow-page: 0 12px 28px rgba(0,0,0,.25);
+  }
+  
+  .menu-portfolio .book{
+    background: radial-gradient(120% 120% at 50% -10%, #2d2d2d 0%, #1a1a1a 80%);
+  }
+  
+  .menu-portfolio .page-front,
+  .menu-portfolio .page-back{
+    background: 
+      linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px),
+      linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),
+      linear-gradient(180deg, var(--paper-1), var(--paper-2));
+    background-size: 20px 20px, 20px 20px, 100% 100%;
+  }
+  
+  .menu-portfolio .nextprev-btn{
+    background: rgba(45,45,45,0.7);
+    color: #cccccc;
+  }
+}

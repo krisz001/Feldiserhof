@@ -12,30 +12,73 @@
     "description": "Administrationsbereich der Feldiserhof-Website",
     "dashboardTitle": "Admin-Dashboard",
     "logout": "Abmelden",
-
     "welcome": "Erfolgreich angemeldet! Willkommen im Admin-Bereich.",
     "welcomeOk": "Erfolgreich angemeldet!",
     "welcomeText": "Willkommen im Admin-Bereich.",
-
     "menuEditor": "Speisekarte bearbeiten",
     "menuEditorDesc": "Speisen, Getränke und Kategorien verwalten, Preise aktualisieren.",
-
     "gallery": "Galerie verwalten",
     "galleryDesc": "Bilder hochladen, sortieren und Kategorien verwalten.",
-
     "bookings": "Buchungen",
     "bookingsDesc": "Buchungen verwalten, prüfen und Status ändern.",
-
     "hours": "Öffnungszeiten",
     "hoursDesc": "Öffnungszeiten anpassen und Feiertagsregelungen verwalten.",
-
     "staff": "Mitarbeitende",
     "staffDesc": "Teammitglieder verwalten und Dienstpläne bearbeiten.",
-
     "analytics": "Statistiken",
     "analyticsDesc": "Website-Traffic und weitere Statistiken einsehen.",
-
-    "open": "Öffnen"
+    "open": "Öffnen",
+    "back": "Zurück",
+    "newCategory": "Neue Kategorie",
+    "newItem": "Neuer Eintrag",
+    "save": "Speichern",
+    "loadingMenu": "Menü wird geladen...",
+    "noCategories": "Noch keine Kategorien",
+    "noCategoriesHint": "Beginnen Sie mit dem Erstellen einer neuen Kategorie!",
+    "noItemsInCategory": "Noch keine Einträge in dieser Kategorie",
+    "editCategory": "Kategorie bearbeiten",
+    "categoryName": "Kategoriename",
+    "cancel": "Abbrechen",
+    "editItem": "Eintrag bearbeiten",
+    "name": "Name",
+    "price": "Preis",
+    "description": "Beschreibung",
+    "tags": "Tags (mit Komma getrennt)",
+    "allergens": "Allergene (mit Komma getrennt)",
+    "selectCategory": "Kategorie wählen...",
+    "categoryRequired": "Kategoriename ist erforderlich!",
+    "namePriceCategoryRequired": "Name, Preis und Kategorie sind erforderlich!",
+    "confirmDeleteCategory": "Sind Sie sicher, dass Sie diese Kategorie löschen möchten?",
+    "confirmDeleteItem": "Sind Sie sicher, dass Sie diesen Eintrag löschen möchten?",
+    "menuSaved": "Menü erfolgreich gespeichert!",
+    "errorLoadingMenu": "Fehler beim Laden des Menüs.",
+    "errorSaving": "Fehler beim Speichern: ",
+    "errorSavingMenu": "Fehler beim Speichern des Menüs.",
+    "heroBox": {
+      "title": "Hero Box Manager",
+      "enabled": "Aktiviert",
+      "icon": "Symbol",
+      "titleField": "Titel",
+      "description": "Beschreibung",
+      "buttonText": "Button-Text",
+      "buttonLink": "Button-Link",
+      "startDate": "Startdatum",
+      "endDate": "Enddatum",
+      "priority": "Priorität",
+      "targetAudience": "Zielgruppe",
+      "isActive": "Aktiv",
+      "preview": "Vorschau",
+      "saveSuccess": "Hero Box erfolgreich gespeichert!",
+      "edit": "Bearbeiten",
+      "heroBoxManager": "Hero Box Manager",
+      "heroBoxDesc": "Inhalt der Hero Box auf der Startseite bearbeiten",
+      "validUntil": "Gültig bis",
+      "restaurant": "Restaurant",
+      "wellness": "Wellness",
+      "hotel": "Hotel",
+      "all": "Alle",
+      "heroBoxEdit": "Hero Box bearbeiten"
+    }
   },
   "adminModal": {
     "title": "Admin-Login",
@@ -80,6 +123,25 @@
       "sauna": "Finnische Sauna – Holzfass",
       "infrared": "Infrarotkabine"
     }
+  },
+  "hero": {
+    "navigationLabel": "Bildwechsel steuern",
+    "previousImage": "Vorheriges Bild",
+    "nextImage": "Nächstes Bild",
+    "progressLabel": "Bildwechsel-Fortschritt",
+    "goToImage": "Zum {n}. Bild springen"
+  },
+  "homeHero": {
+    "title": "Zimmer buchen · Restaurant & Café · Wellness",
+    "subtitle": "Willkommen im Feldiserhof – feine Küche, regionale Zutaten und herzlicher Service.",
+    "cta": "Tisch reservieren",
+    "feature1": "Täglich geöffnet",
+    "feature2": "Regionale Produkte",
+    "feature3": "Kostenlose Parkplätze",
+    "badgeTitle": "Aktuelles Angebot",
+    "badgeText": "Genießen Sie unseren speziellen Bergblick mit 3-Gänge-Menü",
+    "badgeCta": "Mehr erfahren",
+    "scrollHint": "Weiter scrollen"
   },
   "errors": {
     "404": "404 – Seite nicht gefunden."

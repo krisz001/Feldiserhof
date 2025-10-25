@@ -1,12 +1,21 @@
 <%- include('partials/head', {
-  title: (typeof title !== 'undefined' && title) ? title : 'Feldiserhof – Alpenhotel',
-  description: (typeof description !== 'undefined' && description) ? description : 'Willkommen im Feldiserhof. Genuss, Natur und Erholung im Herzen der Berge.'
+  title: t('home.title'),
+  description: t('home.description')
 }) %>
 
 <%- include('partials/navbar') %>
 
 <main id="main-content">
-  <%- include('partials/hero') %>
+  <!-- HERO SECTION - partial használata -->
+  <%- include('partials/hero', {
+    heroImages: [
+      '/img/hero/feldiserhof-winter.jpg',
+      '/img/hero/feldiserhof-sunset.jpg',
+      "/img/hero/feldiserhof-view.jpg"
+    ],
+    heroBox: heroBox  // Átadjuk a heroBox adatot a partial-nak
+  }) %>
+
   <%- include('partials/about') %>
 
   <%- include('partials/menu', {
@@ -54,4 +63,7 @@
 <!-- Admin login modal (password-only) -->
 <link rel="stylesheet" href="/css/admin-modal.css">
 <%- include('partials/admin-login-modal') %>
+
+<!-- Hero háttér rotátor (defer) -->
+<script src="/js/hero-rotator.js" defer></script>
 <script src="/js/secret-admin.js" defer></script>

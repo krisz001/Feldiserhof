@@ -2,17 +2,32 @@
   "title": "Speisekarte",
   "categories": [
     {
-      "name": "Vorspeisen",
+      "name": "Mittags Speisekarte",
       "items": [
         {
-          "name": "Bruschetta",
-          "description": "Geröstetes Brot mit Tomaten, Basilikum und Knoblauch",
-          "price": "8.50"
+          "name": "Kleiner Salatteller",
+          "price": 7,
+          "desc": "",
+          "tags": [
+            "frisch"
+          ],
+          "allergens": []
         },
         {
-          "name": "Antipasti Teller",
-          "description": "Auswahl an italienischen Vorspeisen",
-          "price": "12.00"
+          "name": "Mittlerer Salatteller",
+          "price": 15,
+          "desc": "",
+          "tags": [
+            "frisch"
+          ],
+          "allergens": []
+        },
+        {
+          "name": "Gross Salatteller",
+          "price": 22,
+          "desc": "",
+          "tags": [],
+          "allergens": []
         }
       ]
     },
@@ -20,29 +35,28 @@
       "name": "Hauptgerichte",
       "items": [
         {
-          "name": "Wiener Schnitzel",
-          "description": "Kalbsschnitzel mit Petersilienkartoffeln und Preiselbeeren",
-          "price": "18.50"
-        },
-        {
-          "name": "Rinderfilet",
-          "description": "Mit Trüffelsauce und Gemüse der Saison",
-          "price": "24.00"
+          "name": "Pulykamell",
+          "price": 5800,
+          "desc": "töltve spenóttal és feta sajttal, burgonyapürével",
+          "tags": [
+            "friss",
+            "készítés"
+          ],
+          "allergens": [
+            "laktóz"
+          ]
         }
       ]
     },
     {
-      "name": "Desserts",
+      "name": "Abend Speisekarte",
       "items": [
         {
-          "name": "Tiramisu",
-          "description": "Klassisches italienisches Dessert",
-          "price": "6.50"
-        },
-        {
-          "name": "Schokoladenkuchen",
-          "description": "Mit Vanilleeis und Himbeersauce",
-          "price": "7.00"
+          "name": "Teszt",
+          "price": 2,
+          "desc": "",
+          "tags": [],
+          "allergens": []
         }
       ]
     }

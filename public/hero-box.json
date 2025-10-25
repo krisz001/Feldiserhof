@@ -1,0 +1,13 @@
+{
+  "enabled": true,
+  "icon": "💆",
+  "title": "Tesztelés",
+  "description": "Teszt leírás nézet",
+  "buttonText": "Jetzt buchen",
+  "buttonLink": "/wellness",
+  "startDate": "2025-10-25",
+  "endDate": "2025-10-26",
+  "priority": 1,
+  "targetAudience": "all",
+  "isActive": false
+}

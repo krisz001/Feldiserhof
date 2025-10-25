@@ -1,49 +1,160 @@
-<section class="menu-section">
-  <div class="menu-container">
-    <header class="menu-header">
-      <div class="logo">RESTAURANT</div>
-      <h1 class="menu-title">Speisekarte</h1>
-      <p class="menu-subtitle">Unsere kulinarischen Kreationen</p>
-    </header>
+<%
+  // --------- Bejövő adatok és alapok ---------
+  // Várjuk: menuData = { categories: [{ name, items: [{name, price, desc, tags[]}] }] }
+  const categories = (menuData && Array.isArray(menuData.categories)) ? menuData.categories : [];
 
-    <section class="menu-intro">
-      <p>Alle Gerichte werden frisch zubereitet</p>
-    </section>
+  const chfFmt = new Intl.NumberFormat('de-CH', {
+    style: 'currency',
+    currency: 'CHF',
+    maximumFractionDigits: 2
+  });
 
-    <!-- Flipbook container -->
-    <div class="flipbook-container">
-      <div id="book" class="book">
-        <div class="page" id="page-starters">
-          <div class="page-content">
-            <h3>Vorspeisen</h3>
-            <div id="page-starters-content" class="menu-items-grid"></div>
-          </div>
-        </div>
-        <div class="page" id="page-mains">
-          <div class="page-content">
-            <h3>Hauptgerichte</h3>
-            <div id="page-mains-content" class="menu-items-grid"></div>
-          </div>
-        </div>
-        <div class="page" id="page-desserts">
-          <div class="page-content">
-            <h3>Desserts</h3>
-            <div id="page-desserts-content" class="menu-items-grid"></div>
-          </div>
-        </div>
-        <div class="page" id="page-drinks">
-          <div class="page-content">
-            <h3>Getränke</h3>
-            <div id="page-drinks-content" class="menu-items-grid"></div>
-          </div>
-        </div>
-      </div>
+  const titleTxt    = t('menu.title',    { defaultValue: 'Speisekarte' });
+  const subtitleTxt = t('menu.subtitle', { defaultValue: 'Entdecken Sie unsere Küche' });
+  const introTxt    = t('menu.intro',    { defaultValue: 'Frisch, saisonal, regional – täglich für Sie.' });
 
-      <div class="book-controls">
-        <button class="book-btn prev">‹</button>
-        <h4 id="bookTitle" class="book-title">Vorspeisen</h4>
-        <button class="book-btn next">›</button>
+  // --------- Lapozás paraméter ---------
+  const itemsPerPage = 8; // ennyi tétel kerül egy oldalra (egy lap egyik oldala)
+
+  // --------- 1) kategóriák -> oldalak (pages) ---------
+  const pages = [];
+  categories.forEach((cat, catIndex) => {
+    const items = Array.isArray(cat.items) ? cat.items : [];
+    for (let i = 0; i < items.length; i += itemsPerPage) {
+      const pageItems    = items.slice(i, i + itemsPerPage);
+      const pageNoInCat  = Math.floor(i / itemsPerPage) + 1;
+      const baseName     = cat.name || ('Kategorie ' + (catIndex + 1));
+      const pageTitle    = pageNoInCat === 1 ? baseName : `${baseName} (Seite ${pageNoInCat})`;
+      pages.push({ title: pageTitle, items: pageItems });
+    }
+  });
+
+  // --------- 2) oldalpárok (sheets) -> front/back ---------
+  const totalSheets = Math.ceil(pages.length / 2);
+%>
+
+<section id="menu" class="menu-section">
+  <header class="text-center mb-4">
+    <h2 class="menu-title"><%= titleTxt %></h2>
+    <p class="menu-subtitle"><%= subtitleTxt %></p>
+    <p class="menu-intro"><%= introTxt %></p>
+  </header>
+
+  <div class="menu-portfolio"><!-- SCOPED KONTÉNER -->
+    <div class="wrapper"><!-- tartó -->
+      <div class="cover cover-left" aria-hidden="true"></div>
+      <div class="cover cover-right" aria-hidden="true"></div>
+
+      <div class="book"><!-- könyv -->
+        <!-- Bal „borító” -->
+        <div class="book-page page-left">
+          <div class="profile-page profile-cover">
+            <h1><%= titleTxt %></h1>
+            <p><%= subtitleTxt %></p>
+          </div>
+        </div>
+
+        <% if (pages.length === 0) { %>
+          <!-- Nincs adat: egy üres sheet, hogy legyen valami -->
+          <div class="book-page page-right" id="turn-1">
+            <div class="page-front">
+              <h1 class="title"><%= titleTxt %></h1>
+              <p>Derzeit sind keine Menüdaten vorhanden.</p>
+              <span class="number-page">1</span>
+              <!-- saroknyíl mindig -->
+              <span class="nextprev-btn" data-role="next"><i class="bx bx-chevron-right"></i></span>
+            </div>
+            <div class="page-back">
+              <span class="number-page">2</span>
+              <!-- saroknyíl mindig -->
+              <span class="nextprev-btn back" data-role="prev"><i class="bx bx-chevron-left"></i></span>
+            </div>
+          </div>
+        <% } else { 
+          for (let sheetIndex = 0; sheetIndex < totalSheets; sheetIndex++) {
+            const front        = pages[sheetIndex * 2];
+            const back         = pages[sheetIndex * 2 + 1]; // lehet undefined
+            const sheetId      = `turn-${sheetIndex + 1}`;
+            const frontPageNo  = sheetIndex * 2 + 1;
+            const backPageNo   = sheetIndex * 2 + 2;
+        %>
+          <div class="book-page page-right" id="<%= sheetId %>">
+            <!-- FRONT -->
+            <div class="page-front">
+              <h1 class="title"><%= front.title %></h1>
+
+              <div class="menu-items-grid">
+                <% front.items.forEach(item => { %>
+                  <article class="menu-item">
+                    <div class="mi-head">
+                      <h4 class="mi-name"><%- item.name || '' %></h4>
+                      <% if (item.price != null && item.price !== '') { %>
+                        <div class="mi-price">
+                          <%= typeof item.price === 'number' ? chfFmt.format(item.price) : String(item.price) %>
+                        </div>
+                      <% } %>
+                    </div>
+                    <% if (item.desc) { %><p class="mi-desc"><%- item.desc %></p><% } %>
+                    <% if (item.tags && item.tags.length) { %>
+                      <ul class="mi-tags">
+                        <% item.tags.forEach(tag => { %><li><%- tag %></li><% }) %>
+                      </ul>
+                    <% } %>
+                  </article>
+                <% }) %>
+              </div>
+
+              <span class="number-page"><%= frontPageNo %></span>
+              <!-- saroknyíl mindig látszik -->
+              <span class="nextprev-btn" data-role="next"><i class="bx bx-chevron-right"></i></span>
+            </div>
+
+            <!-- BACK -->
+            <div class="page-back">
+              <% if (back) { %>
+                <h1 class="title"><%= back.title %></h1>
+
+                <div class="menu-items-grid">
+                  <% back.items.forEach(item => { %>
+                    <article class="menu-item">
+                      <div class="mi-head">
+                        <h4 class="mi-name"><%- item.name || '' %></h4>
+                        <% if (item.price != null && item.price !== '') { %>
+                          <div class="mi-price">
+                            <%= typeof item.price === 'number' ? chfFmt.format(item.price) : String(item.price) %>
+                          </div>
+                        <% } %>
+                      </div>
+                      <% if (item.desc) { %><p class="mi-desc"><%- item.desc %></p><% } %>
+                      <% if (item.tags && item.tags.length) { %>
+                        <ul class="mi-tags">
+                          <% item.tags.forEach(tag => { %><li><%- tag %></li><% }) %>
+                        </ul>
+                      <% } %>
+                    </article>
+                  <% }) %>
+                </div>
+              <% } else { %>
+                <!-- utolsó hátoldal – köszönő oldal -->
+                <div class="profile-page">
+                  <h1 class="title">Vielen Dank!</h1>
+                  <p>Wir wünschen einen guten Appetit</p>
+                </div>
+              <% } %>
+
+              <span class="number-page"><%= backPageNo %></span>
+              <!-- saroknyíl mindig látszik -->
+              <span class="nextprev-btn back" data-role="prev"><i class="bx bx-chevron-left"></i></span>
+            </div>
+          </div>
+        <% } } %>
       </div>
     </div>
+
+    <div class="book-dots"><!-- JS tölti fel --></div>
   </div>
+
+  <!-- STÍLUSOK -->
+  <link rel="stylesheet" href="/css/menu-portfolio-book.css">
+  <link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css">
 </section>

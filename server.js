@@ -1,5 +1,5 @@
 // ============================================================
-// Feldiserhof – Express.js szerver (bővített, admin-ready)
+// Feldiserhof – Express.js szerver (bővített, admin-ready + Hero Box)
 // ============================================================
 import express from "express";
 import fs from "fs";
@@ -163,6 +163,71 @@ const setLangCookie = (res, lng) => {
 };
 
 // ============================================================
+// Helper: JSON olvasás
+// ============================================================
+const loadJSON = (filePath) => {
+  try {
+    const fullPath = path.join(__dirname, "public", filePath);
+    return JSON.parse(fs.readFileSync(fullPath, "utf8"));
+  } catch (err) {
+    console.error(`❌ Hiba a(z) ${filePath} betöltésekor:`, err.message);
+    return null;
+  }
+};
+
+// ============================================================
+// Helper: Hero Box adatok betöltése
+// ============================================================
+const loadHeroBox = () => {
+  try {
+    const heroBoxPath = path.join(__dirname, "public", "hero-box.json");
+    
+    // Ha nem létezik a fájl, alapértelmezett értékekkel létrehozzuk
+    if (!fs.existsSync(heroBoxPath)) {
+      const defaultHeroBox = {
+        enabled: true,
+        icon: "🏔️",
+        title: "Aktuelles Angebot",
+        description: "Genießen Sie unseren speziellen Bergblick mit 3-Gänge-Menü",
+        buttonText: "Mehr erfahren",
+        buttonLink: "#offers",
+        startDate: new Date().toISOString().split('T')[0],
+        endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        priority: 1,
+        isActive: true,
+        targetAudience: "all"
+      };
+      
+      fs.writeFileSync(heroBoxPath, JSON.stringify(defaultHeroBox, null, 2));
+      console.log('✅ Alapértelmezett hero-box.json létrehozva');
+      return defaultHeroBox;
+    }
+    
+    const data = JSON.parse(fs.readFileSync(heroBoxPath, "utf8"));
+    
+    // Dátum érvényesség ellenőrzése
+    const now = new Date();
+    const endDate = new Date(data.endDate);
+    if (endDate < now) {
+      data.isActive = false;
+    }
+    
+    return data;
+  } catch (err) {
+    console.error('❌ Hiba a hero-box.json betöltésekor:', err.message);
+    return {
+      enabled: false,
+      icon: "🏔️",
+      title: "Aktuelles Angebot",
+      description: "Genießen Sie unseren speziellen Bergblick mit 3-Gänge-Menü",
+      buttonText: "Mehr erfahren",
+      buttonLink: "#offers",
+      isActive: false
+    };
+  }
+};
+
+// ============================================================
 // Nyelvi middleware - DEBUG információkkal
 // ============================================================
 app.use((req, res, next) => {
@@ -178,19 +243,6 @@ app.use((req, res, next) => {
 
   next();
 });
-
-// ============================================================
-// Helper: JSON olvasás
-// ============================================================
-const loadJSON = (filePath) => {
-  try {
-    const fullPath = path.join(__dirname, "public", filePath);
-    return JSON.parse(fs.readFileSync(fullPath, "utf8"));
-  } catch (err) {
-    console.error(`❌ Hiba a(z) ${filePath} betöltésekor:`, err.message);
-    return null;
-  }
-};
 
 // ============================================================
 // Nyelv váltó route - POST (JavaScript-hez)
@@ -237,24 +289,34 @@ app.get('/set-language/:lang', (req, res) => {
 });
 
 // ============================================================
-// Főoldal
+// Főoldal - HERO BOX támogatással
 // ============================================================
 app.get("/", (req, res) => {
   console.log('🏠 Főoldal betöltése, nyelv:', req.language);
 
   const menuData = loadJSON("menu.json");
   const openingHours = loadJSON("opening-hours.json");
+  const heroBoxData = loadHeroBox();
 
   if (!menuData || !openingHours) {
     console.error("❌ Menü vagy nyitvatartás adat nem található.");
     return res.status(500).send("Server error: Menü vagy nyitvatartás adat nem található.");
   }
 
+  // Hero képek tömbje
+  const heroImages = [
+    '/img/hero/feldiserhof-winter.jpg',
+    '/img/hero/feldiserhof-sunset.jpg',
+    '/img/hero/feldiserhof-view.jpg'
+  ];
+
   res.render("index", {
     title: req.t('home.title'),
     description: req.t('home.description'),
     menu: menuData,
-    hours: openingHours
+    hours: openingHours,
+    heroBox: heroBoxData,
+    heroImages: heroImages
   });
 });
 
@@ -308,7 +370,7 @@ app.get("/api/gallery", (req, res) => {
 });
 
 // ============================================================
-// Rejtett admin + Menü CRUD alap
+// Rejtett admin + Menü CRUD alap + HERO BOX API
 // ============================================================
 const isAdmin = (req) => !!req.session?.isAdmin;
 const requireAdmin = (req, res, next) => {
@@ -358,9 +420,25 @@ app.post("/admin/logout", requireAdmin, (req, res) => {
 app.get("/admin", requireAdmin, (req, res) => {
   console.log('👑 Admin dashboard betöltése, nyelv:', req.language);
 
+  const heroBoxData = loadHeroBox();
+  
   res.render("admin/dashboard", {
     title: req.t('admin.title'),
-    description: req.t('admin.description')
+    description: req.t('admin.description'),
+    heroBox: heroBoxData
+  });
+});
+
+// ---- Menü szerkesztő oldal ----
+app.get("/admin/menu", requireAdmin, (req, res) => {
+  console.log('📝 Admin menü szerkesztő betöltése, nyelv:', req.language);
+
+  const menuData = loadJSON("menu.json");
+  
+  res.render("admin/menu-editor", {
+    title: req.t('admin.menuEditor'),
+    description: req.t('admin.menuEditorDesc'),
+    menu: menuData
   });
 });
 
@@ -383,6 +461,27 @@ app.post("/api/menu", requireAdmin, (req, res) => {
   }
 });
 
+// ---- HERO BOX API ----
+app.get("/api/hero-box", requireAdmin, (req, res) => {
+  const data = loadHeroBox();
+  res.json(data || {});
+});
+
+app.post("/api/hero-box", requireAdmin, (req, res) => {
+  const body = req.body && typeof req.body === "object" ? req.body : null;
+  if (!body) return res.status(400).json({ ok: false, msg: "Invalid body" });
+  
+  try {
+    const fullPath = path.join(__dirname, "public", "hero-box.json");
+    fs.writeFileSync(fullPath, JSON.stringify(body, null, 2), "utf8");
+    console.log('✅ Hero box sikeresen frissítve');
+    res.json({ ok: true });
+  } catch (e) {
+    console.error("❌ Hero box mentési hiba:", e);
+    res.status(500).json({ ok: false, msg: "Save failed" });
+  }
+});
+
 // ---- CSRF hibakezelő ----
 app.use((err, req, res, next) => {
   if (err && err.code === "EBADCSRFTOKEN") {
@@ -392,7 +491,7 @@ app.use((err, req, res, next) => {
 });
 
 // ============================================================
-// 404
+// 404 - MINDIG AZ UTOLSÓ ROUTE!
 // ============================================================
 app.use((req, res) => {
   res.status(404).send(req.t('errors.404'));
@@ -405,4 +504,6 @@ app.listen(PORT, () => {
   console.log(`✅ Feldiserhof szerver fut: http://localhost:${PORT}`);
   console.log(`🌐 Nyelvi támogatás: hu, de`);
   console.log(`🔐 Admin felület: /admin`);
+  console.log(`📝 Menü szerkesztő: /admin/menu`);
+  console.log(`🎯 Hero Box támogatás: aktív`);
 });

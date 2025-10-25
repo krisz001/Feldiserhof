@@ -1,0 +1,509 @@
+/* ===== Enhanced Hero Section ===== */
+.hero-header {
+  position: relative;
+  min-height: calc(100vh - var(--nav-height));
+  padding: 5rem 0 4rem;
+  /* Fallback háttér */
+  background-image: url("../img/background.jpeg");
+  background-size: cover;
+  background-position: center 38%;
+  background-repeat: no-repeat;
+  overflow: hidden;
+  isolation: isolate;
+  
+  /* Új változók az animációkhoz */
+  --slide-transition: 1600ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --kenburns-duration: 20000ms;
+  --parallax-intensity: 0.05;
+}
+
+.hero-header::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  /* Sötétített overlay a jobb kontrasztért */
+  background: linear-gradient(
+    135deg,
+    rgba(11,31,45,.92) 0%,
+    rgba(11,31,45,.78) 38%,
+    rgba(11,31,45,.55) 100%
+  );
+  pointer-events: none;
+}
+
+/* Többrétegű overlay dinamikus fényhatásokhoz */
+.hero-header::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: 
+    radial-gradient(ellipse at 20% 80%, rgba(120, 119, 198, 0.15) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(255, 200, 124, 0.1) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 1;
+  mix-blend-mode: overlay;
+}
+
+.hero-header .hero-slides {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  transform-style: preserve-3d;
+  perspective: 1000px;
+}
+
+.hero-header .hero-slide {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  opacity: 0;
+  transform: 
+    scale(1.15) 
+    rotateZ(0.5deg)
+    translateZ(0);
+  filter: brightness(0.9) contrast(1.1);
+  transition: 
+    opacity var(--slide-transition),
+    transform var(--kenburns-duration) ease,
+    filter var(--kenburns-duration) ease;
+  will-change: opacity, transform, filter;
+}
+
+.hero-header .hero-slide.is-active {
+  opacity: 1;
+  transform: 
+    scale(1) 
+    rotateZ(0deg)
+    translateZ(0);
+  filter: brightness(1) contrast(1);
+}
+
+/* Dinamikus Ken Burns effektek */
+.hero-header .hero-slide.kenburns-zoom {
+  transform: scale(1.2) translateZ(0);
+}
+.hero-header .hero-slide.kenburns-pan-left {
+  background-position: 60% center;
+  transform: scale(1.1) translateZ(0);
+}
+.hero-header .hero-slide.kenburns-pan-right {
+  background-position: 40% center;
+  transform: scale(1.1) translateZ(0);
+}
+
+.hero-header .hero-slide.is-active.kenburns-zoom {
+  transform: scale(1) translateZ(0);
+}
+.hero-header .hero-slide.is-active.kenburns-pan-left {
+  background-position: center center;
+  transform: scale(1) translateZ(0);
+}
+.hero-header .hero-slide.is-active.kenburns-pan-right {
+  background-position: center center;
+  transform: scale(1) translateZ(0);
+}
+
+/* Progress indicator */
+.hero-progress {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 0.5rem;
+  z-index: 10;
+}
+
+.hero-progress-item {
+  width: 40px;
+  height: 4px;
+  background: rgba(255,255,255,0.25);
+  border-radius: 2px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.hero-progress-item:hover {
+  background: rgba(255,255,255,0.5);
+}
+
+.hero-progress-item.active .progress-fill {
+  width: 100%;
+  animation: progressCountdown 7s linear forwards;
+  background: rgba(255,255,255,0.95);
+}
+
+.hero-progress-item.paused .progress-fill {
+  animation-play-state: paused;
+}
+
+.progress-fill {
+  height: 100%;
+  background: rgba(255,255,255,0.9);
+  width: 0%;
+  border-radius: 2px;
+  transition: width 0.1s linear;
+}
+
+@keyframes progressCountdown {
+  0% { width: 100%; }
+  100% { width: 0%; }
+}
+
+/* Content animációk */
+.hero-header .hero-content {
+  transform: translateY(0) translateZ(0);
+  transition: transform 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+  /* Jobb kontraszt a szövegeknek */
+  text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
+
+.hero-header .display-3 {
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.hero-header .lead {
+  font-size: 1.25rem;
+  font-weight: 400;
+  line-height: 1.6;
+  margin-bottom: 2rem;
+  max-width: 600px;
+}
+
+.hero-header .content-fade-in {
+  opacity: 0;
+  transform: translateY(30px);
+  animation: contentFadeIn 1.2s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+}
+
+@keyframes contentFadeIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Navigációs gombok */
+.hero-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 2rem;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.hero-nav-button {
+  pointer-events: all;
+  background: rgba(255,255,255,0.2);
+  border: 1px solid rgba(255,255,255,0.4);
+  color: white;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.hero-nav-button:hover {
+  background: rgba(255,255,255,0.3);
+  transform: scale(1.1);
+  border-color: rgba(255,255,255,0.7);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+}
+
+.hero-nav-button:active {
+  transform: scale(0.95);
+}
+
+/* Gomb animációk */
+.btn-hover-scale {
+  transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-hover-scale:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.btn-hover-scale::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: left 0.5s;
+}
+
+.btn-hover-scale:hover::before {
+  left: 100%;
+}
+
+.btn-icon {
+  margin-right: 0.5rem;
+  transition: transform 0.3s ease;
+}
+
+.btn-hover-scale:hover .btn-icon {
+  transform: scale(1.1);
+}
+
+/* Gombok olvashatóságának javítása */
+.hero-header .btn {
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  padding: 0.75rem 1.5rem;
+  border-width: 2px;
+}
+
+.hero-header .btn-outline-light:hover {
+  background-color: rgba(255,255,255,0.15);
+  color: #fff;
+}
+
+/* Hero badge animáció */
+.hero-badge {
+  perspective: 1000px;
+}
+
+.hero-badge .card {
+  transform: rotateY(5deg) translateX(20px);
+  transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  position: relative;
+  overflow: hidden;
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+}
+
+.hero-badge .card-body {
+  padding: 1.5rem;
+}
+
+.hero-badge .card-title {
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  font-size: 1.25rem;
+}
+
+.hero-badge .card-text {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  opacity: 0.9;
+}
+
+.hero-badge:hover .card {
+  transform: rotateY(0deg) translateX(0);
+  background: rgba(255,255,255,0.18);
+}
+
+/* Hero box extra stílusok - SHIMMER EFFECT */
+.hero-badge .card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #ffc107, #fd7e14, #ffc107);
+  background-size: 200% 100%;
+  animation: shimmer 3s infinite linear;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.hero-badge .badge-expiry {
+  font-size: 0.75rem;
+  opacity: 0.8;
+}
+
+/* Target audience badges */
+.hero-target-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 0.7rem;
+  padding: 4px 10px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.25);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.4);
+  font-weight: 600;
+  color: #fff;
+  text-shadow: 0 1px 1px rgba(0,0,0,0.3);
+}
+
+/* Scroll indicator */
+.hero-scroll-indicator {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  z-index: 5;
+}
+
+.scroll-arrow {
+  width: 24px;
+  height: 24px;
+  border-right: 2px solid rgba(255,255,255,0.7);
+  border-bottom: 2px solid rgba(255,255,255,0.7);
+  transform: rotate(45deg);
+  animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: rotate(45deg) translateY(0); }
+  50% { transform: rotate(45deg) translateY(-10px); }
+}
+
+/* Reszponzív finomítások */
+@media (max-width: 991.98px) {
+  .hero-badge .card {
+    transform: none !important;
+    margin-top: 2rem;
+  }
+  
+  .hero-header .display-3 {
+    font-size: 3rem !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .hero-nav {
+    padding: 0 1rem;
+  }
+  
+  .hero-nav-button {
+    width: 44px;
+    height: 44px;
+  }
+  
+  .hero-progress {
+    bottom: 1rem;
+  }
+  
+  .hero-progress-item {
+    width: 30px;
+  }
+  
+  .hero-target-badge {
+    top: 5px;
+    right: 5px;
+  }
+  
+  .hero-header .lead {
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .hero-header .display-3 {
+    font-size: 2.5rem !important;
+  }
+  
+  .hero-header .btn {
+    width: 100%;
+    justify-content: center;
+    margin-bottom: 0.5rem;
+  }
+  
+  .hero-header .d-flex.flex-sm-row {
+    flex-direction: column !important;
+    gap: 0.5rem;
+  }
+  
+  .hero-badge .card-body {
+    padding: 1rem;
+  }
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+  .hero-header .hero-slide,
+  .hero-header .hero-content,
+  .hero-nav-button,
+  .btn-hover-scale,
+  .hero-badge .card,
+  .scroll-arrow,
+  .content-fade-in {
+    transition: opacity 0.3s linear !important;
+    transform: none !important;
+    animation: none !important;
+  }
+  
+  .hero-progress-item.active .progress-fill {
+    animation: none;
+    width: 0%;
+  }
+  
+  .content-fade-in {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  
+  /* Remove shimmer effect when reduced motion is preferred */
+  .hero-badge .card::before {
+    animation: none;
+    background: #ffc107; /* Static color instead of animation */
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .hero-header::before {
+    background: rgba(0,0,0,0.9);
+  }
+  
+  .btn-outline-light {
+    border-width: 3px;
+  }
+  
+  .hero-progress-item {
+    background: rgba(255,255,255,0.6);
+  }
+  
+  .progress-fill {
+    background: rgba(255,255,255,1);
+  }
+  
+  .hero-badge .card {
+    border: 2px solid rgba(255,255,255,0.9);
+    background: rgba(0,0,0,0.8);
+  }
+  
+  .hero-target-badge {
+    background: rgba(255,255,255,0.9);
+    color: #000;
+    border: 2px solid #000;
+  }
+  
+  .hero-header .hero-content {
+    text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+  }
+}
