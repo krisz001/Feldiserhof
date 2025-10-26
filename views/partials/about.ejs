@@ -1,26 +1,55 @@
-<section id="about" class="container-xxl py-5">
-  <div class="container">
-    <div class="row g-5 align-items-center">
-      <div class="col-lg-6 wow fadeIn" data-wow-delay="0.1s">
-        <div class="about-img position-relative overflow-hidden p-5 pe-0">
-          <img class="img-fluid w-100 rounded-3 shadow" src="/img/about.jpg" alt="Feldiserhof Restaurant Innenraum">
-        </div>
+<!-- views/partials/about.ejs -->
+<section id="about" class="card-frame pad">
+  <div class="row g-4 align-items-center">
+    <!-- TEXT COLUMN -->
+    <div class="col-12 col-lg-6">
+      <p class="overline mb-2">Über uns</p>
+      <h2 class="headline">Willkommen im <a class="brand" href="#">Feldiserhof</a></h2>
+      <p class="lede mb-3">
+        Der Feldiserhof ist ein ruhiger Rückzugsort für Genussmenschen – eingebettet in die Bündner Berge.
+        Ob gepflegte Küche im Restaurant, ein Kaffee im Tagesbetrieb oder Entspannung in unserer kleinen Wellness-Oase:
+        Qualität, Beständigkeit und herzliche Gastfreundschaft stehen bei uns im Mittelpunkt.
+      </p>
+
+      <div class="chips">
+        <span class="chip"><i class="fa-solid fa-mountain-sun"></i> 1’500 m ü. M.</span>
+        <span class="chip"><i class="fa-solid fa-seedling"></i> Regional & saisonal</span>
+        <span class="chip"><i class="fa-solid fa-award"></i> Familiengeführt</span>
       </div>
-      <div class="col-lg-6 wow fadeIn" data-wow-delay="0.5s">
-        <h5 class="section-title ff-secondary text-start text-primary fw-normal">Über uns</h5>
-        <h1 class="mb-4">Willkommen im <span class="text-primary">Feldiserhof</span></h1>
-        <p class="mb-4">
-          Der Feldiserhof ist ein Ort der Ruhe und des Genusses – mitten in den Bündner Bergen.
-          Ob Sie in unserem gemütlichen Restaurant speisen, einen Drink im Café genießen oder
-          sich in unserer kleinen Wellness-Oase entspannen – bei uns stehen Qualität und
-          Herzlichkeit im Mittelpunkt.
-        </p>
-        <p class="mb-4">
-          Unsere Küche bietet regionale Spezialitäten, saisonale Zutaten und hausgemachte Köstlichkeiten.
-          Wir freuen uns, Sie bei uns begrüßen zu dürfen!
-        </p>
-        <a href="#menu" class="btn btn-warning py-3 px-5 mt-2">Zur Speisekarte</a>
+
+      <ul class="keypoints">
+        <li><i class="fa-solid fa-utensils"></i> Regionale Spezialitäten aus saisonalen Zutaten</li>
+        <li><i class="fa-solid fa-bread-slice"></i> Hausgemachte Backwaren & Desserts</li>
+        <li><i class="fa-solid fa-mug-saucer"></i> Café-Betrieb & kleine Wellness-Oase</li>
+        <li><i class="fa-solid fa-location-dot"></i> Ausgangspunkt für Wanderungen & Ausflüge</li>
+      </ul>
+
+      <div class="d-flex flex-wrap gap-2 pt-1">
+        <a href="#menu" class="btn btn-amber"><i class="fa-regular fa-clipboard me-2"></i>Zur Speisekarte</a>
+        <a href="#wellness" class="btn btn-soft"><i class="fa-regular fa-face-smile me-2"></i>Wellness ansehen</a>
       </div>
+    </div>
+
+    <!-- MEDIA COLUMN -->
+    <div class="col-12 col-lg-6">
+      <figure class="about-media rounded-4 overflow-hidden" aria-label="Feldiserhof · Restaurant Innenraum">
+        <div class="skeleton" aria-hidden="true"></div>
+        <picture>
+          <!-- Ha van WebP, tartsd meg; különben töröld ezt a sort -->
+          <source srcset="/img/feldis.webp" type="image/webp" media="(min-width: 992px)">
+          <source srcset="/img/feldis.jpg" media="(min-width: 992px)">
+          <img
+            src="/img/feldis.jpg"
+            alt="Feldiserhof Restaurant Innenraum"
+            loading="lazy"
+            decoding="async"
+            width="1200" height="900"
+            onload="this.closest('figure').querySelector('.skeleton')?.remove()"
+            onerror="this.classList.add('broken'); this.closest('.about-media').classList.add('broken'); this.closest('figure').querySelector('.skeleton')?.remove()"
+          >
+        </picture>
+        <figcaption class="media-badge"><i class="fa-regular fa-image me-1"></i> Restaurant Innenraum</figcaption>
+      </figure>
     </div>
   </div>
 </section>

@@ -32,23 +32,6 @@
       ]
     },
     {
-      "name": "Hauptgerichte",
-      "items": [
-        {
-          "name": "Pulykamell",
-          "price": 5800,
-          "desc": "töltve spenóttal és feta sajttal, burgonyapürével",
-          "tags": [
-            "friss",
-            "készítés"
-          ],
-          "allergens": [
-            "laktóz"
-          ]
-        }
-      ]
-    },
-    {
       "name": "Abend Speisekarte",
       "items": [
         {
@@ -57,6 +40,28 @@
           "desc": "",
           "tags": [],
           "allergens": []
+        },
+        {
+          "name": "teszt3",
+          "price": 3,
+          "desc": "",
+          "tags": [],
+          "allergens": []
+        }
+      ]
+    },
+    {
+      "name": "Dessert",
+      "items": [
+        {
+          "name": "Teszt5",
+          "price": 20,
+          "desc": "",
+          "tags": [],
+          "allergens": [
+            "Laktose",
+            "Gluten"
+          ]
         }
       ]
     }

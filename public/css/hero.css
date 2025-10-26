@@ -4,7 +4,6 @@
   min-height: calc(100vh - var(--nav-height));
   padding: 5rem 0 4rem;
   /* Fallback háttér */
-  background-image: url("../img/background.jpeg");
   background-size: cover;
   background-position: center 38%;
   background-repeat: no-repeat;

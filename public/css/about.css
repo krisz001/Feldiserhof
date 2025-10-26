@@ -1,0 +1,196 @@
+/* ====================
+   About section – scoped styles only
+   (works with views/partials/about.ejs)
+==================== */
+
+/* Local palette (warm, blue-free) */
+#about{
+  --about-ink:   #2a2623;                 /* main text */
+  --about-muted: #6f6a60;                 /* muted text */
+  --about-line:  rgba(60,45,25,.10);      /* borders */
+  --about-amber: #c5860a;                 /* primary accent */
+  --about-olive: #6e7b57;                 /* secondary accent (icons) */
+
+  --about-radius: 22px;
+  --about-shadow: 0 12px 28px rgba(80,50,10,.08); /* finomabb, elegánsabb */
+}
+
+/* Optional container wrapper from layout */
+.about-shell{ position: relative; }
+
+/* Card-like frame and inner padding */
+#about.card-frame{
+  position: relative;
+  background: rgba(255,250,240,.82);
+  border: 1px solid var(--about-line);
+  border-radius: var(--about-radius);
+  box-shadow: var(--about-shadow);
+  overflow: clip;
+  backdrop-filter: blur(6px);
+}
+
+#about.pad{
+  padding: clamp(1.25rem, 2.6vw, 2.2rem) clamp(1.25rem, 3vw, 2.6rem) clamp(1.6rem, 3.6vw, 2.8rem);
+}
+
+/* ---------- Media block ---------- */
+#about .about-media{
+  position: relative;
+  aspect-ratio: 4/3;
+  border-radius: calc(var(--about-radius) - 6px);
+  overflow: hidden;
+  box-shadow: var(--about-shadow);
+  background: #f2eee6; /* warm fallback */
+}
+
+#about .about-media img{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Skeleton while loading */
+#about .skeleton{
+  position: absolute; inset: 0;
+  background: linear-gradient(90deg,#efe9de 0%,#f7f2e8 50%,#efe9de 100%);
+  background-size: 200% 100%;
+  animation: about-shimmer 1.2s infinite linear;
+}
+@keyframes about-shimmer{ to{ background-position: -200% 0; } }
+
+/* Broken image fallback */
+#about .about-media img.broken{ opacity: 0; }
+#about .about-media.broken{
+  background: repeating-linear-gradient(45deg,#ece4d5 0 12px,#f6efe3 12px 24px);
+}
+#about .about-media.broken::before{
+  content: "\f127  Bild lädt nicht";
+  font-family: "Font Awesome 6 Free"; font-weight: 900;
+  position: absolute; inset: 0; display: grid; place-items: center;
+  color: #8b8172; font-size: .95rem;
+}
+
+/* Photo caption chip */
+#about .media-badge{
+  position: absolute; left: 12px; bottom: 12px; z-index: 2;
+  font-size: .82rem; padding: .38rem .65rem;
+  color: var(--about-ink);
+  background: rgba(255,250,240,.92);
+  border: 1px solid var(--about-line);
+  border-radius: 999px;
+  backdrop-filter: blur(4px);
+}
+
+/* ---------- Typography ---------- */
+#about .overline{
+  text-transform: uppercase;
+  letter-spacing: .14em;
+  color: var(--about-muted);
+  font-weight: 600;
+  font-size: .8rem;
+  margin: 0;
+}
+
+#about .headline{
+  color: var(--about-ink);
+  font-weight: 800;
+  line-height: 1.08;
+  font-size: clamp(2rem, 3.2vw, 2.6rem);
+  margin: .25rem 0 .6rem;
+}
+
+/* Brand word: no blue; warm underline band */
+#about .headline .brand{
+  color: inherit; text-decoration: none;
+  box-shadow: inset 0 -10px 0 rgba(197,134,10,.16);
+  padding: 0 .2rem; border-radius: .25rem;
+}
+
+#about .lede{
+  color: #4a463f;
+  font-size: clamp(1.02rem, 1.2vw, 1.15rem);
+  margin-bottom: 1rem;
+  max-width: 58ch; /* rövidebb sorhossz a jobb olvashatóságért */
+}
+
+/* ---------- Chips & key points ---------- */
+#about .chips{
+  display: flex; flex-wrap: wrap; gap: .5rem;
+  margin: .25rem 0 1rem;
+}
+#about .chip{
+  display: inline-flex; align-items: center; gap: .45rem;
+  padding: .42rem .78rem; border-radius: 999px; font-size: .85rem;
+  background: #fbf5e8;
+  border: 1px solid var(--about-line);
+  color: #4a463f;
+}
+#about .chip i{ color: var(--about-olive); }
+
+#about .keypoints{
+  list-style: none; padding: 0; margin: 1rem 0 1.25rem;
+  color: #4a463f;
+}
+#about .keypoints li{
+  display: flex; gap: .6rem; align-items: flex-start;
+  padding: .35rem 0;
+}
+#about .keypoints i{
+  width: 1.25rem; text-align: center;
+  color: var(--about-olive); margin-top: .15rem;
+}
+@media (min-width: 992px){
+  #about .keypoints{ columns: 2; column-gap: 2.4rem; } /* nagyobb oszlopköz */
+  #about .keypoints li{ break-inside: avoid; }
+}
+
+/* ---------- CTAs (Bootstrap-friendly) ---------- */
+#about .btn-amber{
+  --bs-btn-bg: var(--about-amber);
+  --bs-btn-border-color: var(--about-amber);
+  --bs-btn-hover-bg: color-mix(in oklab, var(--about-amber), black 8%);
+  --bs-btn-hover-border-color: color-mix(in oklab, var(--about-amber), black 8%);
+  --bs-btn-color: #1a130b; /* magasabb kontraszt */
+  border-radius: 999px;
+  padding: .9rem 1.3rem;
+  font-weight: 800;
+  letter-spacing: .01em;
+  box-shadow: 0 14px 28px rgba(197,134,10,.24);
+}
+
+#about .btn-soft{
+  --bs-btn-bg: transparent;
+  --bs-btn-color: var(--about-ink);
+  --bs-btn-border-color: var(--about-line);
+  --bs-btn-hover-bg: #fbf5e8;
+  --bs-btn-hover-border-color: rgba(70,50,20,.18);
+  border-radius: 999px;
+  padding: .9rem 1.25rem;
+}
+
+/* Fókusz – látható billentyűzetnél */
+#about a:focus-visible,
+#about .btn:focus-visible{
+  outline: 3px solid rgba(197,134,10,.45);
+  outline-offset: 2px;
+  box-shadow: none;
+  text-decoration: none;
+}
+
+/* ---------- Optional reveal helper (if you add about.js) ---------- */
+#about.reveal{
+  opacity: 0; transform: translateY(10px);
+  transition: opacity .6s ease, transform .6s ease;
+}
+#about.reveal.in{ opacity: 1; transform: none; }
+
+/* Mobil apró igazítások */
+@media (max-width: 991.98px){
+  #about .about-media{ margin-bottom: .5rem; }
+}
+
+@media (prefers-reduced-motion: reduce){
+  #about .about-media img{ transition: none !important; }
+  #about.reveal{ transition: none !important; }
+}
