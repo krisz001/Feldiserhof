@@ -4,10 +4,10 @@
   "title": "Party",
   "description": "Event",
   "buttonText": "Jetzt buchen",
-  "buttonLink": "/wellness",
-  "startDate": "2025-10-26",
-  "endDate": "2025-10-27",
+  "buttonLink": "#contact",
+  "startDate": "2025-10-29",
+  "endDate": "2025-10-30",
   "priority": 1,
   "targetAudience": "all",
-  "isActive": false
+  "isActive": true
 }

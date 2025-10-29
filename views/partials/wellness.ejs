@@ -1,5 +1,5 @@
 <!-- views/partials/wellness.ejs -->
-<section class="wellness-section py-5">
+<section id="wellness" class="wellness-section py-5">
   <div class="container wellness-container">
     <div class="row g-5 align-items-center">
 
@@ -126,7 +126,6 @@
                   decoding="async">
               </a>
             <% } %>
-
             <% SMALLS.forEach(small => { %>
               <a class="gallery-item small" href="<%= small.src %>" data-lightbox="wellness">
                 <img

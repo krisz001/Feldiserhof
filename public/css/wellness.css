@@ -211,6 +211,13 @@ body{
 .gallery-item.large{ grid-column:1 / 3; aspect-ratio: 16 / 9; }
 .gallery-item.small{ aspect-ratio: 16 / 9; }
 .gallery-img{ width:100%; height:100%; object-fit:cover; display:block; }
+.wellness-container,
+.container {
+  background: none !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+  border-radius: 0!important;
+}
 
 /* ===== Reszponzív ===== */
 @media (max-width: 992px){

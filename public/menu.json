@@ -6,7 +6,7 @@
       "items": [
         {
           "name": "Kleiner Salatteller",
-          "price": 7,
+          "price": 7.5,
           "desc": "",
           "tags": [
             "frisch"
@@ -62,6 +62,13 @@
             "Laktose",
             "Gluten"
           ]
+        },
+        {
+          "name": "teszt6",
+          "price": 5,
+          "desc": "",
+          "tags": [],
+          "allergens": []
         }
       ]
     }

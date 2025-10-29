@@ -285,7 +285,7 @@ function renderMenu() {
                 </div>
               </div>
               <div class="text-end ms-3">
-                <div class="fw-bold text-primary mb-1">${item.price} Fr</div>
+                <div class="fw-bold text-primary mb-1">${Number(item.price).toFixed(2)} Fr</div>
                 <div>
                   <button class="btn btn-sm btn-outline-primary me-1" onclick="editItem(${catIndex}, ${itemIndex})">
                     <i class="fas fa-edit"></i>
@@ -406,7 +406,7 @@ function saveItem() {
   const targetCatIndex = parseInt(document.getElementById('itemCategory').value);
   
   const name = document.getElementById('itemName').value.trim();
-  const price = parseInt(document.getElementById('itemPrice').value);
+  const price = parseFloat(document.getElementById('itemPrice').value);
   const desc = document.getElementById('itemDescription').value.trim();
   const tags = document.getElementById('itemTags').value.split(',').map(t => t.trim()).filter(t => t);
   const allergens = document.getElementById('itemAllergens').value.split(',').map(a => a.trim()).filter(a => a);
