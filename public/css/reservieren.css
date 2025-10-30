@@ -2,13 +2,24 @@
    RESERVIEREN – Airbnb warm, clean & responsive (final)
    ======================================================= */
 
+/* EGYSÉGES GRADIENTES HÁTTÉR AZ EGÉSZ OLDALON! */
+body {
+  background: radial-gradient(140% 120% at 50% -40%, #fff, #fbeac2 45%, #f5dfb0) !important;
+}
+/* WRAPPEREK átlátszók: */
+#reservation, #reservation > .container {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+
 /* 0) Full-bleed krém sáv + anchor offset */
 #reservation{
   --gold:  #c28a37;
   --text:  #0f1418;
   --muted: #6b7785;
-
- 
   padding-top: 64px;
   padding-bottom: 80px;
   position: relative;
@@ -17,9 +28,6 @@
 
 /* ne legyen másodlagos panel a belső .container-en */
 #reservation > .container{
-  background: none !important;
-  border: none !important;
-  box-shadow: none !important;
   padding: 0 !important;
 }
 
@@ -62,7 +70,6 @@
   padding: .9rem 1rem .5rem;
   line-height: 1.25;
 }
-
 #reservation .form-floating > label{
   color: #8894a2;
   transition: transform .15s ease, opacity .15s ease;
@@ -198,6 +205,7 @@
 #reservation #resAlert.alert-danger{
   background: #fff1f1; border-color: #f1c0c0; color: #7a1e1e;
 }
+
 /* =======================================================
    Továbbfejlesztett RESERVIEREN design
    ======================================================= */
@@ -256,12 +264,10 @@
   background: #fff;
   transition: all 0.2s ease;
 }
-
 .guests-field:focus-within {
   border-color: var(--gold);
   box-shadow: 0 0 0 3px rgba(194,138,55,.15);
 }
-
 .guests-field .label {
   color: #4a5568;
   font-weight: 500;
@@ -281,11 +287,9 @@
     padding: 1.5rem;
     border-radius: 16px;
   }
-  
   #reservation .reserve-card .row {
     --bs-gutter-y: 0.75rem;
   }
-  
   #reservation .btn-primary-air {
     width: 100%;
     padding: 0.875rem 2rem;

@@ -1,10 +1,18 @@
 @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@500;700;800&display=swap');
 
+/* === Globális háttér egységesítés === */
+body {
+  background: radial-gradient(140% 120% at 50% -40%, #fff, #fbeac2 45%, #f5dfb0) !important;
+}
+.menu-portfolio, .site-bg, .main-bg, .container, .container-fluid {
+  background: transparent !important;
+}
+
 /* ===== Menüpaletta, háttér, font ========== */
 .menu-portfolio {
-  --accent: #c8a96a;                /* arany */
-  --accent-ink: #8f7745;            /* sötétebb arany */
-  --ink: #21322a;                   /* sötétzöldes grafit címhez */
+  --accent: #c8a96a;
+  --accent-ink: #8f7745;
+  --ink: #21322a;
   --text: #34404a;
   --muted: #6e7a84;
   --paper-1: #ffffff;
@@ -13,8 +21,7 @@
   --shadow-page: 0 12px 28px rgba(0,0,0,.10);
   --radius-book: 18px;
   --radius-page: 12px;
-  font-family:"Nunito",system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
-  background: #fcf6e1; /* világos háttér */
+  font-family: "Nunito",system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
 }
 
 /* ===== Modern Menüfejléc ===== */
@@ -61,7 +68,7 @@
 /* ===== A könyv és menu grid eredeti stílusa—itt nem módosítunk! ===== */
 
 /* ----- KERET ----- */
-.menu-portfolio .wrapper{
+.menu-portfolio .wrapper {
   position:relative;
   max-width: 62rem;
   margin:0 auto;
@@ -130,7 +137,7 @@
   box-shadow: none;
 }
 .menu-portfolio .page-front { transform: rotateY(0deg) translateZ(1px);}
-.menu-portfolio .page-back { transform: rotateY(180deg) translateZ(1px);}
+.menu-portfolio .page-back { transform: rotateY(180deg) translateZ(1px); }
 
 /* Lap peremek árnyéka */
 .menu-portfolio .page-front::before,
@@ -316,7 +323,7 @@
   .menu-portfolio .nextprev-btn{ width:1.73rem;height:1.73rem;font-size:1.15rem;bottom:0.56rem;right:0.51rem;}
 }
 
-/* Sötét mód támogatása – csak papír/menükönyv */
+/* ----- Sötét mód támogatása ----- */
 @media (prefers-color-scheme: dark){
   .menu-portfolio{
     --paper-1: #292823;

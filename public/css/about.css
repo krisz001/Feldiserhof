@@ -5,23 +5,23 @@
 
 /* Local palette (warm, blue-free) */
 #about{
-  --about-ink:   #2a2623;                 /* main text */
-  --about-muted: #6f6a60;                 /* muted text */
-  --about-line:  rgba(60,45,25,.10);      /* borders */
-  --about-amber: #c5860a;                 /* primary accent */
-  --about-olive: #6e7b57;                 /* secondary accent (icons) */
+  --about-ink:   #2a2623;
+  --about-muted: #6f6a60;
+  --about-line:  rgba(60,45,25,.10);
+  --about-amber: #c5860a;
+  --about-olive: #6e7b57;
 
   --about-radius: 22px;
-  --about-shadow: 0 12px 28px rgba(80,50,10,.08); /* finomabb, elegánsabb */
+  --about-shadow: 0 12px 28px rgba(80,50,10,.08);
 }
 
-/* Optional container wrapper from layout */
+/* Optional container wrapper */
 .about-shell{ position: relative; }
 
 /* Card-like frame and inner padding */
 #about.card-frame{
   position: relative;
-  background: rgba(255,250,240,.82);
+  background: #fbeac2;                 /* Egységes krémes háttér minden dobozban is! */
   border: 1px solid var(--about-line);
   border-radius: var(--about-radius);
   box-shadow: var(--about-shadow);
@@ -40,7 +40,7 @@
   border-radius: calc(var(--about-radius) - 6px);
   overflow: hidden;
   box-shadow: var(--about-shadow);
-  background: #f2eee6; /* warm fallback */
+  background: #fbeac2;                 /* Egységes, meleg háttér */
 }
 
 #about .about-media img{
@@ -53,16 +53,15 @@
 /* Skeleton while loading */
 #about .skeleton{
   position: absolute; inset: 0;
-  background: linear-gradient(90deg,#efe9de 0%,#f7f2e8 50%,#efe9de 100%);
+  background: linear-gradient(90deg,#fbeac2 0%,#faecd3 50%,#fbeac2 100%);
   background-size: 200% 100%;
   animation: about-shimmer 1.2s infinite linear;
 }
 @keyframes about-shimmer{ to{ background-position: -200% 0; } }
 
-/* Broken image fallback */
 #about .about-media img.broken{ opacity: 0; }
 #about .about-media.broken{
-  background: repeating-linear-gradient(45deg,#ece4d5 0 12px,#f6efe3 12px 24px);
+  background: repeating-linear-gradient(45deg, #fbeac2 0 12px,#faecd3 12px 24px);
 }
 #about .about-media.broken::before{
   content: "\f127  Bild lädt nicht";
@@ -71,18 +70,16 @@
   color: #8b8172; font-size: .95rem;
 }
 
-/* Photo caption chip */
 #about .media-badge{
   position: absolute; left: 12px; bottom: 12px; z-index: 2;
   font-size: .82rem; padding: .38rem .65rem;
   color: var(--about-ink);
-  background: rgba(255,250,240,.92);
+  background: #fbeac2;
   border: 1px solid var(--about-line);
   border-radius: 999px;
   backdrop-filter: blur(4px);
 }
 
-/* ---------- Typography ---------- */
 #about .overline{
   text-transform: uppercase;
   letter-spacing: .14em;
@@ -111,10 +108,9 @@
   color: #4a463f;
   font-size: clamp(1.02rem, 1.2vw, 1.15rem);
   margin-bottom: 1rem;
-  max-width: 58ch; /* rövidebb sorhossz a jobb olvashatóságért */
+  max-width: 58ch;
 }
 
-/* ---------- Chips & key points ---------- */
 #about .chips{
   display: flex; flex-wrap: wrap; gap: .5rem;
   margin: .25rem 0 1rem;
@@ -122,7 +118,7 @@
 #about .chip{
   display: inline-flex; align-items: center; gap: .45rem;
   padding: .42rem .78rem; border-radius: 999px; font-size: .85rem;
-  background: #fbf5e8;
+  background: #fbeac2;
   border: 1px solid var(--about-line);
   color: #4a463f;
 }
@@ -141,17 +137,16 @@
   color: var(--about-olive); margin-top: .15rem;
 }
 @media (min-width: 992px){
-  #about .keypoints{ columns: 2; column-gap: 2.4rem; } /* nagyobb oszlopköz */
+  #about .keypoints{ columns: 2; column-gap: 2.4rem; }
   #about .keypoints li{ break-inside: avoid; }
 }
 
-/* ---------- CTAs (Bootstrap-friendly) ---------- */
 #about .btn-amber{
   --bs-btn-bg: var(--about-amber);
   --bs-btn-border-color: var(--about-amber);
   --bs-btn-hover-bg: color-mix(in oklab, var(--about-amber), black 8%);
   --bs-btn-hover-border-color: color-mix(in oklab, var(--about-amber), black 8%);
-  --bs-btn-color: #1a130b; /* magasabb kontraszt */
+  --bs-btn-color: #1a130b;
   border-radius: 999px;
   padding: .9rem 1.3rem;
   font-weight: 800;
@@ -163,13 +158,12 @@
   --bs-btn-bg: transparent;
   --bs-btn-color: var(--about-ink);
   --bs-btn-border-color: var(--about-line);
-  --bs-btn-hover-bg: #fbf5e8;
+  --bs-btn-hover-bg: #fbeac2;
   --bs-btn-hover-border-color: rgba(70,50,20,.18);
   border-radius: 999px;
   padding: .9rem 1.25rem;
 }
 
-/* Fókusz – látható billentyűzetnél */
 #about a:focus-visible,
 #about .btn:focus-visible{
   outline: 3px solid rgba(197,134,10,.45);
@@ -178,14 +172,12 @@
   text-decoration: none;
 }
 
-/* ---------- Optional reveal helper (if you add about.js) ---------- */
 #about.reveal{
   opacity: 0; transform: translateY(10px);
   transition: opacity .6s ease, transform .6s ease;
 }
 #about.reveal.in{ opacity: 1; transform: none; }
 
-/* Mobil apró igazítások */
 @media (max-width: 991.98px){
   #about .about-media{ margin-bottom: .5rem; }
 }
@@ -193,4 +185,18 @@
 @media (prefers-reduced-motion: reduce){
   #about .about-media img{ transition: none !important; }
   #about.reveal{ transition: none !important; }
+}
+
+/* Separator – minden szekció után */
+.section-separator {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto 48px auto;
+  height: 2px;
+  background: linear-gradient(90deg, #e3c176 0%, #ffe07a 100%);
+  opacity: 0.39;
+  border-radius: 2px;
+}
+@media (max-width: 600px) {
+  .section-separator { height: 1px; margin-bottom: 32px; }
 }

@@ -33,7 +33,7 @@
         const CTA_TEXT = (typeof ctaText !== 'undefined' && String(ctaText).trim()) ? ctaText : 'Jetzt anfragen';
         const CTA_LINK = (typeof ctaLink !== 'undefined' && String(ctaLink).trim()) ? ctaLink : '#contact';
 
-        // Galéria: 1 nagy + 1-2 kicsi. Ha semmit nem adsz át: jpg1 nagy, jpg2 kicsi.
+        // Galéria: 1 nagy + 1-2 kicsi (fallback képek)
         const GRAW = (typeof galleryImages !== 'undefined' && Array.isArray(galleryImages) && galleryImages.length)
           ? galleryImages
           : [
@@ -41,7 +41,7 @@
               { src: '/img/jpg2.jpg', alt: 'Infrarot-Kabine',            size: 'small', width: 640,  height: 360 }
             ];
         const LARGE  = GRAW.find(g => g.size === 'large') || GRAW[0];
-        const SMALLS = GRAW.filter(g => g !== LARGE).slice(0, 2); // max 2 kicsi
+        const SMALLS = GRAW.filter(g => g !== LARGE).slice(0, 2);
 
         const getW = (img, fallback) => Number(img?.width)  || fallback || 1280;
         const getH = (img, fallback) => Number(img?.height) || fallback || 720;
@@ -59,7 +59,7 @@
           oder unter der Regendusche.
         </p>
 
-        <!-- Feature Chips (accessibility-ready) -->
+        <!-- Feature Chips -->
         <div class="wellness-features" role="list" aria-label="Ausstattung">
           <% F.forEach(f => { %>
             <button type="button"
@@ -83,7 +83,7 @@
           <% }) %>
         </ul>
 
-        <!-- Note -->
+        <!-- Hinweis -->
         <div class="alert-note" role="note" aria-label="Hinweis">
           <strong>Hinweis:</strong> <%= NOTE %>
         </div>
@@ -101,7 +101,7 @@
           <% }) %>
         </div>
 
-        <!-- CTA Button (sticky on mobile) -->
+        <!-- CTA Button -->
         <div class="cta-wrap sticky-mobile mt-3">
           <a href="<%= CTA_LINK %>" class="btn btn-primary-custom">
             <%= CTA_TEXT %>
@@ -122,8 +122,7 @@
                   class="gallery-img"
                   width="<%= getW(LARGE,1280) %>"
                   height="<%= getH(LARGE,720) %>"
-                  loading="lazy"
-                  decoding="async">
+                  loading="lazy" decoding="async">
               </a>
             <% } %>
             <% SMALLS.forEach(small => { %>
@@ -134,14 +133,13 @@
                   class="gallery-img"
                   width="<%= getW(small,640) %>"
                   height="<%= getH(small,360) %>"
-                  loading="lazy"
-                  decoding="async">
+                  loading="lazy" decoding="async">
               </a>
             <% }) %>
           </div>
         </div>
       </div>
-
     </div>
   </div>
 </section>
+<div class="section-separator"></div>

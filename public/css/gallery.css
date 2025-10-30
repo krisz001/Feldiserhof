@@ -1,39 +1,43 @@
 /* ===========================
-   Feldiserhof – Gallery Styles (unified)
+   Feldiserhof – Gallery Styles (final, armored)
    =========================== */
 
-#gallery{
-  /* paletta */
-  --fh-primary: #c28a37;        /* arany akcentus */
+/* ---- Vars ---- */
+:root {
+  --fh-primary: #c28a37;
   --fg:         #1c232b;
   --fg-soft:    #667789;
   --muted:      #7b8a9a;
   --border:     rgba(13,22,33,.10);
-
-  /* egységes thumb beállítások */
   --thumb-min: 240px;
-  --thumb-max: 360px;
+  --thumb-max: 370px;
   --thumb-ratio: 16/10;
 
-  background: transparent;
+  --gallery-folder-border: 1.5px solid rgba(194,138,55,.20);
+  --gallery-folder-radius: 16px;
+  --gallery-folder-shadow: 0 10px 34px rgba(198,181,120,0.13), 0 1px 0 rgba(255,255,255,.37);
+  --gallery-folder-shadow-hover: 0 20px 46px rgba(174,170,65,0.14);
+  --gallery-folder-hover-outline: 3px solid rgba(194,138,55,.39);
+  --gallery-caption-bg: rgba(255,249,220,0.54);
+  --gallery-caption-blur: blur(10px);
+}
+
+/* ========= CONTÉNER, FEJLÉC ======== */
+#gallery {
+  background: transparent !important;
   border-radius: 0;
   box-shadow: none;
   margin-top: 40px;
   padding: 48px 0 56px;
 }
-
-/* meleg, finom sáv a tartalom mögött */
 #gallery .container{
-  background: linear-gradient(180deg,#fff4df 0%, #fdeecf 100%);
+  background: transparent !important;
   border-radius: 24px;
   box-shadow: 0 10px 28px rgba(0,0,0,.06);
   padding: 40px 28px;
 }
-
-/* ---------- Fejléc ---------- */
 #gallery .section-title,
 #gallery .text-primary{ color: var(--fh-primary) !important; }
-
 #gallery .gallery-head .kicker{
   display:inline-block; font-weight:600; letter-spacing:.06em;
   text-transform:uppercase; color: var(--fh-primary);
@@ -45,115 +49,189 @@
   color: var(--fg-soft); max-width:720px; margin:0 auto;
 }
 
-/* =======================================================
-   FOLDER (album) GRID – CENTER FIX
-   ======================================================= */
-.folder-grid{
-  display:grid;
-  /* a cellák szélessége: min 240px, a kártya max 360px – szépen törik 3/2/1 oszlopra */
+/* ========= FOLDER (MAPPÁK) ======== */
+.folder-grid {
+  display: grid;
   grid-template-columns: repeat(auto-fit, minmax(var(--thumb-min), 1fr));
-  gap:24px;
-  margin-top:1rem;
-
-  /* a teljes rács középre kerül a konténerben */
-  justify-items:center;            /* a kártyák a cellán belül középen */
-  max-width: 1200px;               /* ne nőjön végtelenre */
-  margin-left:auto; margin-right:auto;  /* CENTER FIX */
+  gap: 36px;
+  justify-items: center;
+  max-width: 1200px;
+  margin: 1.2rem auto 0 auto;
+  padding: 0;
+}
+.folder-item {
+  width: 100%;
+  display: flex; flex-direction: column; align-items: center;
 }
 
-.folder-item{
-  display:flex; flex-direction:column; align-items:center;
-}
-
-.folder-card{
-  display:block; width:100%;
-  max-width: var(--thumb-max);     /* egységes kártyaszélesség */
-  background:#fff; border:0; border-radius:18px; overflow:hidden; text-align:left;
-  box-shadow:0 10px 24px rgba(13,22,33,.10);
-  transition:transform .18s ease, box-shadow .2s ease;
-  cursor:pointer; position:relative; /* skeleton miatt */
-}
-.folder-card:focus-visible{
-  outline:3px solid rgba(194,138,55,.45); outline-offset:2px;
-}
-.folder-card:hover{
-  transform:translateY(-3px);
-  box-shadow:0 16px 36px rgba(13,22,33,.16);
-}
-
-.folder-cover{ position:relative; aspect-ratio: var(--thumb-ratio); overflow:hidden; }
-.folder-cover img{
-  width:100%; height:100%; object-fit:cover; display:block;
-  transition:transform .35s ease;
-}
-.folder-card:hover .folder-cover img{ transform:scale(1.03); }
-
-/* kis badge a képen */
-.folder-badge{
-  position:absolute; left:12px; bottom:12px;
-  padding:.25rem .55rem; font-size:.85rem; color:#fff;
-  background:rgba(20,20,20,.65); border:1px solid rgba(255,255,255,.12);
-  border-radius:999px; backdrop-filter:blur(4px);
-}
-
-/* felirat a kártya alatt */
-.folder-caption{
-  margin-top:8px; font-weight:600; font-size:.95rem; letter-spacing:.01em;
-  color:#3b2f17; text-align:center; user-select:none;
-}
-
-/* =======================================================
-   GALLERY (fotók) GRID
-   ======================================================= */
-.gallery-grid{
-  display:grid;
-  grid-template-columns: repeat(auto-fit, minmax(var(--thumb-min), 1fr));
-  gap:24px;
-  margin-top:1rem;
-
-  justify-items:center;            /* CENTER FIX – a képkártyák is középen */
-  max-width: 1400px;
-  margin-left:auto; margin-right:auto;
-}
-
-.gallery-card{
-  position:relative; display:block; width:100%;
-  max-width: var(--thumb-max);
+.folder-card {
+  display: block;
+  width: 100%; max-width: var(--thumb-max);
+  background: #fff;
+  border: var(--gallery-folder-border);
+  border-radius: var(--gallery-folder-radius);
+  box-shadow: var(--gallery-folder-shadow);
+  overflow: visible;
+  transition: transform .18s, box-shadow .16s, border-color .19s;
+  cursor: pointer; position: relative; will-change: transform;
   aspect-ratio: var(--thumb-ratio);
-  border-radius:16px; overflow:hidden; background:#fff;
-  box-shadow:0 10px 24px rgba(13,22,33,.10);
-  transition:transform .18s ease, box-shadow .2s ease;
 }
-.gallery-card:hover{
-  transform:translateY(-4px);
-  box-shadow:0 16px 36px rgba(13,22,33,.16);
+.folder-card:hover {
+  transform: translateY(-7px) scale(1.021);
+  box-shadow: var(--gallery-folder-shadow-hover);
+  border-color: #e3c176;
 }
-.gallery-card img{
-  width:100%; height:100%; object-fit:cover; display:block;
-  transition:transform .35s ease;
+.folder-card:focus-visible {
+  outline: var(--gallery-folder-hover-outline);
+  outline-offset: 3px;
+  z-index: 3;
 }
-.gallery-card:hover img{ transform:scale(1.04); }
 
-/* ---------- Lightbox ---------- */
-#lightbox .modal-body{ padding:0; }
-#lightboxImg{ border-radius:12px; max-height:80vh; object-fit:contain; }
-#lightboxCap{ font-size:.9rem; color:#ccc; margin-top:10px; }
+.folder-cover {
+  position:relative;
+  aspect-ratio: var(--thumb-ratio);
+  border-radius:inherit; overflow:hidden;
+  background: #f7f6f3;
+  margin: 6px; box-sizing: border-box;
+  display: flex; align-items: center; justify-content: center;
+}
+.folder-cover img {
+  display:block; width:100%; height:100%; object-fit:cover; border-radius:inherit;
+  transition:transform .28s;
+}
+.folder-card:hover .folder-cover img { transform: scale(1.03); }
 
-/* ---------- Album nézet – vissza gomb ---------- */
+.folder-card::after {
+  content: ""; pointer-events: none; position: absolute; inset: 0;
+  border-radius: inherit; transition: box-shadow .17s;
+  box-shadow: 0 0 0 rgba(233,184,27,0);
+}
+.folder-card:hover::after {
+  box-shadow: 0 0 22px 7px rgba(249,220,112,0.10) inset;
+}
+
+/* ---- Caption/chip a képen, fix pozíció ----- */
+.folder-cover .folder-caption {
+  position: absolute; left: 50%; bottom: 18px; transform: translateX(-50%);
+  min-width: 94px; max-width: 87%; font-size: 1.07rem; font-weight: 700;
+  padding: 7px 18px; color: #835820; background: var(--gallery-caption-bg);
+  backdrop-filter: var(--gallery-caption-blur); -webkit-backdrop-filter: var(--gallery-caption-blur);
+  border-radius: 999px; box-shadow: 0 2px 10px rgba(182,130,19,0.07);
+  border: 1px solid rgba(228,200,120,.17); text-align: center;
+  user-select: none; transition: background .17s, color .18s, border-color .19s;
+  z-index: 20; pointer-events: none;
+}
+.folder-card:hover .folder-caption {
+  background: rgba(255,244,180,0.64); color: #b69743; border-color: #e3c176;
+}
+.folder-card:focus-visible .folder-caption,
+.folder-card:focus .folder-caption {
+  border-color: #d1b359; color: #ba8420; background: rgba(255,243,180,0.38);
+}
+
+.folder-badge {
+  position: absolute; left: 14px; bottom: 14px;
+  padding: .25rem .55rem; font-size: .93rem; color: #fff;
+  background: rgba(24,24,24,.65);
+  border: 1px solid rgba(255,255,255,.14);
+  border-radius: 999px;
+  backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
+  z-index: 25;
+}
+
+/* ========= GALLERY-GRID (fotók) ======== */
+#gallery .gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(var(--thumb-min), 1fr));
+  gap: 32px;
+  justify-items: center;
+  max-width: 1400px;
+  margin: 40px auto 0 auto;
+  padding: 0;
+}
+.gallery-card {
+  background: #fff;
+  border: 1.2px solid rgba(40,40,68,0.12);
+  border-radius: 15px;
+  box-shadow: 0 8px 26px rgba(30,35,60,0.11), 0 1px 0 rgba(255,255,255,.39);
+  transition: transform .18s, box-shadow .16s, border-color .18s;
+  position: relative;
+  width:100%; max-width: var(--thumb-max);
+  aspect-ratio: var(--thumb-ratio);
+  overflow: visible;
+  cursor: pointer;
+  will-change: transform;
+}
+.gallery-card:focus-visible {
+  outline: 3px solid rgba(194,138,55,.34); outline-offset: 3px; z-index: 3;
+}
+.gallery-card:hover {
+  transform: translateY(-5px) scale(1.022);
+  box-shadow: 0 16px 45px rgba(57,45,31,0.16);
+  border-color: rgba(200,160,60,0.24);
+}
+.gallery-card-inner {
+  border-radius: inherit; overflow: hidden; position: relative; background: #fff;
+  margin: 6px; box-sizing: border-box;
+}
+.gallery-card img {
+  display: block; width: 100%; height: 100%; aspect-ratio: var(--thumb-ratio);
+  object-fit: cover; transition: transform .32s cubic-bezier(.47,.15,.61,.97);
+  border-radius: inherit;
+}
+.gallery-card:hover img { transform: scale(1.045); }
+.gallery-card:focus img { box-shadow: 0 0 0 2.5px #e3c176; }
+
+.gallery-card::after {
+  content:""; position:absolute; inset:0; pointer-events:none; border-radius:inherit;
+  transition:box-shadow .16s;
+  box-shadow: 0 0 0 rgba(255,222,128,0);
+}
+.gallery-card:hover::after {
+  box-shadow: 0 0 22px 6px rgba(255,227,128,0.23) inset;
+}
+.gallery-caption {
+  position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%);
+  min-width: 92px; max-width: 90%;
+  padding: 6px 18px; font-size: 1rem; font-weight: 600; color: #3b2f17;
+  background: rgba(245,245,255,0.31);
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  border-radius: 999px; box-shadow: 0 2px 12px rgba(180,166,45,0.08);
+  border: 1px solid rgba(228,200,120,.19); text-align: center;
+  user-select: none; transition: background .16s, border-color .16s, color .16s;
+  z-index: 10; pointer-events: none;
+}
+.gallery-card:hover .gallery-caption {
+  background: rgba(255,246,212,0.43); border-color: #e3c176; color: #b69743;
+}
+.gallery-card:focus-visible .gallery-caption,
+.gallery-card:focus .gallery-caption {
+  border-color: #d1b359; color: #ba8420; background: rgba(255,243,180,0.33);
+}
+
+/* ----------- Skeleton loader ----------- */
+.skel {
+  position:absolute; inset:0; border-radius:inherit; overflow:hidden;
+  background:linear-gradient(90deg, rgba(0,0,0,0.06) 25%, rgba(0,0,0,0.12) 37%, rgba(0,0,0,0.06) 63%);
+  background-size:400% 100%; animation:skel-shimmer 1.2s infinite linear;
+}
+@keyframes skel-shimmer {
+  0%{ background-position:100% 0; }
+  100%{ background-position:0 0; }
+}
+
+/* ----------- Egyéb (subnav, title, hero) ----------- */
 .gallery-subnav{
-  position:sticky;
-  top:calc(var(--nav-height,80px) + 8px);
-  z-index:20;
-  display:flex; align-items:center; justify-content:space-between;
-  gap:1rem; margin:0 0 1rem 0;
+  position:sticky; top:calc(var(--nav-height,80px) + 8px); z-index:20;
+  display:flex; align-items:center; justify-content:space-between; gap:1rem; margin:0 0 1rem 0;
+  -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
 }
 .btn-back{
   display:inline-flex; align-items:center; gap:.55rem;
   padding:.5rem .9rem; border-radius:999px; text-decoration:none;
-  font-weight:600; color:#0b1f2d;
-  border:1px solid var(--border);
+  font-weight:600; color:#0b1f2d; border:1px solid var(--border);
   background:linear-gradient(180deg, rgba(255,255,255,.78), rgba(255,255,255,.62));
-  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
   box-shadow:0 6px 20px rgba(11,31,45,.08);
   transition:transform .15s ease, box-shadow .2s ease, border-color .2s ease;
 }
@@ -167,36 +245,24 @@
 @media (max-width:576px){
   .btn-back span{ display:none; } .btn-back{ padding:.5rem .6rem; }
 }
-
-/* ---------- Szekció címsor a lista nézetben ---------- */
 .album-section h3,
 .album-title{
   font-weight:700; color:#3b2f17; margin-bottom:1.2rem; text-align:left;
   border-left:4px solid var(--fh-primary); padding-left:10px;
 }
-
-/* ---------- Album (detail) – hero kép fix ---------- */
 #gallery .album-hero{
-  position:relative;
-  border-radius:16px; overflow:hidden;
-  background:#f3f5f7; box-shadow:0 10px 24px rgba(13,22,33,.10);
-  margin-bottom:14px;
+  position:relative; border-radius:16px; overflow:hidden; background:#f3f5f7;
+  box-shadow:0 10px 24px rgba(13,22,33,.10); margin-bottom:14px;
 }
-#gallery .album-hero::before{
-  content:""; display:block; width:100%; aspect-ratio:16/9;
-}
+#gallery .album-hero::before{ content:""; display:block; width:100%; aspect-ratio:16/9; }
 #gallery .album-hero > img{
   position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block;
 }
-
-/* ha nincs wrapper: az első kép legyen a hero */
 #gallery #galleryView > img:first-child{
   display:block; width:100%; aspect-ratio:16/9; height:auto;
   object-fit:cover; border-radius:16px; overflow:hidden;
   background:#f3f5f7; box-shadow:0 10px 24px rgba(13,22,33,.10); margin-bottom:14px;
 }
-
-/* album fejléc sor */
 #gallery .album-bar,
 #gallery .album-titlebar{
   display:flex; align-items:center; justify-content:space-between;
@@ -204,32 +270,71 @@
 }
 #gallery .album-titlebar .album-name{ font-weight:700; color:#0f1418; }
 #gallery .album-titlebar .album-meta{ color:#7b8a9a; font-weight:600; }
-
-/* rács ne tapadjon a hero-hoz */
 #gallery .gallery-grid{ margin-top: 12px; }
 
-/* ---------- Skeleton loader ---------- */
-.skel{
-  position:absolute; inset:0; border-radius:inherit; overflow:hidden;
-  background:linear-gradient(90deg, rgba(0,0,0,0.06) 25%, rgba(0,0,0,0.12) 37%, rgba(0,0,0,0.06) 63%);
-  background-size:400% 100%;
-  animation:skel-shimmer 1.2s infinite linear;
+/* ----------- Responsív ---------------- */
+@media (max-width: 900px) {
+  .folder-grid, #gallery .gallery-grid { gap: 22px; }
+  .folder-card, .gallery-card { max-width: 99vw; border-radius: 13px; }
 }
-@keyframes skel-shimmer{
-  0%{ background-position:100% 0; }
-  100%{ background-position:0 0; }
+@media (max-width: 768px) {
+  .folder-card, .gallery-card { aspect-ratio: 4/3; }
+  #gallery .gallery-grid{ gap:18px; }
 }
-
-/* ---------- Responsive finomítások ---------- */
-@media (max-width:768px){
-  .gallery-card{ aspect-ratio: 4/3; }
+@media (max-width: 576px) {
+  .folder-grid, #gallery .gallery-grid{ grid-template-columns: 1fr; gap: 13px; }
+  .folder-card, .gallery-card { max-width: 99vw; border-radius: 10px; }
 }
-@media (max-width:576px){
-  .folder-card{ max-width:100%; }
-}
-
-/* opcionális: nagy kijelzőn több oszlop */
 @media (min-width:1600px){
-  #gallery .gallery-grid,
-  #gallery .folder-grid{ max-width:1600px; }
+  #gallery .gallery-grid, .folder-grid{ max-width:1600px; }
 }
+
+/* ============== ARMOR OVERRIDES (always last) ============== */
+body #gallery :is(.folder-card, .gallery-card){
+  border: 1.5px solid rgba(194,138,55,.20) !important;
+  border-radius: 16px !important;
+  background: #fff !important;
+  box-shadow: 0 10px 34px rgba(198,181,120,.13), 0 1px 0 rgba(255,255,255,.37) !important;
+  transform: translateZ(0);
+  contain: paint;
+}
+body #gallery :is(.folder-card:hover, .gallery-card:hover){
+  box-shadow: 0 20px 46px rgba(174,170,65,.14) !important;
+  border-color: #e3c176 !important;
+}
+
+/* biztos aspect-ratio – nincs „ugrás” betöltéskor */
+#gallery :is(.folder-card, .gallery-card),
+#gallery :is(.folder-cover, .gallery-card img){
+  aspect-ratio: var(--thumb-ratio) !important;
+}
+#gallery :is(.folder-cover img, .gallery-card img){
+  width: 100%; height: 100%; object-fit: cover; display: block;
+}
+
+/* ha .card utility kerülne rá, ne üsse felül */
+#gallery :is(.folder-card, .gallery-card):where(.card){
+  border: inherit !important;
+  background: inherit !important;
+  border-radius: inherit !important;
+  box-shadow: inherit !important;
+}
+
+/* caption kontraszt és stabil magasság */
+#gallery :is(.folder-caption, .gallery-caption){
+  color: #3b2f17 !important;
+  min-height: 1.6em;
+  pointer-events: none;
+}
+
+/* sticky subnav biztos olvashatósággal */
+#gallery .gallery-subnav{
+  position: sticky;
+  top: calc(var(--nav-height, 80px) + 8px);
+  z-index: 20;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+#gallery { --subnav-h: 56px; }              /* igény szerint 48–64px */
+.gallery-subnav{ min-height: var(--subnav-h); }
+.gallery-subnav-spacer{ height: var(--subnav-h); }  /* ez tolja le a rácsot */

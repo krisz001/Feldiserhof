@@ -1,97 +1,224 @@
-/* ===== Contact – esztétika, elrendezés (Feldiserhof arany paletta) ===== */
+/* ===== Kontakt szekció – olvasható, kontrasztos, javított kijelöléssel ===== */
 #contact{
-  /* Saját színek */
-  --fh-bg:        #141a20;  /* sötét kártya */
-  --fh-bg-soft:   #0e1318;  /* térkép háttér */
-  --fh-fg:        #e9eef5;  /* fő szöveg */
-  --fh-fg-soft:   #b8c3cf;  /* halványabb szöveg */
-  --fh-fg-muted:  #d2dbe6;
-  --fh-border:    rgba(255,255,255,.08);
+  /* Paletta */
+  --c-bg-cream:    #fbeac2;
+  --c-card:        #ffffff;
+  --c-text:        #222;        /* fő szöveg */
+  --c-text-2:      #4d4d4d;     /* másodlagos */
+  --c-muted:       #7b6a4a;     
+  --c-border:      #e9c776;     /* arany keret */
+  --c-link:        #0a2540;     /* sötét link */
+  --c-link-hover:  #12395f;
+  --c-heading:     #8a5a2b;     /* meleg barna cím */
+  --c-accent:      #b67a29;     /* barna–arany: ikonok, gombok */
+  --c-accent-600:  #8f621f;
+  --c-green:       #2ea44f;
+  --c-red:         #cb3c3c;
 
-  --fh-primary:   #c28a37;  /* arany */
-  --fh-primary-600:#a9782f;
+  --radius:        20px;
+  --radius-sm:     12px;
+  --shadow:        0 10px 28px rgba(0,0,0,.08);
 
-  --fh-success:   #2ea44f;  /* visszafogott zöld */
-  --fh-danger:    #d14a4a;  /* visszafogott piros */
+  /* IKON OSZLOP – egységesítés */
+  --icon-size:     20px;
+  --icon-gap:      .6rem;
 }
 
-#contact .contact-wrap {}
+/* -------- Látható szövegkijelölés -------- */
+#contact ::selection{ background:#2b6cb0; color:#fff; }
+#contact ::-moz-selection{ background:#2b6cb0; color:#fff; }
 
-/* Bal oldali kártya */
-#contact .contact-card{
-  background: var(--fh-bg);
-  color: var(--fh-fg);
-  border-radius: 20px;
-  padding: 28px;
-  box-shadow: 0 12px 28px rgba(0,0,0,.25);
-}
-#contact .contact-card .text-body-tertiary{ color: var(--fh-fg-soft) !important; }
-
-/* Címsor és akcentusok: arany */
-#contact .section-title,
-#contact .text-primary{ color: var(--fh-primary) !important; }
-
-/* Linkek: világos, hover-re fehérebb – nem rikító kék */
-#contact a{ color: #d9e2ec; text-decoration: underline; text-decoration-color: rgba(255,255,255,.25); }
-#contact a:hover{ color: #ffffff; text-decoration-color: rgba(255,255,255,.6); }
-
-/* Gombok – arany téma */
-#contact .btn{ border-radius: 999px; }
-#contact .btn-primary{
-  background: var(--fh-primary); border-color: var(--fh-primary);
-}
-#contact .btn-primary:hover{
-  background: var(--fh-primary-600); border-color: var(--fh-primary-600);
-}
-#contact .btn-outline-primary{
-  color: var(--fh-primary); border-color: var(--fh-primary); background: transparent;
-}
-#contact .btn-outline-primary:hover{
-  color: #0b0f14; background: var(--fh-primary); border-color: var(--fh-primary);
+/* Átlátszó layoutrészek */
+#contact .container, 
+#contact .row, 
+#contact .contact-wrap{
+  background: transparent !important; border:0 !important; box-shadow:none !important;
 }
 
-/* Öffnungszeiten – státusz és lista */
-#contact #statusText{ color: var(--fh-fg-soft) !important; }
-
-#contact #hoursList{ max-width: 640px; margin-top: .25rem; }
-#contact #hoursList li{
-  display: flex; justify-content: space-between; gap: 1rem;
-  padding: .55rem 0; border-bottom: 1px solid var(--fh-border);
-}
-#contact #hoursList li span:last-child{ color: var(--fh-fg-muted); }
-
-/* “Ma” kiemelés (ha a JS ráteszi az .is-today osztályt) */
-#contact #hoursList li.is-today{
-  font-weight: 600; color: #fff;
-}
-#contact #hoursList li.is-today span:last-child{
-  color: #fff;
-}
-
-/* Badge-ek – tónus finomítva */
-#contact .badge.bg-success{ background-color: var(--fh-success) !important; }
-#contact .badge.bg-danger { background-color: var(--fh-danger)  !important; }
-
-/* Térkép kártya – nagy, kerekített, illeszkedő */
+/* ---------- Kártyák ---------- */
+#contact .contact-card,
 #contact .map-card{
-  background: var(--fh-bg-soft);
-  border: 1px solid rgba(255,255,255,.05);
-  border-radius: 20px;
+  background: var(--c-card) !important;
+  color: var(--c-text);
+  border: 1.5px solid var(--c-border) !important;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+#contact .contact-card{ padding: 26px 26px 22px; }
+
+/* Címek */
+#contact .contact-card h1,
+#contact .contact-card h2,
+#contact .contact-card h3,
+#contact .section-title,
+#contact .contact-headline{
+  color: var(--c-heading) !important;
+  font-weight: 800;
+  margin-bottom: .4rem;
+}
+
+/* Törzsszöveg */
+#contact .lead,
+#contact .contact-card p{ color: var(--c-text-2); }
+
+/* ---------- Linkek ---------- */
+#contact .contact-card a:not(.btn){
+  color: var(--c-link) !important;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-thickness: 1px;
+}
+#contact .contact-card a:not(.btn):hover{ color: var(--c-link-hover) !important; }
+
+/* Fókuszgyűrű */
+#contact :where(a,button,.btn):focus-visible{
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--c-accent) 35%, white) !important;
+  border-radius: 10px;
+}
+
+/* „danger” csak hibához */
+#contact .text-danger{ color: var(--c-red) !important; }
+
+/* ---------- Gombok ---------- */
+#contact .btn{ border-radius: 999px; font-weight: 700; padding: .56rem 1.05rem; }
+#contact .btn-primary{
+  background: var(--c-accent) !important;
+  border-color: var(--c-accent) !important;
+  color:#fff !important;
+  box-shadow: 0 6px 18px rgba(182,122,41,.22);
+}
+#contact .btn-primary:hover{ background: var(--c-accent-600) !important; border-color: var(--c-accent-600) !important; }
+#contact .btn-outline-primary{
+  color: var(--c-accent) !important; border-color: var(--c-accent) !important; background: transparent !important;
+}
+#contact .btn-outline-primary:hover{ color:#fff !important; background: var(--c-accent) !important; border-color: var(--c-accent) !important; }
+#contact .btn, #contact .btn:hover, #contact .btn:focus{ text-decoration: none !important; }
+
+/* ---------- Nyitvatartás ---------- */
+#contact #hoursList{
+  max-width: 640px; margin-top: .6rem;
+  background: var(--c-card);
+  border: 1.5px solid var(--c-border);
+  border-radius: var(--radius-sm);
   overflow: hidden;
-  box-shadow: 0 10px 24px rgba(0,0,0,.2);
 }
-#contact .map-ratio{ height: 320px; }         /* mobil/tablet */
+#contact #hoursList li{
+  display:flex; justify-content: space-between; gap: 1rem;
+  padding: .7rem .9rem;
+  border-bottom: 1px solid #f3d59c;
+  color: var(--c-text);
+  font-size: 0.985rem;
+}
+#contact #hoursList li:last-child{ border-bottom: 0; }
+#contact #hoursList li span:last-child{ color: var(--c-text-2); }
+#contact #hoursList li.is-today{
+  position: relative; font-weight: 700; background: #fff8ea;
+}
+#contact #hoursList li.is-today::before{
+  content:""; position:absolute; left:0; top:0; bottom:0; width:6px; background: var(--c-accent);
+}
+#contact #hoursList li.is-today span:last-child{ color: var(--c-accent-600); }
+
+/* Badge-ek */
+#contact .badge.bg-success{ background-color: #2ea44f !important; color:#fff; }
+#contact .badge.bg-danger { background-color: var(--c-red) !important; color:#fff; }
+
+/* ---------- Térkép kártya ---------- */
+#contact .map-card{ padding: 0; }
+#contact .map-ratio{ height: 320px; }
 #contact .map-card iframe{ border:0; width:100%; height:100%; display:block; }
-/* gomb-linkek ne legyenek aláhúzva */
-#contact .btn,
-#contact .btn:hover,
-#contact .btn:focus {
-  text-decoration: none !important;
-}
 
-
-/* Desktopon legyen magasabb és a bal kártyával egy magasságú */
+/* Nagyobb kijelzőn egymagas */
 @media (min-width: 992px){
   #contact .map-ratio{ height: 100%; min-height: 460px; }
   #contact .contact-card{ height: 100%; }
 }
+
+/* Finomítások */
+#contact .section-title{ margin-top: 2px; }
+#contact .contact-card .mb-2{ margin-bottom: .45rem !important; }
+#contact .contact-card .mb-3{ margin-bottom: .65rem !important; }
+
+/* =========================================================
+   BOOTSTRAP UTILITY OVERRIDE PATCH
+   ========================================================= */
+#contact .contact-card .text-white,
+#contact .contact-card .text-white *,
+#contact .contact-card [class*="text-white"],
+#contact .contact-card [class*="text-opacity-"],
+#contact .contact-card .text-body-tertiary{
+  color: var(--c-text) !important;
+  --bs-text-opacity: 1 !important;
+  -webkit-text-fill-color: var(--c-text) !important; /* Safari */
+}
+/* Linkek akkor is sötétek, ha felettük text-white van */
+#contact .contact-card a:not(.btn){
+  color: var(--c-link) !important;
+  -webkit-text-fill-color: initial !important;
+}
+
+/* =========================================================
+   Ikon & route link igazítás – azonos szín és pozíció
+   ========================================================= */
+#contact .contact-item{ gap: var(--icon-gap); margin: .25rem 0; }
+
+/* Bal oldali piktogramok (telefon, boríték, marker) – EGYSÉGES */
+#contact .contact-item .icon{
+  width: var(--icon-size); height: var(--icon-size); flex: 0 0 var(--icon-size);
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: .98rem;
+  color: var(--c-accent);                 /* ugyanaz a barna, mint a telefon ikon */
+  margin-top: .08rem;                     /* baseline finomhangolás */
+}
+
+/* „Route anzeigen” – ikon ugyanarra az oszlopra kerüljön, mint a többi */
+#contact .contact-link.with-icon{
+  position: relative;
+  display: inline-flex; align-items: center; gap: .45rem;
+  text-decoration-line: underline;
+  text-decoration-thickness: .06em;
+  text-underline-offset: .18em;
+  padding-left: 0;                        /* a szöveg induljon a szövegoszlopban */
+}
+#contact .contact-link.with-icon i{
+  position: absolute;
+  left: calc(var(--icon-size) * -1 - var(--icon-gap)); /* húzd ki balra az ikon-oszlophoz */
+  top: 50%;
+  transform: translateY(-52%);            /* optikai baseline */
+  width: var(--icon-size); height: var(--icon-size);
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: .98rem;
+  color: var(--c-accent) !important;      /* pontosan ugyanaz a barna */
+  text-decoration: none;                  /* ikon ne legyen aláhúzva */
+}
+/* Map iframe baseline-gap fix */
+#contact iframe,
+.map-embed iframe,
+.embed-responsive iframe {
+  display: block;          /* ne inline legyen */
+  vertical-align: top;     /* ha mégis inline maradna valahol */
+  line-height: 0;          /* öröklött sormagasság ne számítson */
+}
+
+/* Biztos, ami biztos: a konténer se adjon plusz sort */
+#contact .map-embed,
+#contact .map-wrapper {
+  line-height: 0;
+}
+/* 1) Az utolsó szekción ne legyen extra alja */
+main > section:last-of-type { padding-bottom: 0 !important; margin-bottom: 0 !important; }
+
+/* 2) Footer előtt álló elválasztó ne foglaljon helyet */
+.section-separator:last-child { display: none !important; }
+/* (ha máshol is kell, akkor inkább:) */
+main > .section-separator:last-child { margin: 0 !important; height: 0 !important; }
+
+/* 3) Kontakt szekció belső elemei ne tolódjanak lejjebb */
+#contact .container,
+#contact .row,
+#contact .contact-wrap { margin-bottom: 0 !important; padding-bottom: 0 !important; }
+
+#contact .map-card { margin-bottom: 0 !important; }
+footer { margin-top: 0 !important; }

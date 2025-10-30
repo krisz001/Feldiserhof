@@ -1,27 +1,43 @@
 /* =================== NAVBAR =================== */
-.navbar{ min-height: var(--nav-height); }
+.navbar {
+  min-height: var(--nav-height);
+}
 
-.navbar.bg-dark{
+/* EGYSÉGES GRADIENT NAVBAR MINDIG */
+.navbar,
+.navbar.bg-dark {
   background: radial-gradient(140% 120% at 50% -40%, #fff 0%, var(--site-bg) 45%, var(--site-bg-2) 100%) !important;
   box-shadow: 0 2px 12px rgba(0,0,0,.10);
 }
 
-.navbar.sticky-top{ box-shadow: 0 2px 12px rgba(0,0,0,.10); }
-
-.navbar .navbar-brand{
-  display:inline-flex; align-items:center; height: var(--nav-height);
+.navbar.sticky-top {
+  box-shadow: 0 2px 12px rgba(0,0,0,.10);
 }
 
-.navbar .nav-link{
-  color:#2d2d2d !important; font-weight:600; font-size:1.05rem; letter-spacing:.3px;
-  padding:.6rem 1.1rem; transition:color .2s ease;
+.navbar .navbar-brand {
+  display: inline-flex;
+  align-items: center;
+  height: var(--nav-height);
+}
+
+.navbar .nav-link {
+  color: #2d2d2d !important;
+  font-weight: 600;
+  font-size: 1.05rem;
+  letter-spacing: .3px;
+  padding: .6rem 1.1rem;
+  transition: color .2s ease;
 }
 
 .navbar .nav-link:hover,
 .navbar .nav-link:focus,
-.navbar .nav-link.active{ color: var(--brand-primary) !important; }
+.navbar .nav-link.active {
+  color: var(--brand-primary) !important;
+}
 
 .brand-logo-nav {
   max-height: calc(var(--nav-height) + 10px);
-  width:auto; display:block; object-fit:contain;
+  width: auto;
+  display: block;
+  object-fit: contain;
 }

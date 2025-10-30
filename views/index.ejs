@@ -6,34 +6,39 @@
 <%- include('partials/navbar') %>
 
 <main id="main-content">
-  <!-- HERO SECTION - partial használata -->
-  <%- include('partials/hero', {
+  <!-- HERO SECTION -->
+<%- include('partials/hero', {
     heroImages: [
       '/img/hero/feldiserhof-winter.jpg',
-      '/img/hero/feldiserhof-sunset.jpg',
-      "/img/hero/feldiserhof-view.jpg"
+      '/img/hero/feldiserhof-sunset.jpg', 
+      '/img/hero/feldiserhof-view.jpg',
+      '/img/hero/miratoedi.jpg',
+      '/img/hero/IMG_0365 2.jpg'   // és utolsó is pontosan írva!
     ],
-    heroBox: heroBox  // Átadjuk a heroBox adatot a partial-nak
+    heroBox: (typeof heroBox !== 'undefined') ? heroBox : null
   }) %>
 
+
+  <!-- ABOUT -->
   <%- include('partials/about') %>
 
+  <!-- MENU -->
   <%- include('partials/menu', {
     menuData: (typeof menuData !== 'undefined')
-                ? menuData
-                : ((typeof menu !== 'undefined') ? menu : null),
+      ? menuData
+      : ((typeof menu !== 'undefined') ? menu : null),
     menuTitle: t('menu.title'),
     menuSubtitle: t('menu.subtitle'),
     menuIntro: t('menu.intro')
   }) %>
 
-
+  <!-- WELLNESS -->
   <%- include('partials/wellness', {
     wellnessFeatures: [
-      { icon:'fas fa-fire',  name: t('wellness.features.sauna') },
-      { icon:'fas fa-sun',   name: t('wellness.features.infrared') },
-      { icon:'fas fa-tint',  name: t('wellness.features.cold') },
-      { icon:'fas fa-shower',name: t('wellness.features.rain') }
+      { icon: 'fas fa-fire', name: t('wellness.features.sauna') },
+      { icon: 'fas fa-sun', name: t('wellness.features.infrared') },
+      { icon: 'fas fa-tint', name: t('wellness.features.cold') },
+      { icon: 'fas fa-shower', name: t('wellness.features.rain') }
     ],
     includedServices: [
       t('wellness.services.water'),
@@ -41,19 +46,27 @@
       t('wellness.services.towels')
     ],
     pricingOptions: [
-      { title: t('wellness.pricing.sauna.title'), meta: t('wellness.pricing.sauna.meta'), sub: t('wellness.pricing.sauna.sub'), highlighted:false },
-      { title: t('wellness.pricing.spa.title'), meta: t('wellness.pricing.spa.meta'), sub: t('wellness.pricing.spa.sub'), highlighted:true }
+      { title: t('wellness.pricing.sauna.title'), meta: t('wellness.pricing.sauna.meta'), sub: t('wellness.pricing.sauna.sub'), highlighted: false },
+      { title: t('wellness.pricing.spa.title'), meta: t('wellness.pricing.spa.meta'), sub: t('wellness.pricing.spa.sub'), highlighted: true }
     ],
     note: t('wellness.note'),
     ctaText: t('wellness.cta'),
     ctaLink: '#contact',
     galleryImages: [
-      { src:'/img/jpg1.jpg', alt: t('wellness.images.sauna'), size:'large', width:1280, height:720 },
-      { src:'/img/jpg2.jpg', alt: t('wellness.images.infrared'), size:'small', width:640, height:360 }
+      { src: '/img/jpg1.jpg', alt: t('wellness.images.sauna'), size: 'large', width: 1280, height: 720 },
+      { src: '/img/jpg2.jpg', alt: t('wellness.images.infrared'), size: 'small', width: 640, height: 360 }
     ]
   }) %>
 
-  <%- include('partials/gallery') %>
+  <!-- GALLERY (folders / album view) -->
+  <%- include('partials/gallery', {
+    view:   (typeof view !== 'undefined') ? view : 'folders',
+    albums: (typeof albums !== 'undefined' && Array.isArray(albums)) ? albums : [],
+    photos: (typeof photos !== 'undefined' && Array.isArray(photos)) ? photos : [],
+    album:  (typeof album  !== 'undefined') ? album : null
+  }) %>
+
+  <!-- CONTACT -->
   <%- include('partials/contact') %>
 </main>
 
@@ -63,6 +76,6 @@
 <link rel="stylesheet" href="/css/admin-modal.css">
 <%- include('partials/admin-login-modal') %>
 
-<!-- Hero háttér rotátor (defer) -->
+<!-- Scripts -->
 <script src="/js/hero-rotator.js" defer></script>
 <script src="/js/secret-admin.js" defer></script>

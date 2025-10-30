@@ -6,7 +6,7 @@
       "items": [
         {
           "name": "Kleiner Salatteller",
-          "price": 7.5,
+          "price": 7,
           "desc": "",
           "tags": [
             "frisch"
@@ -15,7 +15,7 @@
         },
         {
           "name": "Mittlerer Salatteller",
-          "price": 15,
+          "price": 15.5,
           "desc": "",
           "tags": [
             "frisch"
@@ -24,8 +24,29 @@
         },
         {
           "name": "Gross Salatteller",
-          "price": 22,
+          "price": 21.5,
           "desc": "",
+          "tags": [],
+          "allergens": []
+        },
+        {
+          "name": "Rinds Entrecôte (80gr)",
+          "price": 32,
+          "desc": "Wie wäre es mit einem leckeren Grillgericht?\nVerwöhnen Sie sich mit diesem exklusiven Gericht.",
+          "tags": [],
+          "allergens": []
+        },
+        {
+          "name": "Rinds Entrecôte (160gr)",
+          "price": 42,
+          "desc": "Wie wäre es mit einem leckeren Grillgericht?\nVerwöhnen Sie sich mit diesem exklusiven Gericht.",
+          "tags": [],
+          "allergens": []
+        },
+        {
+          "name": "Rinds Entrecôte (250gr)",
+          "price": 52,
+          "desc": "Wie wäre es mit einem leckeren Grillgericht?\nVerwöhnen Sie sich mit diesem exklusiven Gericht.",
           "tags": [],
           "allergens": []
         }

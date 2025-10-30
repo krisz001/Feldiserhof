@@ -1,47 +1,60 @@
-<section id="contact" class="container-xxl py-5">
+<section id="contact" class="container-xxl pt-5 pb-0">
   <div class="container">
     <div class="row g-4 align-items-stretch contact-wrap">
+
       <!-- Bal: info -->
       <div class="col-lg-5">
-        <div class="contact-card h-100">
-          <h5 class="section-title ff-secondary text-start text-primary fw-normal mb-2">Kontakt</h5>
-          <h1 class="mb-3 text-white">So erreichen Sie uns</h1>
+        <div class="contact-card h-100 mb-0">
+          <h5 class="section-title ff-secondary text-start fw-normal mb-2">Kontakt</h5>
+          <h1 class="mb-3 contact-headline">So erreichen Sie uns</h1>
 
-          <p class="mb-4 text-body-tertiary">
+          <p class="mb-4">
             Haben Sie Fragen oder möchten reservieren? Rufen Sie uns an oder schreiben Sie uns eine Nachricht.
           </p>
 
           <ul class="list-unstyled fs-5 mb-4">
-            <li class="mb-3 d-flex align-items-start">
-              <i class="fa fa-map-marker-alt me-3 text-warning mt-1"></i>
-              <span class="text-white">
-                Feldiserhof, 7404 Feldis, Schweiz<br>
-                <a class="link-light text-decoration-underline opacity-75"
-                   href="https://maps.google.com/?q=Feldiserhof%207404%20Feldis%20Schweiz"
-                   target="_blank" rel="noopener">Route anzeigen</a>
-              </span>
+            <li class="mb-3 d-flex align-items-start contact-item">
+              <i class="fas fa-map-marker-alt icon" aria-hidden="true"></i>
+              <div>
+                <a
+                  href="https://www.google.com/maps/place/Feldiserhof,+7404+Feldis,+Schweiz"
+                  target="_blank" rel="noopener noreferrer"
+                  class="contact-link">
+                  Feldiserhof, 7404 Feldis, Schweiz
+                </a>
+                <div>
+                  <a
+                    href="https://www.google.com/maps/dir/?api=1&destination=Feldiserhof,+7404+Feldis,+Schweiz"
+                    target="_blank" rel="noopener noreferrer"
+                    class="contact-link with-icon">
+                    <i class="fas fa-map-location-dot" aria-hidden="true"></i>
+                    <span>Route anzeigen</span>
+                  </a>
+                </div>
+              </div>
             </li>
-            <li class="mb-3 d-flex align-items-center">
-              <i class="fa fa-phone-alt me-3 text-warning"></i>
-              <a href="tel:+41816513030" class="link-light">+41 81 651 30 30</a>
+
+            <li class="mb-3 d-flex align-items-center contact-item">
+              <i class="fas fa-phone icon" aria-hidden="true"></i>
+              <a href="tel:+41816513030" class="contact-link">+41 81 651 30 30</a>
             </li>
-            <li class="mb-3 d-flex align-items-center">
-              <i class="fa fa-envelope me-3 text-warning"></i>
-              <a href="mailto:info@feldiserhof.ch" class="link-light">info@feldiserhof.ch</a>
+
+            <li class="mb-3 d-flex align-items-center contact-item">
+              <i class="fas fa-envelope icon" aria-hidden="true"></i>
+              <a href="mailto:info@feldiserhof.ch" class="contact-link">info@feldiserhof.ch</a>
             </li>
           </ul>
 
-          <!-- Gombok: linkek gomb-stílussal, hogy mindenhol működjenek -->
           <div class="mb-4">
             <a class="btn btn-primary me-2" href="tel:+41816513030" aria-label="Anrufen">Anrufen</a>
             <a class="btn btn-outline-primary" href="mailto:info@feldiserhof.ch" aria-label="E-Mail senden">E-Mail</a>
           </div>
 
-          <h5 class="mt-2 text-primary">Öffnungszeiten</h5>
+          <h5 class="mt-2 section-title">Öffnungszeiten</h5>
           <div class="d-flex align-items-center gap-2 mb-2">
             <span id="badgeOpen"   class="badge bg-success d-none">GEÖFFNET</span>
             <span id="badgeClosed" class="badge bg-danger d-none">GESCHLOSSEN</span>
-            <span id="statusText"  class="small text-body-secondary"></span>
+            <span id="statusText"  class="small"></span>
           </div>
           <ul id="hoursList" class="list-unstyled mt-2 small mb-0"></ul>
         </div>
@@ -49,17 +62,19 @@
 
       <!-- Jobb: nagy, kerekített térkép -->
       <div class="col-lg-7 d-flex">
-        <div class="map-card rounded-4 shadow-sm flex-grow-1">
+        <div class="map-card rounded-4 shadow-sm flex-grow-1 mb-0">
           <div class="ratio ratio-16x9 map-ratio">
             <iframe
               title="Karte – Feldiserhof"
               src="https://www.google.com/maps?q=Feldiserhof,+Feldis,+Schweiz&output=embed"
+              class="d-block"
               loading="lazy"
               allowfullscreen
               referrerpolicy="no-referrer-when-downgrade"></iframe>
           </div>
         </div>
       </div>
+
     </div>
   </div>
 </section>

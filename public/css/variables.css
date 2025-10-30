@@ -10,3 +10,17 @@
   --shadow-lg:          0 20px 40px rgba(0,0,0,.16);
   --book-side-pad:      56px;
 }
+
+/* ===== EGYSÉGES GRADIENTES HÁTTÉR MINDENHOL ===== */
+body {
+  background: radial-gradient(140% 120% at 50% -40%, #fff, #fbeac2 45%, #f5dfb0) !important;
+}
+
+/* ===== WRAPPEREK ÉS CONTAINER-EK TRANSPARENT ===== */
+.site-bg,
+.main-bg,
+.container,
+.container-fluid {
+  background: transparent !important;
+  background-color: transparent !important;
+}

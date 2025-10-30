@@ -24,7 +24,9 @@
     config.images = [
       '/img/hero/feldiserhof-winter.jpg',
       '/img/hero/feldiserhof-sunset.jpg', 
-      '/img/hero/feldiserhof-view.jpg'
+      '/img/hero/feldiserhof-view.jpg',
+      '/img/hero/miratoedi.jpg',
+      '/img/her/IMG_0365 2'
     ];
   }
 
