@@ -175,21 +175,40 @@ app.use(
 );
 
 // ============================================================
-// Statikus fájlok, parserek, cookie, session
+// Statikus fájlok – EGYSÉGESÍTETT kiszolgálás (Chrome-barát MIME + cache)
 // ============================================================
 app.use(
   express.static(path.join(__dirname, "public"), {
-    maxAge: isProd ? "7d" : 0,
+    maxAge: isProd ? "30d" : 0, // dev: no cache
     etag: true,
     lastModified: true,
     fallthrough: true,
-    setHeaders: (res, filePath) => {
-      if (/\.(mp4|webm|ogg)$/i.test(filePath) && isProd) {
+    setHeaders(res, filePath) {
+      // Pontos MIME-ek (Chrome érzékeny)
+      if (/\.avif$/i.test(filePath)) res.setHeader("Content-Type", "image/avif");
+      else if (/\.webp$/i.test(filePath)) res.setHeader("Content-Type", "image/webp");
+      else if (/\.(jpe?g)$/i.test(filePath)) res.setHeader("Content-Type", "image/jpeg");
+      else if (/\.png$/i.test(filePath)) res.setHeader("Content-Type", "image/png");
+      else if (/\.gif$/i.test(filePath)) res.setHeader("Content-Type", "image/gif");
+      else if (/\.svg$/i.test(filePath)) res.setHeader("Content-Type", "image/svg+xml");
+      else if (/\.ico$/i.test(filePath)) res.setHeader("Content-Type", "image/x-icon");
+
+      // Erős cache fingerprintelt assetekre (prod)
+      if (isProd && /\.(?:avif|webp|jpe?g|png|gif|svg|woff2?|css|js)$/i.test(filePath)) {
+        res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
+      }
+
+      // Videókra külön cache (ha vannak)
+      if (isProd && /\.(mp4|webm|ogg)$/i.test(filePath)) {
         res.setHeader("Cache-Control", "public, max-age=2592000, immutable");
       }
     },
   })
 );
+
+// ============================================================
+// Parserek, cookie, session
+// ============================================================
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
@@ -345,7 +364,7 @@ app.get("/", (req, res) => {
     "/img/hero/feldiserhof-sunset.jpg",
     "/img/hero/feldiserhof-view.jpg",
     "/img/hero/miratoedi.jpg",
-    "/img/hero/IMG_0365 2.jpg",
+    "/img/hero/IMG_0365 2.jpg", // szóközös fájlnév is mehet
   ];
 
   res.render("index", {
@@ -389,7 +408,7 @@ app.get("/api/gallery", (req, res) => {
       const folderPath = path.join(galleryDir, folder);
       const files = fs
         .readdirSync(folderPath)
-        .filter((f) => /\.(jpg|jpeg|png|webp|gif)$/i.test(f))
+        .filter((f) => /\.(jpg|jpeg|png|webp|gif|avif)$/i.test(f))
         .map((f) => ({
           src: `/gallery/${folder}/${f}`,
           alt: `${folder} – ${f.replace(/\.[^/.]+$/, "")}`,
@@ -474,7 +493,6 @@ app.get("/admin/mitarbeitende", requireAdmin, (req, res) => {
   res.render("admin/mitarbeitende", {
     title: "Feature-Schalter",
     description: "Interne Einstellungen",
-    // flags SSR-ben már mennek res.locals-ból, de adhatsz dedikáltat is:
     flags: { menuBookEnabled: !!SETTINGS.menuBookEnabled },
   });
 });

@@ -55,11 +55,19 @@
   color: var(--ink);
 }
 #rooms .intro__title-highlight{ color: #e8915f; }
+
+/* IMPORTANT: a lead NEM legyen line-clamp alatt – felülírjuk a globális szabályokat */
 #rooms .intro__lead{
   max-width: 860px;
   margin: 0 auto;
   color: var(--ink-2);
   opacity: .95;
+  display: block !important;
+  -webkit-line-clamp: unset !important;
+  -webkit-box-orient: unset !important;
+  overflow: visible !important;
+  white-space: normal !important;
+  word-break: normal;
 }
 
 /* ---------- Grid ---------- */
@@ -76,7 +84,7 @@
   box-shadow: var(--shadow-sm);
   overflow: hidden;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0,1fr) minmax(0,1fr);
   grid-template-areas: "media content";
   align-items: stretch;
   min-height: 460px;                    /* egységes minimum kártyamagasság */
@@ -99,21 +107,18 @@
   background: linear-gradient(180deg,#fff7ea,#ffe3bf);
 }
 
-/* Közös osztály képnek és videónak */
 #rooms .room-card__media{
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;                    /* kitölti a teret, vágás nélkül */
+  object-fit: cover;                    /* kitölti a teret (szükség esetén vág) */
   display: block;
   border: 0;
 }
 
-/* Biztos ami biztos: videó-specifikus stílus */
-#rooms .room-card__image-wrapper video.room-card__media {
-  background: #000;                     /* poszter hiányában se villogjon */
-}
+/* Videó-specifikus (poszter hiányában se villogjon) */
+#rooms .room-card__image-wrapper video.room-card__media { background: #000; }
 
 /* ---------- Content oszlop ---------- */
 #rooms .room-card__content{
@@ -123,6 +128,7 @@
   flex-direction: column;
   justify-content: center;
   color: var(--ink);
+  min-width: 0;                         /* hosszú szöveg ne tolja szét a rácsot */
 }
 #rooms .room-card__icon{
   font-size: 20px;
@@ -188,6 +194,7 @@
   opacity: .95;
 }
 
+
 /* ---------- Responsive ---------- */
 @media (max-width: 992px){
   #rooms .room-card{
@@ -199,6 +206,7 @@
   }
   #rooms .room-card__image-wrapper{
     min-height: 260px;
+    aspect-ratio: 16 / 9;               /* mobilon stabil magasság */
   }
 }
 
