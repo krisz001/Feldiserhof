@@ -1,0 +1,146 @@
+<%- include('../partials/head', { 
+  title: 'Feature-Schalter',
+  description: 'Interne Einstellungen'
+}) %>
+
+<%- include('../partials/navbar') %>
+
+<main class="container py-5 mt-5">
+  <div class="row">
+    <div class="col-lg-8">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <div class="d-flex align-items-center justify-content-between mb-4">
+            <h1 class="h4 mb-0">
+              <i class="fas fa-toggle-on me-2"></i> Feature-Schalter
+            </h1>
+
+            <!-- Breadcrumb / vissza -->
+            <a href="/admin" class="btn btn-sm btn-outline-secondary">
+              <i class="fas fa-arrow-left me-1"></i> Admin-Dashboard
+            </a>
+          </div>
+
+          <p class="text-muted mb-3">
+            „Speisekarte – Buch öffnen” engedélyezése/tiltása.
+          </p>
+
+          <!-- Állapot badge -->
+          <% const bookEnabled = !!(flags && flags.menuBookEnabled); %>
+          <p class="mb-3" aria-live="polite">
+            <% if (bookEnabled) { %>
+              <span id="stateBadge" class="badge bg-success">
+                <i class="fas fa-unlock-alt me-1"></i> Könyv nyitása: engedélyezve
+              </span>
+            <% } else { %>
+              <span id="stateBadge" class="badge bg-secondary">
+                <i class="fas fa-lock me-1"></i> Könyv nyitása: tiltva
+              </span>
+            <% } %>
+          </p>
+
+          <!-- Kapcsoló -->
+          <div class="form-check form-switch mb-2">
+            <input class="form-check-input" type="checkbox" id="toggle-menu-book"
+                   <%= bookEnabled ? 'checked' : '' %> >
+            <label class="form-check-label" for="toggle-menu-book">
+              „Speisekarte – Buch öffnen” engedélyezése
+            </label>
+          </div>
+          <div class="small text-muted mb-4">
+            Ha kikapcsolod, a könyv nem lesz kinyitható a nyilvános oldalon.
+          </div>
+
+          <!-- Akciógombok -->
+          <div class="d-flex gap-2">
+            <button id="saveBtn" class="btn btn-primary">
+              <i class="fas fa-save me-1"></i> Mentés
+            </button>
+            <a id="cancelBtn" href="/admin" class="btn btn-outline-secondary">
+              Mégse
+            </a>
+          </div>
+
+          <!-- mini toast -->
+          <div id="miniToast" class="fade mt-3 small"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<%- include('../partials/footer') %>
+
+<script>
+(function(){
+  const cb     = document.getElementById('toggle-menu-book');
+  const badge  = document.getElementById('stateBadge');
+  const saveBtn= document.getElementById('saveBtn');
+  const toast  = document.getElementById('miniToast');
+
+  function setBadge(enabled){
+    if (!badge) return;
+    badge.className = 'badge ' + (enabled ? 'bg-success' : 'bg-secondary');
+    badge.innerHTML = enabled 
+      ? '<i class="fas fa-unlock-alt me-1"></i> Könyv nyitása: engedélyezve'
+      : '<i class="fas fa-lock me-1"></i> Könyv nyitása: tiltva';
+  }
+
+  function showToast(msg, ok=true){
+    if (!toast) return;
+    toast.className = 'mt-3 small alert ' + (ok ? 'alert-success' : 'alert-danger') + ' show';
+    toast.textContent = msg;
+    setTimeout(()=> { toast.className = 'fade'; toast.textContent=''; }, 2200);
+  }
+
+  async function saveState({redirect=false}={}){
+    const enabled = !!cb.checked;
+    try {
+      // UI lock
+      saveBtn.disabled = true;
+      saveBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Mentés...';
+      cb.disabled = true;
+
+      const res = await fetch('/admin/feature-flags/menu-book', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ enabled })
+      });
+      if (!res.ok) throw new Error('Save failed: ' + res.status);
+      const data = await res.json();
+      setBadge(!!data.menuBookEnabled);
+      showToast('Beállítás elmentve.');
+      if (redirect) {
+        // kis késleltetés, hogy látszódjon a visszajelzés
+        setTimeout(()=> { window.location.href = '/admin'; }, 350);
+      }
+    } catch (e) {
+      alert('Nem sikerült menteni. Próbáld újra.');
+    } finally {
+      saveBtn.disabled = false;
+      saveBtn.innerHTML = '<i class="fas fa-save me-1"></i> Mentés';
+      cb.disabled = false;
+    }
+  }
+
+  // Mentés gomb
+  saveBtn?.addEventListener('click', () => saveState({redirect:true}));
+
+  // Vizuális badge azonnal frissül a kapcsoláskor (mentés nélkül is)
+  cb?.addEventListener('change', () => setBadge(!!cb.checked));
+
+  // Ctrl/Cmd+S gyorsbillentyű a mentéshez
+  document.addEventListener('keydown', (e) => {
+    const isModS = (e.ctrlKey || e.metaKey) && (e.key === 's' || e.key === 'S');
+    if (isModS) {
+      e.preventDefault();
+      saveState({redirect:true});
+    }
+  });
+})();
+</script>
+
+<style>
+.card { border-radius: .75rem; }
+#miniToast { min-height: 0; }
+</style>

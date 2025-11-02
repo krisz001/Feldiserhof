@@ -1,23 +1,23 @@
 // ============================================================
-// Feldiserhof – Express.js szerver (bővített, admin-ready + Hero Box)
+// Feldiserhof – Express.js szerver (admin-ready + i18n + Wellness + Rooms)
+// + Feature Flag: "menuBookEnabled" (könyv nyithatóság adminból)
 // ============================================================
 import express from "express";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
-
-// Biztonság + admin csomagok
 import dotenv from "dotenv";
 import session from "express-session";
 import bcrypt from "bcryptjs";
 import helmet from "helmet";
 import csrf from "csurf";
 import rateLimit from "express-rate-limit";
+import cookieParser from "cookie-parser";
 
-// Nyelvi támogatás
-import i18next from 'i18next';
-import Backend from 'i18next-fs-backend';
-import i18nextMiddleware from 'i18next-http-middleware';
+// i18n
+import i18next from "i18next";
+import Backend from "i18next-fs-backend";
+import i18nextMiddleware from "i18next-http-middleware";
 
 dotenv.config();
 
@@ -29,60 +29,107 @@ const PORT = process.env.PORT || 3000;
 const isProd = process.env.NODE_ENV === "production";
 
 // ============================================================
-// DEBUG: Nyelvi fájlok ellenőrzése
+// Konzol header
 // ============================================================
-console.log('🔍 Nyelvi fájlok ellenőrzése:');
-const huPath = path.join(__dirname, 'locales', 'hu', 'translation.json');
-const dePath = path.join(__dirname, 'locales', 'de', 'translation.json');
-console.log('HU fájl:', huPath, '- Létezik:', fs.existsSync(huPath));
-console.log('DE fájl:', dePath, '- Létezik:', fs.existsSync(dePath));
+console.log("===============================================");
+console.log("🚀 Feldiserhof szerver indul...");
+console.log("📦 NODE_ENV:", process.env.NODE_ENV || "(nincs megadva)");
+console.log("===============================================");
 
 // ============================================================
-// i18next inicializálás - JAVÍTOTT (csak cookie detektálás)
+// Nyelvi fájlok gyors ellenőrzése
+// ============================================================
+const huPath = path.join(__dirname, "locales", "hu", "translation.json");
+const dePath = path.join(__dirname, "locales", "de", "translation.json");
+console.log("🔍 Nyelvi fájlok:");
+console.log("   HU:", fs.existsSync(huPath) ? "OK" : "HIÁNYZIK", "→", huPath);
+console.log("   DE:", fs.existsSync(dePath) ? "OK" : "HIÁNYZIK", "→", dePath);
+
+// ============================================================
+// Feature flags – perzisztens tárolás
+// ============================================================
+const DATA_DIR = path.join(__dirname, "data");
+const SETTINGS_PATH = path.join(DATA_DIR, "settings.json");
+
+// biztosítsuk a /data könyvtárat
+if (!fs.existsSync(DATA_DIR)) {
+  fs.mkdirSync(DATA_DIR, { recursive: true });
+}
+
+function readSettings() {
+  try {
+    if (!fs.existsSync(SETTINGS_PATH)) {
+      const defaults = { menuBookEnabled: true };
+      fs.writeFileSync(SETTINGS_PATH, JSON.stringify(defaults, null, 2), "utf8");
+      console.log("✅ Alapértelmezett settings.json létrehozva");
+      return defaults;
+    }
+    return JSON.parse(fs.readFileSync(SETTINGS_PATH, "utf8"));
+  } catch (e) {
+    console.error("❌ Settings betöltési hiba:", e.message);
+    return { menuBookEnabled: true };
+  }
+}
+function writeSettings(s) {
+  try {
+    fs.writeFileSync(SETTINGS_PATH, JSON.stringify(s, null, 2), "utf8");
+  } catch (e) {
+    console.error("❌ Settings mentési hiba:", e.message);
+  }
+}
+let SETTINGS = readSettings();
+
+// ============================================================
+// i18next init (cookie detektálás)
 // ============================================================
 await i18next
   .use(Backend)
   .use(i18nextMiddleware.LanguageDetector)
-  .init({
-    fallbackLng: 'hu',
-    preload: ['hu', 'de'],
-    backend: {
-      loadPath: path.join(__dirname, 'locales', '{{lng}}', 'translation.json')
+  .init(
+    {
+      fallbackLng: "hu",
+      preload: ["hu", "de"],
+      backend: {
+        loadPath: path.join(__dirname, "locales", "{{lng}}", "translation.json"),
+      },
+      detection: {
+        order: ["cookie"],
+        caches: ["cookie"],
+        lookupCookie: "i18next",
+      },
+      debug: !isProd,
+      initImmediate: false,
+      interpolation: { escapeValue: false },
     },
-    detection: {
-      order: ['cookie'],            // ← csak cookie
-      caches: ['cookie'],
-      lookupCookie: 'i18next'
-    },
-    debug: true,
-    initImmediate: false
-  }, (err, t) => {
-    if (err) {
-      console.error('❌ i18next inicializálási hiba:', err);
-    } else {
-      console.log('✅ i18next sikeresen inicializálva');
-      console.log('🌐 Alapértelmezett nyelv minta (hu):', t('home.title', { lng: 'hu' }));
+    (err, t) => {
+      if (err) {
+        console.error("❌ i18next init hiba:", err);
+      } else {
+        console.log("✅ i18next OK | minta kulcs:", t("home.title", { lng: "hu" }));
+      }
     }
-  });
+  );
 
-// i18n middleware – API-k és auth végpontok ignorálása
-app.use(i18nextMiddleware.handle(i18next, {
-  ignoreRoutes: (req) => (
-    req.url.startsWith('/api') ||
-    req.url.startsWith('/admin/login') ||
-    req.url.startsWith('/admin/logout')
-  )
-}));
+// i18n middleware – API/auth kivételek
+app.use(
+  i18nextMiddleware.handle(i18next, {
+    ignoreRoutes: (req) =>
+      req.url.startsWith("/api") ||
+      req.url.startsWith("/admin/login") ||
+      req.url.startsWith("/admin/logout"),
+  })
+);
 
 // ============================================================
-// Alapbeállítások
+// EJS beállítások
 // ============================================================
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 app.locals.basedir = app.get("views");
 
 // ============================================================
-// Helmet – DEV/PROD barát beállítás
+// Helmet – CSP (CDN-ek engedve), dev-barát
+// (Videókhoz: media-src, valamint blob: támogatás.)
 // ============================================================
 app.use(
   helmet({
@@ -94,46 +141,60 @@ app.use(
             "default-src": ["'self'"],
             "base-uri": ["'self'"],
             "object-src": ["'none'"],
-            "img-src": ["'self'", "data:", "https:"],
-            "font-src": ["'self'", "data:", "https://fonts.gstatic.com"],
+            "img-src": ["'self'", "data:", "https:", "blob:"],
+            "media-src": ["'self'", "blob:", "data:"],
+            "font-src": [
+              "'self'",
+              "data:",
+              "https://fonts.gstatic.com",
+              "https://cdnjs.cloudflare.com",
+              "https://cdn.jsdelivr.net",
+            ],
             "style-src": [
               "'self'",
               "'unsafe-inline'",
               "https://fonts.googleapis.com",
               "https://cdnjs.cloudflare.com",
-              "https://cdn.jsdelivr.net"
+              "https://cdn.jsdelivr.net",
             ],
             "script-src": [
               "'self'",
               "'unsafe-inline'",
               "https://cdn.jsdelivr.net",
-              "https://cdnjs.cloudflare.com"
+              "https://cdnjs.cloudflare.com",
             ],
             "connect-src": ["'self'"],
-            "frame-src": ["'self'", "https://www.google.com", "https://google.com"]
-          }
+            "frame-src": ["'self'", "https://www.google.com", "https://google.com"],
+            "upgrade-insecure-requests": [],
+          },
         }
       : false,
     crossOriginEmbedderPolicy: false,
-    crossOriginResourcePolicy: { policy: "cross-origin" }
+    crossOriginResourcePolicy: { policy: "cross-origin" },
   })
 );
 
 // ============================================================
-// Statikus fájlok
+// Statikus fájlok, parserek, cookie, session
 // ============================================================
-app.use(express.static(path.join(__dirname, "public")));
-
-// ============================================================
-// Body parse + session
-// ============================================================
+app.use(
+  express.static(path.join(__dirname, "public"), {
+    maxAge: isProd ? "7d" : 0,
+    etag: true,
+    lastModified: true,
+    fallthrough: true,
+    setHeaders: (res, filePath) => {
+      if (/\.(mp4|webm|ogg)$/i.test(filePath) && isProd) {
+        res.setHeader("Cache-Control", "public, max-age=2592000, immutable");
+      }
+    },
+  })
+);
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+app.use(cookieParser());
 
-if (isProd) {
-  // reverse proxy / HTTPS mögött kötelező a secure cookie-hoz
-  app.set("trust proxy", 1);
-}
+if (isProd) app.set("trust proxy", 1);
 
 app.use(
   session({
@@ -144,45 +205,39 @@ app.use(
     cookie: {
       httpOnly: true,
       sameSite: "lax",
-      secure: isProd,                    // ← prodban secure
-      maxAge: 1000 * 60 * 60 * 8
-    }
+      secure: isProd,
+      maxAge: 1000 * 60 * 60 * 8,
+    },
   })
 );
 
 // ============================================================
-// Nyelvi helper a stabil cookie-hoz (1 év, secure prodban)
+// Helper függvények
 // ============================================================
 const setLangCookie = (res, lng) => {
-  res.cookie('i18next', lng, {
-    maxAge: 365 * 24 * 60 * 60 * 1000,   // 1 év
-    httpOnly: false,                     // kliens JS olvashatja (pl. i18next browser)
-    sameSite: 'lax',
-    secure: isProd
+  res.cookie("i18next", lng, {
+    path: "/",
+    maxAge: 365 * 24 * 60 * 60 * 1000,
+    httpOnly: false,
+    sameSite: "lax",
+    secure: isProd,
   });
 };
 
-// ============================================================
-// Helper: JSON olvasás
-// ============================================================
-const loadJSON = (filePath) => {
+const loadJSON = (publicRelPath) => {
   try {
-    const fullPath = path.join(__dirname, "public", filePath);
-    return JSON.parse(fs.readFileSync(fullPath, "utf8"));
+    const fullPath = path.join(__dirname, "public", publicRelPath);
+    const data = JSON.parse(fs.readFileSync(fullPath, "utf8"));
+    return data;
   } catch (err) {
-    console.error(`❌ Hiba a(z) ${filePath} betöltésekor:`, err.message);
+    console.error(`❌ JSON betöltési hiba (${publicRelPath}):`, err.message);
     return null;
   }
 };
 
-// ============================================================
-// Helper: Hero Box adatok betöltése
-// ============================================================
 const loadHeroBox = () => {
   try {
     const heroBoxPath = path.join(__dirname, "public", "hero-box.json");
-    
-    // Ha nem létezik a fájl, alapértelmezett értékekkel létrehozzuk
     if (!fs.existsSync(heroBoxPath)) {
       const defaultHeroBox = {
         enabled: true,
@@ -191,162 +246,140 @@ const loadHeroBox = () => {
         description: "Genießen Sie unseren speziellen Bergblick mit 3-Gänge-Menü",
         buttonText: "Mehr erfahren",
         buttonLink: "#offers",
-        startDate: new Date().toISOString().split('T')[0],
-        endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        startDate: new Date().toISOString().split("T")[0],
+        endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+          .toISOString()
+          .split("T")[0],
         priority: 1,
         isActive: true,
-        targetAudience: "all"
+        targetAudience: "all",
       };
-      
-      
       fs.writeFileSync(heroBoxPath, JSON.stringify(defaultHeroBox, null, 2));
-      console.log('✅ Alapértelmezett hero-box.json létrehozva');
+      console.log("✅ Alapértelmezett hero-box.json létrehozva");
       return defaultHeroBox;
     }
-    
     const data = JSON.parse(fs.readFileSync(heroBoxPath, "utf8"));
-    
-    // Dátum érvényesség ellenőrzése
-    const now = new Date();
-    const endDate = new Date(data.endDate);
-    if (endDate < now) {
-      data.isActive = false;
-    }
-    
+    if (data?.endDate && new Date(data.endDate) < new Date()) data.isActive = false;
     return data;
   } catch (err) {
-    console.error('❌ Hiba a hero-box.json betöltésekor:', err.message);
-    return {
-      enabled: false,
-      icon: "🏔️",
-      title: "Aktuelles Angebot",
-      description: "Genießen Sie unseren speziellen Bergblick mit 3-Gänge-Menü",
-      buttonText: "Mehr erfahren",
-      buttonLink: "#offers",
-      isActive: false
-    };
+    console.error("❌ Hero-box betöltési hiba:", err.message);
+    return { enabled: false, isActive: false };
   }
 };
 
 // ============================================================
-// Nyelvi middleware - DEBUG információkkal
+// i18n locals + flags + egyszerű kérés-log
 // ============================================================
 app.use((req, res, next) => {
   res.locals.t = req.t;
   res.locals.i18n = req.i18n;
 
-  console.log('🌐 Kérés érkezett:', {
-    url: req.url,
-    language: req.language,
-    languages: req.languages,
-    sessionAdmin: req.session?.isAdmin
-  });
+  // ← Feature-flagek SSR-hez
+  res.locals.flags = {
+    menuBookEnabled: !!SETTINGS.menuBookEnabled,
+  };
 
+  if (process.env.LOG_REQUESTS === "1") {
+    console.log(
+      "➡️",
+      req.method,
+      req.url,
+      "| lang:",
+      req.language,
+      "| admin:",
+      !!req.session?.isAdmin,
+      "| menuBookEnabled:",
+      res.locals.flags.menuBookEnabled
+    );
+  }
   next();
 });
 
 // ============================================================
-// Nyelv váltó route - POST (JavaScript-hez)
+// Nyelvváltás
 // ============================================================
-app.post('/change-language', (req, res) => {
-  const { lang } = req.body;
-  console.log('🔄 POST nyelvváltás kérés:', lang);
-
-  if (['hu', 'de'].includes(lang)) {
-    setLangCookie(res, lang);                    // ← egységes helper
-    res.json({ success: true, message: 'Nyelv megváltoztatva' });
-  } else {
-    res.status(400).json({ success: false, message: 'Érvénytelen nyelv' });
+app.post("/change-language", (req, res) => {
+  const { lang } = req.body || {};
+  if (["hu", "de"].includes(lang)) {
+    setLangCookie(res, lang);
+    return res.json({ success: true });
   }
+  res.status(400).json({ success: false, message: "Érvénytelen nyelv" });
 });
 
-// ============================================================
-// NYELVVÁLTÓ GET ROUTE-OK - JAVÍTOTT (SESSION MEGŐRZÉSSEL)
-// ============================================================
-app.get('/set-language/:lang', (req, res) => {
+app.get("/set-language/:lang", (req, res) => {
   const { lang } = req.params;
   const { admin } = req.query;
-
-  console.log('🔄 GET nyelvváltás kérés:', { lang, admin, referer: req.get('Referer') });
-
-  if (!['hu', 'de'].includes(lang)) {
-    return res.status(400).send('Érvénytelen nyelv');
-  }
+  if (!["hu", "de"].includes(lang)) return res.status(400).send("Érvénytelen nyelv");
 
   const wasAdmin = !!req.session.isAdmin;
-  setLangCookie(res, lang);                      // ← egységes helper
-
-  if (wasAdmin || admin === 'true') {
-    req.session.isAdmin = true;
-    console.log('🔐 Admin session megőrizve');
-  }
+  setLangCookie(res, lang);
+  if (wasAdmin || admin === "true") req.session.isAdmin = true;
 
   req.session.save((err) => {
-    if (err) console.error('❌ Session mentési hiba:', err);
-    const referer = req.get('Referer') || (wasAdmin ? '/admin' : '/');
-    console.log('↪️ Átirányítás:', referer);
+    if (err) console.error("❌ Session mentési hiba:", err);
+    const referer = req.get("Referer") || (wasAdmin ? "/admin" : "/");
     res.redirect(referer);
   });
 });
 
 // ============================================================
-// Főoldal - HERO BOX támogatással
+// Oldalak
 // ============================================================
 app.get("/", (req, res) => {
-  console.log('🏠 Főoldal betöltése, nyelv:', req.language);
-
   const menuData = loadJSON("menu.json");
   const openingHours = loadJSON("opening-hours.json");
   const heroBoxData = loadHeroBox();
 
   if (!menuData || !openingHours) {
-    console.error("❌ Menü vagy nyitvatartás adat nem található.");
-    return res.status(500).send("Server error: Menü vagy nyitvatartás adat nem található.");
+    console.error(
+      "❌ Menü vagy nyitvatartás hiányzik (public/menu.json vagy public/opening-hours.json)."
+    );
+    return res
+      .status(500)
+      .send("Server error: Menü vagy nyitvatartás adat nem található.");
   }
 
-  // Hero képek tömbje
   const heroImages = [
-    '/img/hero/feldiserhof-winter.jpg',
-    '/img/hero/feldiserhof-sunset.jpg',
-    '/img/hero/feldiserhof-view.jpg',
-    '/img/hero/miratoedi.jpg',
-    '/img/her/IMG_0365 2.jpg'
+    "/img/hero/feldiserhof-winter.jpg",
+    "/img/hero/feldiserhof-sunset.jpg",
+    "/img/hero/feldiserhof-view.jpg",
+    "/img/hero/miratoedi.jpg",
+    "/img/hero/IMG_0365 2.jpg",
   ];
 
   res.render("index", {
-    title: req.t('home.title'),
-    description: req.t('home.description'),
+    title: req.t("home.title"),
+    description: req.t("home.description"),
     menu: menuData,
     hours: openingHours,
     heroBox: heroBoxData,
-    heroImages: heroImages
+    heroImages,
   });
 });
 
-// ============================================================
-// Galéria oldal
-// ============================================================
+app.get("/zimmer", (req, res) => {
+  res.render("rooms", {
+    title: "Unsere Zimmer im Alpenstil",
+    active: "zimmer",
+  });
+});
+
 app.get("/gallery", (req, res) => {
-  console.log('🖼️ Galéria oldal betöltése, nyelv:', req.language);
-
   res.render("gallery", {
-    title: req.t('gallery.title'),
-    description: req.t('gallery.description')
+    title: req.t("gallery.title"),
+    description: req.t("gallery.description"),
   });
 });
 
-// ============================================================
-// Galéria API – albumosított olvasás (public/gallery/...)
-// ============================================================
+// Galéria API
 app.get("/api/gallery", (req, res) => {
   const galleryDir = path.join(__dirname, "public", "gallery");
   const albums = {};
-
   try {
     if (!fs.existsSync(galleryDir)) {
       return res.status(404).json({ error: "Gallery folder not found." });
     }
-
     const folders = fs
       .readdirSync(galleryDir, { withFileTypes: true })
       .filter((d) => d.isDirectory())
@@ -359,12 +392,10 @@ app.get("/api/gallery", (req, res) => {
         .filter((f) => /\.(jpg|jpeg|png|webp|gif)$/i.test(f))
         .map((f) => ({
           src: `/gallery/${folder}/${f}`,
-          alt: `${folder} – ${f.replace(/\.[^/.]+$/, "")}`
+          alt: `${folder} – ${f.replace(/\.[^/.]+$/, "")}`,
         }));
-
       albums[folder] = files;
     }
-
     res.json({ albums });
   } catch (err) {
     console.error("❌ Galéria betöltési hiba:", err);
@@ -372,22 +403,23 @@ app.get("/api/gallery", (req, res) => {
   }
 });
 
+// Health
+app.get("/api/health", (_req, res) => {
+  res.json({ ok: true, env: process.env.NODE_ENV || "development" });
+});
+
 // ============================================================
-// Rejtett admin + Menü CRUD alap + HERO BOX API
+// Admin / CSRF / API-k
 // ============================================================
 const isAdmin = (req) => !!req.session?.isAdmin;
 const requireAdmin = (req, res, next) => {
-  if (!isAdmin(req)) {
-    console.log('🚫 Admin jogosultság hiányzik, session:', req.session);
-    return res.status(401).send("Unauthorized");
-  }
+  if (!isAdmin(req)) return res.status(401).send("Unauthorized");
   next();
 };
 
 const loginLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 20 });
 
-// ---- CSRF beállítások ----
-const csrfIssue = csrf();
+const csrfIssue = csrf(); // session alapú
 app.get("/api/csrf-token", csrfIssue, (req, res) => {
   res.json({ token: req.csrfToken() });
 });
@@ -398,10 +430,9 @@ const csrfFromHeader = csrf({
     req.body?._csrf ||
     req.get("x-csrf-token") ||
     req.get("csrf-token") ||
-    ""
+    "",
 });
 
-// ---- Login / Logout / Admin ----
 app.post("/admin/login", loginLimiter, csrfFromHeader, async (req, res) => {
   const { password } = req.body || {};
   const hash = process.env.ADMIN_PASSWORD_HASH || "";
@@ -411,41 +442,45 @@ app.post("/admin/login", loginLimiter, csrfFromHeader, async (req, res) => {
   if (!ok) return res.status(401).json({ ok: false, msg: "Bad credentials" });
 
   req.session.isAdmin = true;
-  console.log('🔑 Admin bejelentkezés sikeres');
+  console.log("🔑 Admin bejelentkezés sikeres");
   res.json({ ok: true });
 });
 
 app.post("/admin/logout", requireAdmin, (req, res) => {
-  console.log('🔓 Admin kijelentkezés');
+  console.log("🔓 Admin kijelentkezés");
   req.session.destroy(() => res.json({ ok: true }));
 });
 
 app.get("/admin", requireAdmin, (req, res) => {
-  console.log('👑 Admin dashboard betöltése, nyelv:', req.language);
-
   const heroBoxData = loadHeroBox();
-  
   res.render("admin/dashboard", {
-    title: req.t('admin.title'),
-    description: req.t('admin.description'),
-    heroBox: heroBoxData
+    title: req.t("admin.title"),
+    description: req.t("admin.description"),
+    heroBox: heroBoxData,
   });
 });
 
-// ---- Menü szerkesztő oldal ----
 app.get("/admin/menu", requireAdmin, (req, res) => {
-  console.log('📝 Admin menü szerkesztő betöltése, nyelv:', req.language);
-
   const menuData = loadJSON("menu.json");
-  
   res.render("admin/menu-editor", {
-    title: req.t('admin.menuEditor'),
-    description: req.t('admin.menuEditorDesc'),
-    menu: menuData
+    title: req.t("admin.menuEditor"),
+    description: req.t("admin.menuEditorDesc"),
+    menu: menuData,
   });
 });
 
-// ---- Menü API ----
+// 🔹🔹🔹 ÚJ: Feature-Schalter oldal route (Mitarbeitende) 🔹🔹🔹
+app.get("/admin/mitarbeitende", requireAdmin, (req, res) => {
+  res.render("admin/mitarbeitende", {
+    title: "Feature-Schalter",
+    description: "Interne Einstellungen",
+    // flags SSR-ben már mennek res.locals-ból, de adhatsz dedikáltat is:
+    flags: { menuBookEnabled: !!SETTINGS.menuBookEnabled },
+  });
+});
+// 🔹🔹🔹 /ÚJ 🔹🔹🔹
+
+// Menü API
 app.get("/api/menu", requireAdmin, (req, res) => {
   const data = loadJSON("menu.json");
   res.json(data || { title: "", categories: [] });
@@ -457,6 +492,7 @@ app.post("/api/menu", requireAdmin, (req, res) => {
   try {
     const fullPath = path.join(__dirname, "public", "menu.json");
     fs.writeFileSync(fullPath, JSON.stringify(body, null, 2), "utf8");
+    console.log("✅ Menü mentve:", fullPath);
     res.json({ ok: true });
   } catch (e) {
     console.error("❌ Menü mentési hiba:", e);
@@ -464,7 +500,7 @@ app.post("/api/menu", requireAdmin, (req, res) => {
   }
 });
 
-// ---- HERO BOX API ----
+// Hero Box API
 app.get("/api/hero-box", requireAdmin, (req, res) => {
   const data = loadHeroBox();
   res.json(data || {});
@@ -473,19 +509,35 @@ app.get("/api/hero-box", requireAdmin, (req, res) => {
 app.post("/api/hero-box", requireAdmin, (req, res) => {
   const body = req.body && typeof req.body === "object" ? req.body : null;
   if (!body) return res.status(400).json({ ok: false, msg: "Invalid body" });
-  
+
   try {
     const fullPath = path.join(__dirname, "public", "hero-box.json");
     fs.writeFileSync(fullPath, JSON.stringify(body, null, 2), "utf8");
-    console.log('✅ Hero box sikeresen frissítve');
+    console.log("✅ Hero-box frissítve");
     res.json({ ok: true });
   } catch (e) {
-    console.error("❌ Hero box mentési hiba:", e);
+    console.error("❌ Hero-box mentési hiba:", e);
     res.status(500).json({ ok: false, msg: "Save failed" });
   }
 });
 
-// ---- CSRF hibakezelő ----
+// ===== Feature Flags API =====
+app.get("/api/feature-flags", (req, res) => {
+  res.json({ menuBookEnabled: !!SETTINGS.menuBookEnabled });
+});
+
+app.post("/admin/feature-flags/menu-book", requireAdmin, (req, res) => {
+  const { enabled } = req.body || {};
+  if (typeof enabled !== "boolean") {
+    return res.status(400).json({ ok: false, msg: "enabled must be boolean" });
+  }
+  SETTINGS.menuBookEnabled = enabled;
+  writeSettings(SETTINGS);
+  console.log("🛠️ menuBookEnabled →", enabled);
+  res.json({ ok: true, menuBookEnabled: !!SETTINGS.menuBookEnabled });
+});
+
+// CSRF hibakezelő
 app.use((err, req, res, next) => {
   if (err && err.code === "EBADCSRFTOKEN") {
     return res.status(403).json({ ok: false, msg: "Invalid CSRF token" });
@@ -493,11 +545,17 @@ app.use((err, req, res, next) => {
   next(err);
 });
 
+// Általános 500-as hibakezelő (fallback)
+app.use((err, _req, res, _next) => {
+  console.error("💥 Váratlan hiba:", err);
+  res.status(500).send("Internal Server Error");
+});
+
 // ============================================================
-// 404 - MINDIG AZ UTOLSÓ ROUTE!
+// 404
 // ============================================================
 app.use((req, res) => {
-  res.status(404).send(req.t('errors.404'));
+  res.status(404).send(req.t("errors.404"));
 });
 
 // ============================================================
@@ -506,7 +564,10 @@ app.use((req, res) => {
 app.listen(PORT, () => {
   console.log(`✅ Feldiserhof szerver fut: http://localhost:${PORT}`);
   console.log(`🌐 Nyelvi támogatás: hu, de`);
-  console.log(`🔐 Admin felület: /admin`);
+  console.log(`🔐 Admin: /admin`);
   console.log(`📝 Menü szerkesztő: /admin/menu`);
-  console.log(`🎯 Hero Box támogatás: aktív`);
+  console.log(`🎯 Hero Box: aktív`);
+  console.log("📁 Feature flags fájl:", SETTINGS_PATH);
+  console.log("⚙️  menuBookEnabled:", SETTINGS.menuBookEnabled);
+  console.log("🛏  Rooms: beépített EJS tartalom (nincs rooms.json).");
 });

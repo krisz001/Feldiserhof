@@ -1,0 +1,185 @@
+@import url('https://fonts.googleapis.com/css2?family=Patrick+Hand+SC&display=swap');
+
+:root {
+  --primary: #0a2540;
+  --accent: #ffae3c;
+  --secondary: #e1cf97;
+  --gold: #e3c176;
+  --gray: #bfb9ac;
+  --glass-bg: rgba(255, 255, 255, 0.32);
+  --glass-border: #ffd454;
+  --glass-shadow: 0 14px 36px rgba(188,150,80,0.13), 0 3px 9px rgba(80,80,90,0.08);
+}
+
+/* GLASS HERO BOX (kártya) */
+.hero-badge .card, 
+.hero-content .hero-badge .card,
+.hero-ad-box,
+.promo-box {
+  background: var(--glass-bg) !important;
+  border: 3.5px solid var(--glass-border) !important;
+  border-radius: 26px !important;
+  box-shadow: var(--glass-shadow) !important;
+  backdrop-filter: blur(20px) saturate(1.12) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(1.12) !important;
+  color: #604820 !important;
+  padding: 2.6rem 2.3rem 1.8rem 2.3rem !important;
+  text-align: center !important;
+  position: relative !important;
+  font-family: 'Patrick Hand SC', cursive, sans-serif !important;
+  transition: box-shadow .23s, border-color .19s !important;
+  z-index: 10 !important;
+  animation: glassPopIn .9s cubic-bezier(.34,1.56,.64,1) 0.1s backwards;
+}
+
+/* Modern, ragyogó arany keret és fény overlay a kártyán */
+.hero-badge .card::before,
+.hero-content .hero-badge .card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 22px;
+  pointer-events: none;
+  border: 3.5px solid #ffe6a0;
+  box-shadow: 0 0 0 7px #ffe6a033;
+  opacity: .50;
+  z-index: 3;
+  animation: glassBorderGlow 5s infinite linear;
+}
+.hero-badge .card::after,
+.hero-content .hero-badge .card::after {
+  content: '';
+  position: absolute;
+  left: 18px; right: 18px; top: 0;
+  height: 7px;
+  border-radius: 12px 12px 0 0;
+  background: linear-gradient(90deg,#fffde3 8%, #ffd454 70%, #fff 100%);
+  opacity: .26;
+  z-index: 4;
+  animation: glassShine 3.7s infinite linear;
+}
+
+/* Glassmorph árnyék */
+.hero-badge,
+.hero-content .hero-badge {
+  filter: drop-shadow(0 7px 24px rgba(232,180,90,0.15));
+}
+
+@keyframes glassBorderGlow {
+  0%, 100% { box-shadow: 0 0 0 7px #ffe6a033, 0 0 18px 1px #ffd45455; }
+  45% { box-shadow: 0 0 0 13px #ffe6a023, 0 0 30px 2px #ffd45444; }
+  50% { box-shadow: 0 0 0 7px #ffe6a033, 0 0 22px 0 #ffd45429; }
+  70% { box-shadow: 0 0 0 9px #ffd45411, 0 0 9px 1px #ffc94726; }
+}
+
+@keyframes glassShine {
+  0% { opacity: .26; }
+  45% { opacity: .38;}
+  55% { opacity: .17;}
+  70% { opacity: .27;}
+  100% { opacity: .26;}
+}
+
+@keyframes glassPopIn {
+  0% { opacity:0; transform: scale(0.7) translateY(120px); }
+  80% { opacity:1; transform: scale(1.06) translateY(-7px);}
+  100% { opacity:1; transform: scale(1) translateY(0);}
+}
+
+/* Tipográfia, címek, szöveg, badge, gombok */
+.hero-badge .card h5,
+.hero-content .hero-badge .card h5 {
+  color: #c08e34 !important;
+  font-size: 1.37rem !important;
+  font-weight: 700 !important;
+  margin-bottom: .76em !important;
+  letter-spacing: .01em !important;
+}
+.hero-badge .card p,
+.hero-content .hero-badge .card p {
+  color: #7d6c4c !important;
+  font-size: 1.13rem !important;
+  font-family: 'Patrick Hand SC', cursive, sans-serif !important;
+}
+.hero-badge .card .btn,
+.hero-content .hero-badge .card .btn {
+  border-radius: 16px !important;
+  font-weight: 700 !important;
+  background: #ffd454 !important;
+  color: #25211a !important;
+  box-shadow: 0 2px 14px rgba(255,174,60,.21) !important;
+  border: none !important;
+  padding: 0.85em 2.4em !important;
+  font-size: 1.07em !important;
+  margin-top:.87em !important;
+  transition: background .15s, box-shadow .11s, color .11s !important;
+  animation: btnPopIn .57s cubic-bezier(.18,.67,.56,1.36) 0.18s backwards;
+}
+@keyframes btnPopIn {
+  0% { opacity:.2; transform: scale(.5);}
+  90% { opacity:1; transform: scale(1.08);}
+  100% { opacity:1; transform: scale(1);}
+}
+.hero-badge .card .btn:hover,
+.hero-content .hero-badge .card .btn:hover {
+  background: #ffae3c !important;
+  color: #fff !important;
+  box-shadow: 0 7px 17px 0 rgba(220,187,62,0.19) !important;
+}
+
+
+/* Animációk és extra hero-content tipográfia */
+@keyframes contentFadeIn {
+  0% { opacity: 0; transform: translateY(40px);}
+  100% { opacity: 1; transform: translateY(0);}
+}
+.hero-header .content-fade-in,
+.hero-content .content-fade-in {
+  opacity: 0;
+  transform: translateY(30px);
+  animation: contentFadeIn 1.2s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+}
+
+/* Extra badge, feature elemek */
+.text-warning {
+  color: var(--gold) !important;
+}
+.hero-title,
+.text {
+    color: rgb(138, 90, 43) !important;
+}
+.text-white-50 {
+  color: rgb(138, 90, 43) !important;
+  font-weight: bold !important;
+  font-size: 1.3em !important;
+  border-radius: 8px !important;
+  background: rgba(255,255,255,0.16) !important;
+  padding: 0.12em 0.55em !important;
+  margin-top:0.18em !important;
+}
+
+
+/* Glass stílusú gombok, minden főbb hero gombnál */
+.sajat-btn,
+.hero-header .btn,
+.hero-content .hero-header .btn {
+  border-radius: 15px !important;
+  font-weight: 700 !important;
+  background: var(--accent) !important;
+  color: #fff !important;
+  box-shadow: 0 2px 14px rgba(255,174,60,.20) !important;
+  border: none !important;
+  padding: 0.85em 2.1em !important;
+  font-size: 1.12em !important;
+  margin-right:1em !important;
+  transition: background .16s, box-shadow .13s, color .11s !important;
+  animation: btnPopIn .49s cubic-bezier(.18,.67,.56,1.36) 0.21s backwards;
+  text-decoration: none;
+}
+.sajat-btn:hover,
+.hero-header .btn:hover,
+.hero-content .hero-header .btn:hover {
+  background: var(--secondary) !important;
+  color: var(--primary) !important;
+  box-shadow: 0 7px 23px 0 rgba(220, 187, 62, 0.11) !important;
+}

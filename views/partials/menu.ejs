@@ -1,28 +1,41 @@
 <%
-  // --------- Adatok előkészítése ---------
-  const categories = (menuData && Array.isArray(menuData.categories)) ? menuData.categories : [];
+  const categories = Array.isArray(menuData?.categories) ? menuData.categories : [];
   const titleTxt    = t('menu.title',    { defaultValue: 'Speisekarte' });
   const subtitleTxt = t('menu.subtitle', { defaultValue: 'Entdecken Sie unsere Küche' });
   const introTxt    = t('menu.intro',    { defaultValue: 'Frisch, saisonal, regional – täglich für Sie.' });
 
-  const itemsPerPage = 8; // Maximális tétel oldalanként
+  // ===== Front és back külön =====
+  const ITEMS_PER_SIDE = 4; // egy OLDALON max 4 elem
+  const sheets = [];        // egy "sheet" = front + back
 
-  const pages = [];
   categories.forEach((cat, catIndex) => {
     const items = Array.isArray(cat.items) ? cat.items : [];
-    for (let i = 0; i < items.length; i += itemsPerPage) {
-      const pageItems   = items.slice(i, i + itemsPerPage);
-      const pageNoInCat = Math.floor(i / itemsPerPage) + 1;
-      const baseName    = cat.name || ('Kategorie ' + (catIndex + 1));
-      const pageTitle   = pageNoInCat === 1 ? baseName : `${baseName} (Seite ${pageNoInCat})`;
-      pages.push({ title: pageTitle, items: pageItems });
+    const baseName = cat.name || `Kategorie ${catIndex + 1}`;
+    let pageNoInCat = 1;
+
+    for (let i = 0; i < items.length; i += ITEMS_PER_SIDE * 2) {
+      // FRONT
+      const frontItems = items.slice(i, i + ITEMS_PER_SIDE);
+      const frontTitle = pageNoInCat === 1 ? baseName : `${baseName} (${pageNoInCat})`;
+
+      // BACK
+      const backItems = items.slice(i + ITEMS_PER_SIDE, i + ITEMS_PER_SIDE * 2);
+      const backTitle = backItems.length > 0 ? `${baseName} (${pageNoInCat + 1})` : null;
+
+      sheets.push({
+        front: { title: frontTitle, items: frontItems },
+        back : backItems.length ? { title: backTitle, items: backItems } : null
+      });
+
+      pageNoInCat += backItems.length ? 2 : 1;
     }
   });
-  const totalSheets = Math.ceil(pages.length / 2);
+
+  // Folyamatos lapszámozás a ténylegesen megjelenő oldalak alapján
+  let pageCounter = 1;
 %>
 
 <section id="menu" class="menu-section">
-  <!-- MODERN HEADER -->
   <header class="menu-header text-center mb-5">
     <span class="menu-icon" aria-hidden="true">🍴</span>
     <h2 class="menu-title"><%= titleTxt %></h2>
@@ -31,12 +44,25 @@
     <p class="menu-intro"><%= introTxt %></p>
   </header>
 
-  <div class="menu-portfolio">
+  <!-- 🔒 wrapper kap feltételes locked állapotot -->
+  <div class="menu-portfolio <%= flags?.menuBookEnabled ? '' : 'is-locked' %>">
     <div class="wrapper">
+
+      <!-- 🔒 ha tiltva van, mutatjuk az overlay üzenetet -->
+      <% if (!flags?.menuBookEnabled) { %>
+        <div class="book-lock-overlay" role="status" aria-live="polite">
+          <div class="blo-card">
+            <h3>Speisekarte derzeit nicht einsehbar</h3>
+            <p>Bitte wenden Sie sich an unser Team – vielen Dank für Ihr Verständnis.</p>
+          </div>
+        </div>
+      <% } %>
+
       <div class="cover cover-left" aria-hidden="true"></div>
       <div class="cover cover-right" aria-hidden="true"></div>
 
-      <div class="book">
+      <div class="book" id="menuBook">
+        <!-- Bal nyitó oldal -->
         <div class="book-page page-left">
           <div class="profile-page profile-cover">
             <h1><%= titleTxt %></h1>
@@ -44,67 +70,32 @@
           </div>
         </div>
 
-        <% if (pages.length === 0) { %>
-          <div class="book-page page-right" id="turn-1">
+        <% if (sheets.length === 0) { %>
+          <!-- Üres állapot: 1 jobb oldal -->
+          <div class="book-page page-right" data-sheet="1" id="turn-1">
             <div class="page-front">
               <h1 class="title"><%= titleTxt %></h1>
               <p>Derzeit sind keine Menüdaten vorhanden.</p>
-              <span class="number-page">1</span>
+              <span class="number-page"><%= pageCounter %></span>
               <span class="nextprev-btn" data-role="next"><i class="bx bx-chevron-right"></i></span>
             </div>
             <div class="page-back">
-              <span class="number-page">2</span>
+              <span class="number-page"><%= pageCounter + 1 %></span>
               <span class="nextprev-btn back" data-role="prev"><i class="bx bx-chevron-left"></i></span>
             </div>
           </div>
-        <% } else {
-          for (let sheetIndex = 0; sheetIndex < totalSheets; sheetIndex++) {
-            const front        = pages[sheetIndex * 2];
-            const back         = pages[sheetIndex * 2 + 1];
-            const sheetId      = `turn-${sheetIndex + 1}`;
-            const frontPageNo  = sheetIndex * 2 + 1;
-            const backPageNo   = sheetIndex * 2 + 2;
-        %>
-          <div class="book-page page-right" id="<%= sheetId %>">
-            <!-- FRONT -->
-            <div class="page-front">
-              <h1 class="title"><%= front.title %></h1>
-              <div class="menu-items-grid">
-                <% front.items.forEach(item => { %>
-                  <article class="menu-item">
-                    <div class="mi-head">
-                      <h4 class="mi-name"><%- item.name || '' %></h4>
-                      <% if (item.price != null && item.price !== '') { %>
-                        <div class="mi-price">
-                          <%= typeof item.price === 'number' ? item.price.toFixed(2) + ' fr' : String(item.price) %>
-                        </div>
-                      <% } %>
-                    </div>
-                    <% if (item.desc) { %>
-                      <p class="mi-desc"><%- item.desc %></p>
-                    <% } %>
-                    <% if (item.tags && item.tags.length) { %>
-                      <ul class="mi-tags">
-                        <% item.tags.forEach(tag => { %><li><%- tag %></li><% }) %>
-                      </ul>
-                    <% } %>
-                    <% if (item.allergens && item.allergens.length) { %>
-                      <ul class="mi-tags allergens">
-                        <% item.allergens.forEach(allergen => { %><li class="allergen"><%- allergen %></li><% }) %>
-                      </ul>
-                    <% } %>
-                  </article>
-                <% }) %>
-              </div>
-              <span class="number-page"><%= frontPageNo %></span>
-              <span class="nextprev-btn" data-role="next"><i class="bx bx-chevron-right"></i></span>
-            </div>
-            <!-- BACK -->
-            <div class="page-back">
-              <% if (back) { %>
-                <h1 class="title"><%= back.title %></h1>
+        <% } else { %>
+          <% sheets.forEach((sheet, sheetIndex) => { 
+               const sheetId = `turn-${sheetIndex + 1}`;
+               const frontNo = pageCounter;
+               const backNo  = sheet.back ? pageCounter + 1 : null;
+          %>
+            <div class="book-page page-right" data-sheet="1" id="<%= sheetId %>">
+              <!-- FRONT -->
+              <div class="page-front">
+                <h1 class="title"><%= sheet.front.title %></h1>
                 <div class="menu-items-grid">
-                  <% back.items.forEach(item => { %>
+                  <% sheet.front.items.forEach(item => { %>
                     <article class="menu-item">
                       <div class="mi-head">
                         <h4 class="mi-name"><%- item.name || '' %></h4>
@@ -114,9 +105,7 @@
                           </div>
                         <% } %>
                       </div>
-                      <% if (item.desc) { %>
-                        <p class="mi-desc"><%- item.desc %></p>
-                      <% } %>
+                      <% if (item.desc) { %><p class="mi-desc"><%- item.desc %></p><% } %>
                       <% if (item.tags && item.tags.length) { %>
                         <ul class="mi-tags">
                           <% item.tags.forEach(tag => { %><li><%- tag %></li><% }) %>
@@ -124,28 +113,106 @@
                       <% } %>
                       <% if (item.allergens && item.allergens.length) { %>
                         <ul class="mi-tags allergens">
-                          <% item.allergens.forEach(allergen => { %><li class="allergen"><%- allergen %></li><% }) %>
+                          <% item.allergens.forEach(a => { %><li class="allergen"><%- a %></li><% }) %>
                         </ul>
                       <% } %>
                     </article>
                   <% }) %>
                 </div>
-              <% } else { %>
-                <div class="profile-page">
-                  <h1 class="title">Vielen Dank!</h1>
-                  <p>Wir wünschen einen guten Appetit</p>
-                </div>
-              <% } %>
-              <span class="number-page"><%= backPageNo %></span>
-              <span class="nextprev-btn back" data-role="prev"><i class="bx bx-chevron-left"></i></span>
+                <span class="number-page"><%= frontNo %></span>
+                <span class="nextprev-btn" data-role="next"><i class="bx bx-chevron-right"></i></span>
+              </div>
+
+              <!-- BACK -->
+              <div class="page-back">
+                <% if (sheet.back) { %>
+                  <h1 class="title"><%= sheet.back.title %></h1>
+                  <div class="menu-items-grid">
+                    <% sheet.back.items.forEach(item => { %>
+                      <article class="menu-item">
+                        <div class="mi-head">
+                          <h4 class="mi-name"><%- item.name || '' %></h4>
+                          <% if (item.price != null && item.price !== '') { %>
+                            <div class="mi-price">
+                              <%= typeof item.price === 'number' ? item.price.toFixed(2) + ' fr' : String(item.price) %>
+                            </div>
+                          <% } %>
+                        </div>
+                        <% if (item.desc) { %><p class="mi-desc"><%- item.desc %></p><% } %>
+                        <% if (item.tags && item.tags.length) { %>
+                          <ul class="mi-tags">
+                            <% item.tags.forEach(tag => { %><li><%- tag %></li><% }) %>
+                          </ul>
+                        <% } %>
+                        <% if (item.allergens && item.allergens.length) { %>
+                          <ul class="mi-tags allergens">
+                            <% item.allergens.forEach(a => { %><li class="allergen"><%- a %></li><% }) %>
+                          </ul>
+                        <% } %>
+                      </article>
+                    <% }) %>
+                  </div>
+                <% } else { %>
+                  <div class="profile-page">
+                    <h1 class="title">Vielen Dank!</h1>
+                    <p>Wir wünschen einen guten Appetit</p>
+                  </div>
+                <% } %>
+                <span class="number-page"><%= backNo ?? '' %></span>
+                <span class="nextprev-btn back" data-role="prev"><i class="bx bx-chevron-left"></i></span>
+              </div>
             </div>
-          </div>
-        <% } } %>
+            <% pageCounter += sheet.back ? 2 : 1; %>
+          <% }); %>
+        <% } %>
       </div>
     </div>
     <div class="book-dots"></div>
   </div>
+
   <link rel="stylesheet" href="/css/menu-portfolio-book.css">
   <link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css">
 </section>
 <div class="section-separator"></div>
+
+<!-- 🔽 csak ehhez az opcióhoz szükséges minimál stílus -->
+<style>
+  .menu-portfolio .wrapper { position: relative; }
+  .menu-portfolio.is-locked .cover,
+  .menu-portfolio.is-locked .book {
+    filter: blur(14px) brightness(0.85) saturate(0.9);
+    pointer-events: none !important;
+    user-select: none !important;
+  }
+  .book-lock-overlay{
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    padding: 24px;
+    background: radial-gradient(ellipse at center, rgba(0,0,0,.18), rgba(0,0,0,.28));
+    z-index: 999;
+  }
+  .book-lock-overlay .blo-card{
+    max-width: 720px; width: 100%;
+    text-align: center; padding: 28px 24px; border-radius: 16px;
+    background: rgba(255,255,255,.9);
+    box-shadow: 0 20px 60px rgba(0,0,0,.25);
+    backdrop-filter: blur(4px);
+  }
+  .book-lock-overlay .blo-card h3{ margin:0 0 8px; font-weight:700; font-size: clamp(1.1rem,2.2vw,1.5rem); color:#2b2b2b; }
+  .book-lock-overlay .blo-card p { margin:0; font-size: clamp(.95rem,2vw,1.05rem); color:#444; }
+
+  @media (prefers-color-scheme: dark){
+    .book-lock-overlay .blo-card{ background: rgba(26,26,26,.92); color:#eee; }
+    .book-lock-overlay .blo-card h3{ color:#fff; }
+    .book-lock-overlay .blo-card p { color:#ddd; }
+  }
+
+  /* finom "shake", ha tiltott állapotban próbál lapozni (ha használod) */
+  @keyframes book-shake{
+    10%,90%{transform:translateX(-1px)}
+    20%,80%{transform:translateX(2px)}
+    30%,50%,70%{transform:translateX(-4px)}
+    40%,60%{transform:translateX(4px)}
+  }
+  .menu-portfolio .book.shake{ animation: book-shake .4s both; }
+</style>

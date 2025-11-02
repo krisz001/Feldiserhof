@@ -1,13 +1,13 @@
 {
   "enabled": true,
-  "icon": "💆",
-  "title": "Party",
-  "description": "Event",
+  "icon": "",
+  "title": "Betriebsferien vom 3.11.25-25.11.25",
+  "description": "7. Dezember Adventsfenster.......\n26. Dezember Steffaliball 2025.......\n31. Dezember Silvester Dinner\n",
   "buttonText": "Jetzt buchen",
   "buttonLink": "#contact",
-  "startDate": "2025-10-30",
-  "endDate": "2025-10-31",
+  "startDate": "2025-11-01",
+  "endDate": "2026-01-01",
   "priority": 1,
   "targetAudience": "all",
-  "isActive": true
+  "isActive": false
 }

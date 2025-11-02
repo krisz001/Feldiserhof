@@ -1,0 +1,123 @@
+<%
+const heroBoxData = typeof heroBox !== 'undefined' && heroBox ? heroBox : {
+  enabled: true,
+  icon: "🏔️",
+  title: "Aktuelles Angebot",
+  description: "Genießen Sie unseren speziellen Bergblick mit 3-Gänge-Menü",
+  buttonText: "Mehr erfahren",
+  buttonLink: "#offers",
+  startDate: new Date().toISOString().split('T')[0],
+  endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+  priority: 1,
+  isActive: true,
+  targetAudience: "all"
+};
+%>
+
+<div class="container py-5 my-5 hero-content">
+  <div class="row align-items-center g-5">
+    <div class="col-lg-6 text-center text-lg-start">
+      <h1 class="display-3 text-white hero-title content-fade-in">
+        <%= t('homeHero.title') %>
+      </h1>
+
+      <p class="mb-4 text-white-50 lead content-fade-in" style="animation-delay: 200ms">
+        <%= t('homeHero.subtitle') %>
+      </p>
+
+      <div class="d-flex flex-column flex-sm-row gap-3 content-fade-in" style="animation-delay: 400ms;">
+        <a 
+          href="#menu" 
+          class="sajat-btn"
+          aria-label="<%= t('menu.title') %> ansehen">
+          <span class="btn-icon">📋</span>
+          <%= t('menu.title') %>
+        </a>
+
+        <a 
+          href="#contact" 
+          class="btn btn-warning py-3 px-4 px-lg-5 btn-hover-scale"
+          aria-label="<%= t('homeHero.cta') %>">
+          <span class="btn-icon">🕒</span>
+          <%= t('homeHero.cta') %>
+        </a>
+      </div>
+
+      <!-- Extra információ -->
+      <div class="mt-4 content-fade-in" style="animation-delay: 600ms">
+        <div class="d-flex flex-wrap justify-content-center justify-content-lg-start gap-3 text-white-50 small">
+          <div class="d-flex align-items-center gap-2">
+            <span class="text-warning">★</span>
+            <span><%= t('homeHero.feature1') %></span>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <span class="text-warning">★</span>
+            <span><%= t('homeHero.feature2') %></span>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <span class="text-warning">★</span>
+            <span><%= t('homeHero.feature3') %></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Jobb oldali tartalom - DINAMIKUS HERO BOX -->
+    <% if (heroBoxData && heroBoxData.enabled && heroBoxData.isActive) { %>
+      <div class="col-lg-6 text-center">
+        <div class="hero-badge content-fade-in" style="animation-delay: 800ms">
+          <div class="card bg-dark bg-opacity-50 border-light border-opacity-25 rounded-3 p-4">
+            <div class="card-body position-relative">
+              <% if (heroBoxData.targetAudience && heroBoxData.targetAudience !== 'all') { %>
+                <span class="hero-target-badge">
+                  <%= heroBoxData.targetAudience === 'restaurant' ? '🍽️ ' + t('admin.heroBox.restaurant') : '' %>
+                  <%= heroBoxData.targetAudience === 'wellness' ? '💆 ' + t('admin.heroBox.wellness') : '' %>
+                  <%= heroBoxData.targetAudience === 'hotel' ? '🛏️ ' + t('admin.heroBox.hotel') : '' %>
+                </span>
+              <% } %>
+              
+              <div class="text-warning mb-2" style="font-size: 2rem">
+                <%= heroBoxData.icon %>
+              </div>
+              <h5 class="text-white mb-3">
+                <%= heroBoxData.title %>
+              </h5>
+              <p class="text-white-50 small mb-3">
+                <%= heroBoxData.description %>
+              </p>
+              <a href="<%= heroBoxData.buttonLink %>" class="btn btn-outline-warning btn-sm">
+                <%= heroBoxData.buttonText %>
+              </a>
+              
+              <% if (heroBoxData.startDate && heroBoxData.endDate) { %>
+                <div class="mt-3 pt-2 border-top border-light border-opacity-25">
+                  <small class="text-white-50 badge-expiry">
+                    <%= t('admin.heroBox.validUntil') %>: <%= new Date(heroBoxData.endDate).toLocaleDateString('de-DE') %>
+                  </small>
+                </div>
+              <% } %>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% } else if (heroBoxData && (!heroBoxData.enabled || !heroBoxData.isActive)) { %>
+      <div class="col-lg-6 text-center">
+        <div style="background: rgba(255,0,0,0.1); border: 2px dashed red; padding: 20px; border-radius: 10px; display: none;">
+          <h5 style="color: red;">❌ HERO BOX INACTIVE</h5>
+          <p style="color: red; font-size: 12px;">
+            enabled: <%= heroBoxData.enabled %><br>
+            isActive: <%= heroBoxData.isActive %><br>
+            title: <%= heroBoxData.title %>
+          </p>
+        </div>
+      </div>
+    <% } %>
+  </div>
+</div>
+
+<!-- Scroll indicator -->
+<div class="hero-scroll-indicator content-fade-in" style="animation-delay: 1000ms">
+  <div class="scroll-arrow" aria-hidden="true"></div>
+  <span class="sr-only"><%= t('homeHero.scrollHint') %></span>
+</div>
+<div class="section-separator"></div>

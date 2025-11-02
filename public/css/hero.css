@@ -1,18 +1,10 @@
 :root {
-  --primary: #0a2540;
-  --accent: #ff6b6b;
-  --secondary: #4ecdc4;
-  --gold: #e3c176;
-  --gray: #6c757d;
   --nav-height: 64px;
 }
 
-
-/* ===== Enhanced Hero Section ===== */
 .hero-header {
   position: relative;
-  min-height: calc(100vh - var(--nav-height));
-  padding: 5rem 0 4rem;
+  min-height: calc(50vh - var(--nav-height));
   background: radial-gradient(140% 120% at 50% -40%, #fff, #fbeac2 45%, #f5dfb0) !important;
   background-size: cover;
   background-position: center 38%;
@@ -23,8 +15,9 @@
   --kenburns-duration: 20000ms;
   --parallax-intensity: 0.05;
 }
-.hero-header::before{
-  z-index:-3;
+
+.hero-header::before {
+  z-index: -3;
   background: none !important;
 }
 .hero-header::after {
@@ -39,8 +32,7 @@
   mix-blend-mode: overlay;
 }
 
-
-/* Slides & Ken Burns */
+/* Slides */
 .hero-header .hero-slides {
   position: absolute;
   inset: 0;
@@ -79,18 +71,12 @@
   background-position: 40% center;
   transform: scale(1.1) translateZ(0);
 }
-.hero-header .hero-slide.is-active.kenburns-zoom {
-  transform: scale(1) translateZ(0);
-}
-.hero-header .hero-slide.is-active.kenburns-pan-left {
-  background-position: center center;
-  transform: scale(1) translateZ(0);
-}
+.hero-header .hero-slide.is-active.kenburns-zoom,
+.hero-header .hero-slide.is-active.kenburns-pan-left,
 .hero-header .hero-slide.is-active.kenburns-pan-right {
-  background-position: center center;
   transform: scale(1) translateZ(0);
+  background-position: center center;
 }
-
 
 /* Progress indicator */
 .hero-progress {
@@ -129,42 +115,11 @@
   border-radius: 2px;
   transition: width 0.1s linear;
 }
+
 @keyframes progressCountdown {
   0% { width: 100%; }
   100% { width: 0%; }
 }
-
-
-/* Content animációk */
-.hero-header .hero-content {
-  transform: translateY(0) translateZ(0);
-  transition: transform 0.8s cubic-bezier(0.23, 1, 0.32, 1);
-  text-shadow: 0 2px 4px rgb(11, 89, 245);
-}
-.hero-header .display-3 {
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  line-height: 1.2;
-}
-.hero-header .lead {
-  font-size: 1.25rem;
-  font-weight: 400;
-  line-height: 1.6;
-  margin-bottom: 2rem;
-  max-width: 600px;
-}
-.hero-header .content-fade-in {
-  opacity: 0;
-  transform: translateY(30px);
-  animation: contentFadeIn 1.2s cubic-bezier(0.23, 1, 0.32, 1) forwards;
-}
-@keyframes contentFadeIn {
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
 
 /* Navigációs gombok */
 .hero-nav {
@@ -203,291 +158,4 @@
 }
 .hero-nav-button:active {
   transform: scale(0.95);
-}
-
-
-/* Gomb animációk */
-.btn-hover-scale {
-  transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
-  position: relative;
-  overflow: hidden;
-}
-.btn-hover-scale:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-}
-.btn-hover-scale::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-  transition: left 0.5s;
-}
-.btn-hover-scale:hover::before {
-  left: 100%;
-}
-.btn-icon {
-  margin-right: 0.5rem;
-  transition: transform 0.3s ease;
-}
-.btn-hover-scale:hover .btn-icon {
-  transform: scale(1.1);
-}
-.hero-header .btn {
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  padding: 0.75rem 1.5rem;
-  border-width: 2px;
-}
-.hero-header .btn-outline-light:hover {
-  background-color: rgba(255,255,255,0.15);
-  color: #fff;
-}
-
-
-/* Hero badge animáció */
-.hero-badge {
-  perspective: 1000px;
-}
-
-
-/* ---- GLASSMORPHISM HIRDETŐ BOX ---- */
-.hero-ad-box,
-.promo-box,
-.hero-badge .card {
-  background: rgba(44, 75, 150, 0.23) !important; /* erősebb, kékesebb blur */
-  border: 2.7px solid #ffd454 !important;
-  border-radius: 34px !important;
-  box-shadow: 0 15px 51px 0 rgba(60,65,71,0.17) !important;
-  backdrop-filter: blur(23px) saturate(1.12) !important;
-  -webkit-backdrop-filter: blur(23px) saturate(1.12) !important;
-  color: #fff !important;
-  padding: 3.1rem 2.1rem 2.1rem 2.1rem !important;
-  margin: 2rem auto 2.2rem auto !important;
-  transition: box-shadow .22s, border-color .18s !important;
-  position: relative !important;
-  text-align: center !important;
-  z-index: 200 !important;
-}
-.hero-ad-box::before,
-.promo-box::before,
-.hero-badge .card::before {
-  content: '';
-  position: absolute;
-  left: 0; right: 0; top: 0;
-  height: 3.4px;
-  border-radius: 4px 4px 0 0;
-  background: linear-gradient(90deg, #ffd454, #ffc107 18%, #eec684 62%, #ffdf79 100%);
-  background-size: 200% 100%;
-  animation: shimmer 2.8s infinite linear;
-  z-index: 9;
-}
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 220% 0; }
-}
-/* Címek, szöveg, fehér + árnyék */
-.hero-ad-box h1,
-.hero-ad-box h2,
-.hero-ad-box h3,
-.hero-ad-box h4,
-.hero-ad-box h5,
-.hero-ad-box .display-1,
-.hero-ad-box .display-2,
-.hero-ad-box .display-3,
-.hero-ad-box .display-4 {
-  color: #fff !important;
-  text-shadow: 0 3px 20px rgba(10,30,90,0.35) !important;
-  font-weight: 900 !important;
-  letter-spacing: -0.01em !important;
-  font-size: 2.5rem !important;
-  margin-bottom: 1.42rem !important;
-}
-.hero-ad-box .subtitle,
-.hero-ad-box p,
-.hero-ad-box .lead,
-.hero-ad-box .desc {
-  color: #efeffa !important;
-  font-size: 1.11rem !important;
-  font-weight: 400 !important;
-  line-height: 1.53 !important;
-  margin-bottom: 1.1rem !important;
-  text-shadow: 0 2px 15px rgba(12,27,48,.20) !important;
-}
-.hero-ad-box .muted,
-.hero-ad-box .small {
-  color: #c9d5f5 !important;
-  opacity: 0.81 !important;
-}
-/* Gomb: arany, erős, nagy */
-.hero-ad-box .btn,
-.promo-box .btn {
-  border-radius: 19px !important;
-  font-weight: 800 !important;
-  border: 3px solid #ffc107 !important;
-  background: rgba(255,255,241,0.10) !important;
-  color: #ffd454 !important;
-  box-shadow: 0 2px 14px rgba(252,215,78,.12) !important;
-  font-size: 2rem !important;
-  padding: 1rem 2.3rem !important;
-  margin: 1.1rem 0 !important;
-  transition: background .17s, color .14s, box-shadow .17s !important;
-  text-shadow: 0 2px 16px rgba(250, 226, 80, 0.13) !important;
-}
-.hero-ad-box .btn:hover,
-.promo-box .btn:hover {
-  background: #ffd454 !important;
-  color: #25211a !important;
-  border-color: #ffc107 !important;
-  box-shadow: 0 7px 29px 0 rgba(220, 187, 62, 0.21) !important;
-}
-/* Expiry badge */
-.hero-ad-box .badge-expiry {
-  background: rgba(255, 223, 137, 0.18) !important;
-  color: #f5c550 !important;
-  font-size: 1.08rem !important;
-  font-weight: 700 !important;
-  border-radius: 13px !important;
-  padding: 0.38em 1.5em 0.40em 2.1em !important;
-  margin: 1.22rem 0 0.12rem 0 !important;
-  letter-spacing: .012em !important;
-  box-shadow: 0 2px 14px rgba(232,211,111,.11) !important;
-  position: relative !important;
-  line-height: 1.14 !important;
-  opacity: 0.93 !important;
-}
-.hero-ad-box .badge-expiry::before {
-  content: "⏰";
-  font-size: 1.10em !important;
-  margin-right: 0.52em !important;
-  vertical-align: -8% !important;
-  opacity: 0.70 !important;
-}
-/* Faint vonal */
-.hero-ad-box hr, .promo-box hr {
-  border: none !important;
-  border-top: 2.1px solid rgba(255,255,255,0.12) !important;
-  margin: 2.12rem 0 1.09rem !important;
-}
-/* Reszponzív: minden glass box */
-@media (max-width: 991.98px) {
-  .hero-ad-box, .promo-box, .hero-badge .card {
-    margin-top: 1.1rem !important;
-    padding: 1.09rem 0.45rem 1.12rem 0.45rem !important;
-    font-size: 0.98rem !important;
-    border-radius: 22px !important;
-  }
-  .hero-ad-box h1,
-  .hero-ad-box .display-3 { font-size: 1.13rem !important; }
-  .hero-ad-box .btn, .promo-box .btn { font-size: 1.07rem !important; padding: .7rem 1.09rem !important; }
-}
-@media (max-width: 576px) {
-  .hero-ad-box, .promo-box, .hero-badge .card {
-    padding: 0.41rem 0.11rem 0.61rem 0.11rem !important;
-    border-radius: 11px !important;
-  }
-  .hero-ad-box h1, .hero-ad-box .display-3 { font-size: .99rem !important; }
-  .hero-ad-box .btn, .promo-box .btn { font-size: 0.83rem !important; padding: .41rem 0.66rem !important; }
-}
-/* Maximális védelem minden felülírás ellen */
-.hero-ad-box,
-.hero-ad-box *,
-.promo-box,
-.promo-box *,
-.hero-badge .card,
-.hero-badge .card * {
-  box-sizing: border-box !important;
-  background-clip: padding-box !important;
-  font-family: 'Segoe UI', system-ui, Arial, sans-serif !important;
-  z-index: 202 !important;
-}
-
-.hero-ad-box, .promo-box, .hero-badge .card {
-  background: rgba(44, 75, 150, 0.23) !important;
-  border: 2.7px solid #ffd454 !important;
-  color: #fff !important;
-  box-shadow: 0 15px 51px 0 rgba(60,65,71,0.17) !important;
-}
-
-
-/* Scroll indicator, badge, hero-title */
-.hero-scroll-indicator {
-  position: absolute;
-  bottom: 2rem;
-  left: 50%;
-  transform: translateX(-50%);
-  text-align: center;
-  z-index: 5;
-}
-.scroll-arrow {
-  width: 24px;
-  height: 24px;
-  border-right: 2px solid rgba(255,255,255,0.7);
-  border-bottom: 2px solid rgba(255,255,255,0.7);
-  transform: rotate(45deg);
-  animation: bounce 2s infinite;
-}
-.hero-title,
-.text{
-  color: #ffc107 !important;
-}
-@keyframes bounce {
-  0%, 100% { transform: rotate(45deg) translateY(0); }
-  50% { transform: rotate(45deg) translateY(-10px); }
-}
-
-
-/* Accessibility improvements */
-@media (prefers-reduced-motion: reduce) {
-  .hero-header .hero-slide,
-  .hero-header .hero-content,
-  .hero-nav-button,
-  .btn-hover-scale,
-  .hero-badge .card,
-  .scroll-arrow,
-  .content-fade-in {
-    transition: opacity 0.3s linear !important;
-    transform: none !important;
-    animation: none !important;
-  }
-  .hero-progress-item.active .progress-fill {
-    animation: none;
-    width: 0%;
-  }
-  .content-fade-in {
-    opacity: 1 !important;
-    transform: none !important;
-  }
-  .hero-ad-box::before,
-  .promo-box::before,
-  .hero-badge .card::before {
-    animation: none;
-    background: #ffc107;
-  }
-}
-/* High contrast mode support */
-@media (prefers-contrast: high) {
-  .hero-header::before {
-    background: rgba(0,0,0,0.9);
-  }
-  .btn-outline-light { border-width: 3px; }
-  .hero-progress-item { background: rgba(255,255,255,0.6); }
-  .progress-fill { background: rgba(255,255,255,1); }
-  .hero-badge .card,
-  .hero-ad-box,
-  .promo-box {
-    border: 2px solid rgba(255,255,255,0.9) !important;
-    background: rgba(0,0,0,0.8) !important;
-  }
-  .hero-target-badge {
-    background: rgba(255,255,255,0.9);
-    color: #000;
-    border: 2px solid #000;
-  }
-  .hero-header .hero-content {
-    text-shadow: 0 2px 4px rgba(0,0,0,0.8);
-  }
 }

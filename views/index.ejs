@@ -6,18 +6,23 @@
 <%- include('partials/navbar') %>
 
 <main id="main-content">
-  <!-- HERO SECTION -->
-<%- include('partials/hero', {
-    heroImages: [
-      '/img/hero/feldiserhof-winter.jpg',
-      '/img/hero/feldiserhof-sunset.jpg', 
-      '/img/hero/feldiserhof-view.jpg',
-      '/img/hero/miratoedi.jpg',
-      '/img/hero/IMG_0365 2.jpg'   // és utolsó is pontosan írva!
-    ],
-    heroBox: (typeof heroBox !== 'undefined') ? heroBox : null
+  <!-- HERO SECTION: csak slideshow-képek -->
+  <%- include('partials/hero', {
+    heroImages: (typeof heroImages !== 'undefined' && Array.isArray(heroImages) && heroImages.length)
+      ? heroImages
+      : [
+          '/img/hero/feldiserhof-winter.jpg',
+          '/img/hero/feldiserhof-sunset.jpg',
+          '/img/hero/feldiserhof-view.jpg',
+          '/img/hero/miratoedi.jpg',
+          '/img/hero/IMG_0365 2.jpg'
+        ]
   }) %>
 
+  <!-- HERO CONTENT: szöveg, gombok, heroBox stb. -->
+  <%- include('partials/hero-content', {
+    heroBox: (typeof heroBox !== 'undefined') ? heroBox : null
+  }) %>
 
   <!-- ABOUT -->
   <%- include('partials/about') %>
@@ -38,7 +43,7 @@
       { icon: 'fas fa-fire', name: t('wellness.features.sauna') },
       { icon: 'fas fa-sun', name: t('wellness.features.infrared') },
       { icon: 'fas fa-tint', name: t('wellness.features.cold') },
-      { icon: 'fas fa-shower', name: t('wellness.features.rain') }
+      { icon: 'fas fa-shower', name: t('Duschen') }
     ],
     includedServices: [
       t('wellness.services.water'),
@@ -47,15 +52,40 @@
     ],
     pricingOptions: [
       { title: t('wellness.pricing.sauna.title'), meta: t('wellness.pricing.sauna.meta'), sub: t('wellness.pricing.sauna.sub'), highlighted: false },
-      { title: t('wellness.pricing.spa.title'), meta: t('wellness.pricing.spa.meta'), sub: t('wellness.pricing.spa.sub'), highlighted: true }
+      { title: t('wellness.pricing.spa.title'),   meta: t('wellness.pricing.spa.meta'),   sub: t('wellness.pricing.spa.sub'),   highlighted: true  }
     ],
     note: t('wellness.note'),
     ctaText: t('wellness.cta'),
     ctaLink: '#contact',
     galleryImages: [
-      { src: '/img/jpg1.jpg', alt: t('wellness.images.sauna'), size: 'large', width: 1280, height: 720 },
-      { src: '/img/jpg2.jpg', alt: t('wellness.images.infrared'), size: 'small', width: 640, height: 360 }
+      { src: '/img/jpg1.jpg', alt: t('wellness.images.sauna'),    size: 'large', width: 1280, height: 720 },
+      { src: '/img/jpg2.jpg', alt: t('wellness.images.infrared'), size: 'small', width: 640,  height: 360 }
     ]
+  }) %>
+
+  <!-- ROOMS (Wellness mintájára, közvetlenül alatta) -->
+  <%- include('partials/rooms', {
+    roomsTitle: 'Unsere Zimmer im Alpenstil',
+    roomsLead:  'Erleben Sie gemütliche Wohlfühlmomente in unseren liebevoll eingerichteten Zimmern – jedes im traditionellen Alpenstil mit viel Holz, warmen Farben und einem Hauch von Bergromantik.',
+    roomsFeatures: [
+      { icon: 'fa-solid fa-bed',    name: 'Doppelbett' },
+      { icon: 'fa-regular fa-eye',  name: 'Balkon mit Alpenblick' },
+      { icon: 'fa-solid fa-bath',   name: 'Dusche/WC' },
+      { icon: 'fa-solid fa-tv',     name: 'TV' }
+    ],
+    roomCards: [
+      { id:'double',           title:'Doppelzimmer im Alpenstil',       meta:'2 Pers. · mit Frühstück',     sub:'Fr 180.– / Nacht', highlighted:false },
+      { id:'single-in-double', title:'Einzelbelegung im Doppelzimmer',  meta:'1 Pers. · mit Frühstück',     sub:'Fr 140.– / Nacht', highlighted:false },
+      { id:'family',           title:'Familienzimmer im Alpenstil',     meta:'2 Erw. + Kinder · Frühstück', sub:'Fr 220.– / Nacht', highlighted:true  },
+      { id:'dogs',             title:'Doppelzimmer – Hunde willkommen', meta:'2 Pers. · mit Frühstück',     sub:'Fr 200.– / Nacht', highlighted:false }
+    ],
+    roomsGalleryImages: [
+      { src:'/img/rooms/double.jpg',           alt:'Doppelzimmer',  size:'large', width:1280, height:720 },
+      { src:'/img/rooms/single-in-double.jpg', alt:'Einzelbelegung', size:'small', width:640,  height:360 },
+      { src:'/img/rooms/family.jpg',           alt:'Familienzimmer', size:'small', width:640,  height:360 }
+    ],
+    roomsCtaText: 'Alle Zimmer ansehen',
+    roomsCtaLink: '/zimmer'
   }) %>
 
   <!-- GALLERY (folders / album view) -->

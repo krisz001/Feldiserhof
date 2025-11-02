@@ -1,4 +1,11 @@
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@500;700;800&display=swap');
+ @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@500;700;800&display=swap');
+
+/* === Stabil méretezési alap === */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
 
 /* === Globális háttér egységesítés === */
 body {
@@ -8,7 +15,7 @@ body {
   background: transparent !important;
 }
 
-/* ===== Menüpaletta, háttér, font ========== */
+/* ===== Menüpaletta, háttér, font ===== */
 .menu-portfolio {
   --accent: #c8a96a;
   --accent-ink: #8f7745;
@@ -39,7 +46,7 @@ body {
 .menu-title {
   font-size: 2.2rem;
   font-weight: 700;
-  color: #262623;
+  color: rgb(138, 90, 43);
   margin-bottom: 0.3rem;
   letter-spacing: 1px;
   position: relative;
@@ -65,25 +72,23 @@ body {
   font-style: italic;
 }
 
-/* ===== A könyv és menu grid eredeti stílusa—itt nem módosítunk! ===== */
-
 /* ----- KERET ----- */
 .menu-portfolio .wrapper {
-  position:relative;
+  position: relative;
   max-width: 62rem;
-  margin:0 auto;
+  margin: 0 auto;
   padding: 1.45rem 1.1rem 2.1rem;
   perspective: 2000px;
 }
 
-/* KÖNYVTEST - árnyékok, háttér, gerinc */
+/* ----- KÖNYVTEST ----- */
 .menu-portfolio .book {
-  position:relative;
+  position: relative;
   min-height: 32rem;
   border-radius: var(--radius-book);
   box-shadow: var(--shadow-outer);
   background: radial-gradient(120% 120% at 50% -10%, #fff 0%, #f7f3ea 80%);
-  overflow:hidden;
+  overflow: hidden;
 }
 .menu-portfolio .book::before {
   content:"";
@@ -108,11 +113,12 @@ body {
   z-index: 4;
 }
 
-/* OLDALAK - papírtextúra, keret, árnyék */
+/* ----- OLDALAK ----- */
 .menu-portfolio .book-page,
 .menu-portfolio .page-front,
 .menu-portfolio .page-back {
-  background: linear-gradient(90deg, rgba(198,169,106,.02) 1px, transparent 1px),
+  background:
+    linear-gradient(90deg, rgba(198,169,106,.02) 1px, transparent 1px),
     linear-gradient(rgba(198,169,106,.02) 1px, transparent 1px),
     linear-gradient(180deg, var(--paper-1), var(--paper-2));
   background-size: 20px 20px, 20px 20px, 100% 100%;
@@ -120,38 +126,52 @@ body {
   box-shadow: var(--shadow-page);
   border: 2px solid #f3e4c2;
 }
-.menu-portfolio .book-page { position:absolute; width:50%; height:100%; padding:1.45rem 1.25rem;}
-.menu-portfolio .page-left{ left:0; }
-.menu-portfolio .page-right{ right:0; transform-style:preserve-3d; transform-origin:left; transition: transform 900ms cubic-bezier(.45,.04,.24,1);}
+.menu-portfolio .book-page {
+  position: absolute;
+  width: 50%;
+  height: 100%;
+  padding: 0; /* fontos: ne legyen dupla padding */
+}
+.menu-portfolio .page-left { left: 0; }
+.menu-portfolio .page-right{
+  right: 0;
+  transform-style: preserve-3d;
+  transform-origin: left;
+  transition: transform 900ms cubic-bezier(.45,.04,.24,1);
+}
 .menu-portfolio .page-right.turn{ transform: rotateY(-180deg); }
 
-/* Oldal front/back felület */
+/* Oldal front/back felület (itt mér a JS) */
 .menu-portfolio .page-front,
 .menu-portfolio .page-back {
-  position:absolute;
-  inset:0;
-  padding:1.25rem 1.7rem;
-  border-radius:var(--radius-page);
-  backface-visibility:hidden;
-  z-index:2;
+  position: absolute;
+  inset: 0;
+  padding: 1.25rem 1.7rem 4rem; /* hely az oldalszámnak/gombnak */
+  display: flex;
+  flex-direction: column;
+  backface-visibility: hidden;
+  z-index: 2;
   box-shadow: none;
 }
-.menu-portfolio .page-front { transform: rotateY(0deg) translateZ(1px);}
-.menu-portfolio .page-back { transform: rotateY(180deg) translateZ(1px); }
+.menu-portfolio .page-front { transform: rotateY(0deg) translateZ(1px); }
+.menu-portfolio .page-back  { transform: rotateY(180deg) translateZ(1px); }
 
-/* Lap peremek árnyéka */
+/* Lap peremek belső árnyéka */
 .menu-portfolio .page-front::before,
 .menu-portfolio .page-back::before {
   content: "";
-  position:absolute; inset:0;
+  position: absolute;
+  inset: 0;
   border-radius: var(--radius-page);
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.8), inset 0 0 0 2px rgba(208,185,112,0.075);
-  pointer-events:none;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,0.8),
+    inset 0 0 0 2px rgba(208,185,112,0.075);
+  pointer-events: none;
 }
 
-/* FEJLÉC TIPÓ */
+/* FEJLÉC TIPÓ (oldalcím) */
 .menu-portfolio .title {
-  text-align:center;
+  text-align: center;
   font-weight: 800;
   font-size: 2.08rem;
   letter-spacing: .03em;
@@ -160,22 +180,27 @@ body {
   margin-bottom: 1.12em;
 }
 
-/* Menüsor, rács */
+/* ===== GRID (nem vágunk le semmit CSS-ből) ===== */
 .menu-portfolio .menu-items-grid{
-  display:grid;
+  display: grid;
   grid-template-columns: repeat(2, minmax(0,1fr));
   gap: 1.1rem 1.15rem;
+  flex: 1 1 auto;    /* rugalmas */
+  min-height: 0;     /* flex overflow fix */
+  /* NINCS max-height, NINCS overflow hidden → a JS intézi a tördelést */
 }
+
+/* Tétel */
 .menu-portfolio .menu-item {
   padding: .52rem 0 .65rem;
   border-bottom: 1px dashed rgba(178,169,106,.07);
-  margin-bottom: 1.14rem;
+  margin: 0 0 1.14rem 0;
 }
 .menu-portfolio .menu-item:last-child { border-bottom: none; }
 
 /* Vezetőpontozás */
 .menu-portfolio .mi-head{
-  display:grid;
+  display: grid;
   grid-template-columns: 1fr auto;
   align-items: baseline;
   column-gap: .8rem;
@@ -211,25 +236,56 @@ body {
   white-space: nowrap;
   padding-left: .6rem;
   padding-right: .4rem;
-  font-size: 1.02rem; 
+  font-size: 1.02rem;
   box-shadow: 0 1px 9px rgba(198,169,106,0.09);
 }
 
-/* Leírás, tag badge */
-.menu-portfolio .mi-desc{ color: var(--muted); margin-top:.29rem; font-size:.95rem; line-height:1.4;}
-.menu-portfolio .mi-tags{ margin:.26rem 0 0; padding:0; list-style:none; display:flex; flex-wrap:wrap; gap:.24rem .43rem; }
+/* Leírás + tagek */
+.menu-portfolio .mi-desc{
+  color: var(--muted);
+  margin-top: .29rem;
+  font-size: .95rem;
+  line-height: 1.4;
+
+  /* Biztonság kedvéért clamp, hogy ne nőjön végtelenre */
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.menu-portfolio .mi-tags{
+  margin: .26rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: .24rem .43rem;
+}
 .menu-portfolio .mi-tags li {
-  font-size:.81rem; color: #a18451;
+  font-size: .81rem;
+  color: #a18451;
   background: #fcf6e1;
   border: 1px solid #e8d4ad;
   border-radius: 999px;
   padding: .12rem .67rem;
-  font-weight:700;
-  margin-bottom:.10rem;
-  box-shadow:0 0.5px 5px rgba(198,162,99,0.09);
+  font-weight: 700;
+  margin-bottom: .10rem;
+  box-shadow: 0 0.5px 5px rgba(198,162,99,0.09);
 }
 
-/* Oldalszám */
+/* Allergének */
+.menu-portfolio .mi-tags.allergens li.allergen {
+  background: #dc3545;
+  color: #fff;
+  border: none;
+  font-size: .86em;
+  padding: .11rem .66rem;
+  margin-right: .22rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+/* ----- Oldalszám + lapozó gombok mindig felül ----- */
 .menu-portfolio .number-page {
   font-size: 1.04rem;
   color: var(--accent-ink);
@@ -238,45 +294,59 @@ body {
   padding: 0.13rem 0.7rem;
   font-weight: 700;
   box-shadow: 0 1px 7px rgba(226,180,115,0.09);
-  position: absolute; left: 50%; bottom: 1.04rem;
+  position: absolute;
+  left: 50%;
+  bottom: 1.04rem;
   transform: translateX(-50%);
+  z-index: 20;
 }
-
-/* Lapozó gomb */
 .menu-portfolio .nextprev-btn{
-  position:absolute; bottom:1.01rem; right:1.21rem;
-  width: 2.42rem; height:2.42rem; font-size: 1.57rem;
-  color: var(--accent-ink); 
-  display:grid; place-items:center;
+  position: absolute;
+  bottom: 1.01rem;
+  right: 1.21rem;
+  width: 2.42rem;
+  height: 2.42rem;
+  font-size: 1.57rem;
+  color: var(--accent-ink);
+  display: grid;
+  place-items: center;
   transition: all .21s cubic-bezier(.48,.13,.35,1);
   cursor: pointer;
-  z-index: 10;
+  z-index: 20;
   background: rgba(255,255,255,0.76);
   border-radius: 50%;
   backdrop-filter: blur(6px);
   border: 1.3px solid #ead9b7;
 }
-.menu-portfolio .nextprev-btn.back{ left:1.21rem; right:auto; }
-.menu-portfolio .nextprev-btn:hover{ 
-  color: var(--accent); 
+.menu-portfolio .nextprev-btn.back{ left: 1.21rem; right: auto; }
+.menu-portfolio .nextprev-btn:hover{
+  color: var(--accent);
   background: #fff6e5;
   transform: scale(1.08);
 }
 
-/* PÖTTY NAVIGÁCIÓ */
-.menu-portfolio .book-dots{ display:flex; gap:.5rem; justify-content:center; margin-top:.33rem; }
+/* ----- PÖTTY NAVIGÁCIÓ ----- */
+.menu-portfolio .book-dots{
+  display: flex;
+  gap: .5rem;
+  justify-content: center;
+  margin-top: .33rem;
+}
 .menu-portfolio .book-dots .dot{
-  width:10px; height:10px; border-radius:50%;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
   border: 2px solid #e6d2a9;
   transition: background .2s, transform .2s, border-color .2s;
-  cursor:pointer;
+  cursor: pointer;
 }
 .menu-portfolio .book-dots .dot.active{
-  background: var(--accent); border-color: var(--accent);
+  background: var(--accent);
+  border-color: var(--accent);
   transform: scale(1.15);
 }
 
-/* Profil oldal */
+/* ----- Profil oldal ----- */
 .menu-portfolio .profile-page {
   display: flex;
   flex-direction: column;
@@ -295,35 +365,110 @@ body {
 }
 .menu-portfolio .profile-page p {
   font-size: 1.2rem;
-  color: var(--muted);
+  color: #a08e66;
   max-width: 80%;
   line-height: 1.5;
 }
-.menu-portfolio .mi-tags.allergens li.allergen {
-  background: #dc3545;
-  color: #fff;
-  border: none;
-  font-size: .86em;
-  padding: .11rem .66rem;
-  margin-right: .22rem;
-  font-weight: 600;
-  letter-spacing: 0.01em;
+
+.book--locked {
+  pointer-events: none;         /* minden interakció tiltva */
+  filter: grayscale(0.2) blur(1px);
+  position: relative;
 }
+.book__lockBadge {
+  display: none;
+  position: absolute; inset: 0;
+  justify-content: center; align-items: center;
+  font-size: 3rem; opacity: .9;
+}
+.book--locked .book__lockBadge { display: flex; }
+
+/* ====== LOCKED ÁLLAPOT – teljes takarás és üzenet ====== */
+.menu-portfolio .wrapper { position: relative; }
+
+.menu-portfolio.is-locked .cover,
+.menu-portfolio.is-locked .book {
+  filter: blur(14px) brightness(0.85) saturate(0.9);
+  pointer-events: none !important;
+  user-select: none !important;
+}
+
+/* Középre igazított üzenet overlay */
+.book-lock-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: radial-gradient(ellipse at center, rgba(0,0,0,0.18), rgba(0,0,0,0.28));
+  z-index: 999; /* a könyv fölé */
+}
+
+.book-lock-overlay .blo-card {
+  max-width: 720px;
+  width: 100%;
+  text-align: center;
+  padding: 28px 24px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+  backdrop-filter: blur(4px);
+}
+
+.book-lock-overlay .blo-card h3 {
+  margin: 0 0 8px 0;
+  font-weight: 700;
+  font-size: clamp(1.1rem, 2.2vw, 1.5rem);
+  color: #2b2b2b;
+}
+
+.book-lock-overlay .blo-card p {
+  margin: 0;
+  font-size: clamp(0.95rem, 2vw, 1.05rem);
+  color: #444;
+}
+
+/* Sötét mód barát */
+@media (prefers-color-scheme: dark) {
+  .book-lock-overlay .blo-card {
+    background: rgba(26, 26, 26, 0.92);
+    color: #eee;
+  }
+  .book-lock-overlay .blo-card h3 { color: #fff; }
+  .book-lock-overlay .blo-card p  { color: #ddd; }
+}
+
+/* Finom „shake” visszajelzés, ha tiltva próbál lapozni */
+@keyframes book-shake {
+  10%, 90% { transform: translateX(-1px); }
+  20%, 80% { transform: translateX(2px); }
+  30%, 50%, 70% { transform: translateX(-4px); }
+  40%, 60% { transform: translateX(4px); }
+}
+.menu-portfolio .book.shake { animation: book-shake .4s both; }
 
 /* ----- MOBIL NÉZET ----- */
 @media (max-width: 768px){
-  .menu-portfolio .menu-items-grid{ grid-template-columns: 1fr; gap: 0.74rem;}
-  .menu-portfolio .book{ min-height: 28rem; overflow:visible;}
-  .menu-portfolio .book-page{ width:100%; padding:1rem 1.19rem;}
-  .menu-portfolio .page-front, .menu-portfolio .page-back{ padding:1rem 1.19rem;}
-  .menu-portfolio .title{ font-size: 1.36rem; margin:0.24rem 0 0.61rem;}
-  .menu-portfolio .mi-name{ font-size: 1.01rem;}
-  .menu-portfolio .mi-desc{ font-size: 0.89rem;}
-  .menu-portfolio .number-page{ font-size:0.87rem;}
-  .menu-portfolio .nextprev-btn{ width:1.73rem;height:1.73rem;font-size:1.15rem;bottom:0.56rem;right:0.51rem;}
+  .menu-portfolio .book{ min-height: 28rem; overflow: visible; }
+  .menu-portfolio .book-page{ width: 100%; }
+  .menu-portfolio .page-front, .menu-portfolio .page-back{
+    padding: 1rem 1.19rem 3.4rem;
+  }
+  .menu-portfolio .menu-items-grid{
+    grid-template-columns: 1fr;
+    gap: .74rem;
+  }
+  .menu-portfolio .title{ font-size: 1.36rem; margin: 0.24rem 0 0.61rem; }
+  .menu-portfolio .mi-name{ font-size: 1.01rem; }
+  .menu-portfolio .mi-desc{ font-size: 0.89rem; }
+  .menu-portfolio .number-page{ font-size: 0.87rem; }
+  .menu-portfolio .nextprev-btn{
+    width: 1.73rem; height: 1.73rem; font-size: 1.15rem; bottom: 0.56rem; right: 0.51rem;
+  }
 }
 
-/* ----- Sötét mód támogatása ----- */
+/* ----- Sötét mód ----- */
 @media (prefers-color-scheme: dark){
   .menu-portfolio{
     --paper-1: #292823;
@@ -338,14 +483,16 @@ body {
     background: radial-gradient(120% 120% at 50% -10%, #35322c 0%, #292823 80%);
   }
   .menu-portfolio .page-front, .menu-portfolio .page-back{
-    background:linear-gradient(180deg,var(--paper-1),var(--paper-2));
-    background-size:100% 100%;
+    background: linear-gradient(180deg,var(--paper-1),var(--paper-2));
+    background-size: 100% 100%;
     border: 2px solid #362d19;
   }
   .menu-portfolio .profile-page{
     background: linear-gradient(180deg,#332f22 50%,#292823 100%);
   }
   .menu-portfolio .nextprev-btn{
-    background: rgba(56,47,33,0.83); color: #ecdcb0; border-color: #bfa76f;
+    background: rgba(56,47,33,0.83);
+    color: #ecdcb0;
+    border-color: #bfa76f;
   }
 }

@@ -1,0 +1,160 @@
+<!-- views/partials/rooms.ejs -->
+<section id="rooms" class="rooms-section">
+  <div class="container zimmer-container">
+    
+    <% /* ---------- SAFE FALLBACKS ---------- */ %>
+    <%
+      // Címek, bevezető
+      const ROOMS_BADGE = (typeof roomsBadge !== 'undefined' && String(roomsBadge).trim()) 
+                          ? roomsBadge 
+                          : 'UNSERE ZIMMER';
+      
+      const ROOMS_TITLE = (typeof roomsTitle !== 'undefined' && String(roomsTitle).trim())
+                          ? roomsTitle
+                          : 'Unsere Zimmer im Alpenstil';
+      
+      const ROOMS_LEAD = (typeof roomsLead !== 'undefined' && String(roomsLead).trim())
+                         ? roomsLead
+                         : 'Erleben Sie gemütliche Wohlfühlmomente in unseren liebevoll eingerichteten Zimmern – jedes davon im traditionellen Alpenstil gestaltet, mit viel Holz, warmen Farben und einem Hauch von Bergromantik. Hier finden Sie Ruhe, Herzlichkeit und den perfekten Ort zum Entspannen.';
+      
+      // Szobák adatai (egyenként kép VAGY videó is lehet)
+      const ROOM_DATA = (typeof roomsData !== 'undefined' && Array.isArray(roomsData))
+        ? roomsData
+        : [
+            {
+              id: 'doppelzimmer',
+              iconClass: 'fa-solid fa-bed',
+              title: 'Doppelzimmer im Alpenstil',
+              description: 'Fühlen Sie sich wohl in unserem liebevoll eingerichteten Doppelzimmer im gemütlichen Alpenstil. Warme Holzelemente und natürliche Materialien schaffen eine behagliche Atmosphäre zum Ankommen und Durchatmen. Das Zimmer bietet ein komfortables Doppelbett, ein einfaches Bad mit Dusche/WC, Föhn und Pflegeprodukte. Ein TV sorgt für Unterhaltung, und auf dem Balkon mit Blick auf die Alpen genießen Sie herrliche Ausblicke und frische Bergluft. Auf Wunsch stellen wir gerne ein gratis Kinderbett zur Verfügung. Ein Ort zum Entspannen, Träumen und die Schönheit der Berge zu spüren.',
+              features: ['Doppelbett', 'Balkon mit Alpenblick', 'Dusche/WC', 'TV'],
+              price: 'Fr 180.–',
+              priceDetails: 'pro Zimmer 2 Personen mit Frühstück pro Nacht',
+              // VIDEÓ (ajánlott szerkezet)
+              video: {
+                poster: '/img/rooms/doppelzimmer-poster.jpg',
+                sources: [
+                  { src: '/videos/rooms/zimmer-0346.webm', type: 'video/webm' },   // ha van
+                  { src: '/videos/rooms/zimmer-0346.mp4',  type: 'video/mp4' }     // biztosan legyen
+                ]
+              }
+            },
+            {
+              id: 'einzelbelegung',
+              iconClass: 'fa-solid fa-person',
+              title: 'Einzelbelegung im Doppelzimmer',
+              description: 'Für alle, die sich etwas mehr Raum und Ruhe gönnen möchten: Unsere Einzelbelegung im Doppelzimmer vereint Komfort und Gemütlichkeit im typischen Alpenstil. Das Zimmer ist mit einem Doppelbett zur Alleinbenutzung, Dusche/WC, Föhn und Pflegeprodukten ausgestattet. Ein TV sorgt für Unterhaltung, und vom Balkon aus genießen Sie den Blick auf die Alpen, um den Tag entspannt ausklingen zu lassen. Auch hier kann auf Wunsch ein gratis Kinderbett bereitgestellt werden. Ihr persönlicher Rückzugsort in den Bergen – ruhig, herzlich und erholsam.',
+              features: ['Doppelbett zur Alleinbenutzung', 'Balkon', 'Dusche/WC', 'TV'],
+              price: 'Fr 120.–',
+              priceDetails: 'pro Zimmer 1 Person mit Frühstück pro Nacht',
+              image: '/img/rooms/einzelbelegung.jpg'
+            },
+            {
+              id: 'familienzimmer',
+              iconClass: 'fa-solid fa-people-roof',
+              title: 'Familienzimmer im Alpenstil',
+              description: 'Ideal für Familien oder Freunde, die gemeinsam Urlaub in den Bergen genießen möchten. Unser geräumiges Familienzimmer vereint gemütlichen Alpencharme mit praktischem Komfort. Es bietet zwei getrennte Schlafbereiche mit Doppelbett und Einzel- oder Stockbetten, ein Bad mit Dusche/WC, Föhn und Pflegeprodukte. Ein TV sorgt für Unterhaltung, und vom Balkon mit herrlicher Sicht auf die Alpen erleben Sie gemeinsame Momente voller Ruhe und Freude. Ein gratis Kinderbett kann gerne dazu reserviert werden. Viel Platz zum Entspannen, Lachen und Zusammensein – für große und kleine Bergliebhaber.',
+              features: ['2 Schlafbereiche', 'Balkon mit Alpenblick', 'Dusche/WC', 'TV', 'Kinderbett'],
+              price: 'Fr 220.–',
+              priceDetails: 'pro Nacht 2 Erwachsene 2 Kinder mit Frühstück',
+              image: '/img/rooms/familienzimmer.jpg'
+            },
+            {
+              id: 'hunde-willkommen',
+              iconClass: 'fa-solid fa-dog',
+              title: 'Doppelzimmer – Hunde willkommen',
+              description: 'Auch Vierbeiner sind bei uns herzlich willkommen! In unserem gemütlichen Doppelzimmer im Alpenstil fühlen sich Mensch und Hund gleichermaßen wohl. Warme Holzelemente und natürliche Materialien schaffen eine behagliche Atmosphäre, in der Sie und Ihr treuer Begleiter entspannen können. Das Zimmer bietet ein komfortables Doppelbett, Dusche/WC, Föhn und Pflegeprodukte. Ein TV sorgt für Unterhaltung, und vom Balkon mit wunderschöner Sicht auf die Alpen genießen Sie frische Bergluft und herrliche Ausblicke – ideal für gemeinsame Spaziergänge und entspannte Stunden. Auf Wunsch stellen wir Ihnen gerne ein gratis Kinderbett zur Verfügung. Ein Ort zum Wohlfühlen – für Zwei- und Vierbeiner.',
+              features: ['Doppelbett', 'Hundefreundlich', 'Balkon', 'Dusche/WC', 'TV'],
+              price: 'Fr 200.–',
+              priceDetails: 'pro Zimmer 2 Personen mit Frühstück pro Nacht',
+              image: '/img/rooms/hunde-zimmer.jpg'
+            }
+          ];
+    %>
+
+    <!-- Intro Section -->
+    <section class="intro">
+      <h1 class="intro__title" aria-label="<%= ROOMS_TITLE %>">
+        <span class="intro__title-normal">Unsere</span>
+        <span class="intro__title-highlight">Zimmer</span>
+        <span class="intro__title-normal">im Alpenstil</span>
+      </h1>
+      <p class="intro__lead"><%= ROOMS_LEAD %></p>
+    </section>
+
+    <!-- Zimmer Grid -->
+    <div class="zimmer-grid" role="list">
+      <% ROOM_DATA.forEach((room, index) => { 
+           const hasVideo = room.video && (room.video.src || (room.video.sources && room.video.sources.length));
+      %>
+        <article class="room-card" id="<%= room.id %>" data-room-index="<%= index %>" role="listitem" aria-labelledby="room-title-<%= index %>">
+          
+          <!-- Media (Video vagy Kép) -->
+          <div class="room-card__image-wrapper">
+            <% if (hasVideo) { %>
+              <video
+                class="room-card__media"
+                <% if (room.video.poster) { %> poster="<%= room.video.poster %>" <% } %>
+                autoplay
+                muted
+                loop
+                playsinline
+                preload="metadata"
+                aria-label="<%= room.title %> – Video">
+                <% if (room.video.sources && room.video.sources.length) { 
+                     room.video.sources.forEach(s => { %>
+                  <source src="<%= s.src %>" type="<%= s.type %>">
+                <% }) } else { %>
+                  <source src="<%= room.video.src %>" type="video/mp4">
+                <% } %>
+                Ihr Browser unterstützt die Videowiedergabe nicht.
+              </video>
+            <% } else { %>
+              <img 
+                src="<%= room.image %>" 
+                alt="<%= room.title %>"
+                class="room-card__media"
+                loading="lazy"
+                onerror="this.src='/img/rooms/placeholder.jpg';">
+            <% } %>
+          </div>
+
+          <!-- Tartalom -->
+          <div class="room-card__content">
+            <div class="room-card__icon" aria-hidden="true">
+              <% if (room.iconClass) { %>
+                <i class="<%= room.iconClass %>"></i>
+              <% } else if (room.icon) { %>
+                <span><%= room.icon %></span>
+              <% } %>
+            </div>
+
+            <h2 class="room-card__title" id="room-title-<%= index %>"><%= room.title %></h2>
+            <p class="room-card__description"><%= room.description %></p>
+
+            <!-- Features -->
+            <div class="room-card__features" role="list" aria-label="Ausstattung">
+              <% (room.features || []).forEach((feature,i) => { %>
+                <span class="feature-tag" role="listitem" aria-label="<%= feature %>">
+                  <i class="fas fa-check" aria-hidden="true"></i>
+                  <%= feature %>
+                </span>
+              <% }) %>
+            </div>
+
+            <!-- Ár -->
+            <div class="room-card__price-box" aria-label="Preisbox">
+              <div class="room-card__price-label">Preis</div>
+              <div class="room-card__price-amount"><%= room.price %></div>
+              <div class="room-card__price-details"><%= room.priceDetails %></div>
+            </div>
+
+            <!-- CTA helye (ha kell) -->
+          </div>
+        </article>
+      <% }) %>
+    </div>
+
+  </div>
+</section>
+
+<div class="section-separator"></div>

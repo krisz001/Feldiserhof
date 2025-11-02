@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <% 
-    const PAGE_TITLE = (typeof title !== 'undefined' && title) 
-      ? title 
+  <%
+    const PAGE_TITLE = (typeof title !== 'undefined' && title)
+      ? title
       : 'Feldiserhof – Hotel & Restaurant';
-    const PAGE_DESC = (typeof description !== 'undefined' && description) 
-      ? description 
+    const PAGE_DESC = (typeof description !== 'undefined' && description)
+      ? description
       : 'Hotel, Restaurant & Café Feldis – feine Küche, regionale Zutaten, kleine Wellness-Oase.';
     const v = Date.now(); // cache-buster fejlesztéshez
   %>
@@ -37,15 +37,34 @@
   <link rel="stylesheet" href="/css/reservieren.css?v=<%= v %>">
   <link rel="stylesheet" href="/css/custom.css?v=<%= v %>">
   <link rel="stylesheet" href="/css/wellness.css?v=<%= v %>">
-  <link rel="stylesheet" href="/css/hero.css">
-  <link rel="stylesheet" href="/css/about.css">
-
-
-
+  <link rel="stylesheet" href="/css/hero.css?v=<%= v %>">
+  <link rel="stylesheet" href="/css/about.css?v=<%= v %>">
+  <link rel="stylesheet" href="/css/hero-content.css?v=<%= v %>">
+  <link rel="stylesheet" href="/css/footer.css?v=<%= v %>">
+  <link rel="stylesheet" href="/css/room.css?v=<%= v %>">
   <!-- Fontos: ezek a pontos fájlnevek a public/css-ben -->
   <link rel="stylesheet" href="/css/admin-modal.css?v=<%= v %>">
 
+  <!-- (opcionális) Könyv ikonokhoz -->
+  <link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css">
+
   <!-- Favicon -->
   <link rel="icon" type="image/x-icon" href="/img/favicon.ico">
+
+  <!-- FEATURE FLAGS a kliensnek (EJS → JS). MINDIG a saját scriptek előtt legyen! -->
+  <script>
+    window.FEATURES = <%- JSON.stringify(flags || {}) %>;
+  </script>
 </head>
 <body>
+  <!-- ... ide jön az oldal tartalma ... -->
+
+  <!-- Vendor JS (Bootstrap bundle tartalmazza a Poppert) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" defer></script>
+
+  <!-- Saját JS-ek – a FEATURES után kell betöltődniük -->
+  <script src="/js/main.js?v=<%= v %>" defer></script>
+  <script src="/js/menu.js?v=<%= v %>" defer></script>
+  <script src="/js/gallery.js?v=<%= v %>" defer></script>
+</body>
+</html>

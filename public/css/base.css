@@ -51,7 +51,6 @@ section + section::before {
   border-radius: 1.5px;
   z-index: 2;
 }
-
 /* Alap mini separator stílus ha extra kell */
 .separator {
   height: 2px;

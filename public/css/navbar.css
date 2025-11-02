@@ -34,7 +34,16 @@
 .navbar .nav-link.active {
   color: var(--brand-primary) !important;
 }
-
+.navbar {
+  min-height: 150.5px; /* vagy használj nagyobb értéket, pl. 100px */
+}
+.brand-logo-nav {
+  max-height: 150.5px !important; /* Növeld bátran a magasságot (pl. 100-140px) */
+  width: auto;       /* Így arányosan nő */
+}
+.navbar .nav-link {
+  font-family: "Patrick Hand SC", cursive !important;
+}
 .brand-logo-nav {
   max-height: calc(var(--nav-height) + 10px);
   width: auto;
