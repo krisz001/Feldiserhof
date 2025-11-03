@@ -1,19 +1,22 @@
 // Scroll-reveal (Animate.css v3)
 (() => {
   const els = document.querySelectorAll('.reveal');
-  if(!('IntersectionObserver' in window) || !els.length) return;
+  if (!('IntersectionObserver' in window) || !els.length) return;
 
-  const io = new IntersectionObserver((entries, obs)=>{
-    entries.forEach(e=>{
-      if(e.isIntersecting){
-        e.target.classList.add('animated','fadeInUp');
-        e.target.style.setProperty('--animate-duration', '700ms');
-        obs.unobserve(e.target);
-      }
-    });
-  }, { threshold: .15 });
+  const io = new IntersectionObserver(
+    (entries, obs) => {
+      entries.forEach((e) => {
+        if (e.isIntersecting) {
+          e.target.classList.add('animated', 'fadeInUp');
+          e.target.style.setProperty('--animate-duration', '700ms');
+          obs.unobserve(e.target);
+        }
+      });
+    },
+    { threshold: 0.15 },
+  );
 
-  els.forEach(el=>{
+  els.forEach((el) => {
     el.style.opacity = 0;
     io.observe(el);
   });

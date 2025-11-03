@@ -6,50 +6,64 @@
 body {
   background: radial-gradient(140% 120% at 50% -40%, #fff, #fbeac2 45%, #f5dfb0) !important;
 }
+
 /* WRAPPEREK átlátszók: */
-#reservation, #reservation > .container {
+#reservation,
+#reservation > .container {
   background: transparent !important;
   background-color: transparent !important;
   border: none !important;
   box-shadow: none !important;
 }
 
-
 /* 0) Full-bleed krém sáv + anchor offset */
-#reservation{
-  --gold:  #c28a37;
-  --text:  #0f1418;
+#reservation {
+  --gold: #c28a37;
+  --text: #0f1418;
   --muted: #6b7785;
+
   padding-top: 64px;
   padding-bottom: 80px;
   position: relative;
-  scroll-margin-top: calc(var(--nav-height,80px) + 16px);
+  scroll-margin-top: calc(var(--nav-height, 80px) + 16px);
 }
 
 /* ne legyen másodlagos panel a belső .container-en */
-#reservation > .container{
+#reservation > .container {
   padding: 0 !important;
 }
 
 /* 1) Fejléc */
-#reservation .title-kicker{ color: var(--gold); font-weight: 700; letter-spacing: .06em; }
-#reservation h1{ color: var(--text); font-weight: 800; letter-spacing: .005em; }
-#reservation .text-center p{ color: var(--muted); }
+#reservation .title-kicker {
+  color: var(--gold);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+#reservation h1 {
+  color: var(--text);
+  font-weight: 800;
+  letter-spacing: 0.005em;
+}
+
+#reservation .text-center p {
+  color: var(--muted);
+}
 
 /* 2) Form-kártya */
-#reservation .reserve-card{
+#reservation .reserve-card {
   width: 100%;
   max-width: 880px;
   margin: 24px auto 0;
   padding: 24px;
   border-radius: 16px;
   background: #fff;
-  border: 1px solid rgba(13,22,33,.06);
-  box-shadow: 0 10px 24px rgba(13,22,33,.08);
+  border: 1px solid rgba(13, 22, 33, 0.06);
+  box-shadow: 0 10px 24px rgba(13, 22, 33, 0.08);
 }
 
 /* 2/a – kényelmesebb rács */
-#reservation .reserve-card .row{
+#reservation .reserve-card .row {
   --bs-gutter-x: 1.25rem;
   --bs-gutter-y: 1rem;
 }
@@ -57,22 +71,25 @@ body {
 /* 3) Mezők – nagy, kerek, Airbnb-hangulat */
 #reservation .form-control,
 #reservation .form-select,
-#reservation textarea{
+#reservation textarea {
   border-radius: 14px;
-  border: 1px solid rgba(13,22,33,.14);
+  border: 1px solid rgba(13, 22, 33, 0.14);
   background: #fff;
 }
 
 /* Floating label kompatibilitás + egységes magasság */
 #reservation .form-floating > .form-control,
-#reservation .form-floating > .form-select{
+#reservation .form-floating > .form-select {
   min-height: 56px;
-  padding: .9rem 1rem .5rem;
+  padding: 0.9rem 1rem 0.5rem;
   line-height: 1.25;
 }
-#reservation .form-floating > label{
+
+#reservation .form-floating > label {
   color: #8894a2;
-  transition: transform .15s ease, opacity .15s ease;
+  transition:
+    transform 0.15s ease,
+    opacity 0.15s ease;
   pointer-events: none;
   white-space: nowrap;
   overflow: hidden;
@@ -84,30 +101,30 @@ body {
 #reservation .form-floating > .form-control:focus ~ label,
 #reservation .form-floating > .form-control:not(:placeholder-shown) ~ label,
 #reservation .form-floating > .form-select:focus ~ label,
-#reservation .form-floating > .form-select:not([value=""]):valid ~ label,
+#reservation .form-floating > .form-select:not([value='']):valid ~ label,
 #reservation .form-floating.has-value > label,
-#reservation .form-floating > input[type="date"]:valid ~ label,
-#reservation .form-floating > input[type="time"]:valid ~ label,
-#reservation .form-floating > input[type="date"].has-value ~ label,
-#reservation .form-floating > input[type="time"].has-value ~ label {
-  opacity: .65;
-  transform: scale(.85) translateY(-0.55rem) translateX(0.15rem);
+#reservation .form-floating > input[type='date']:valid ~ label,
+#reservation .form-floating > input[type='time']:valid ~ label,
+#reservation .form-floating > input[type='date'].has-value ~ label,
+#reservation .form-floating > input[type='time'].has-value ~ label {
+  opacity: 0.65;
+  transform: scale(0.85) translateY(-0.55rem) translateX(0.15rem);
   background: var(--bs-body-bg, #fff);
-  padding: 0 .25rem;
+  padding: 0 0.25rem;
   z-index: 3;
 }
 
 /* Dátum/idő mezők speciális kezelése */
-#reservation .form-floating > input[type="date"],
-#reservation .form-floating > input[type="time"] {
+#reservation .form-floating > input[type='date'],
+#reservation .form-floating > input[type='time'] {
   height: 56px;
   padding-top: 1rem;
   padding-bottom: 0.5rem;
 }
 
 /* Placeholder elrejtése dátum/idő mezőkben */
-#reservation .form-floating > input[type="date"]::placeholder,
-#reservation .form-floating > input[type="time"]::placeholder {
+#reservation .form-floating > input[type='date']::placeholder,
+#reservation .form-floating > input[type='time']::placeholder {
   color: transparent;
 }
 
@@ -118,10 +135,12 @@ body {
 }
 
 /* textarea kényelmes magasság */
-#reservation textarea{ min-height: 132px; }
+#reservation textarea {
+  min-height: 132px;
+}
 
 /* Autofill szín helyrerakás */
-#reservation input:-webkit-autofill{
+#reservation input:-webkit-autofill {
   box-shadow: 0 0 0 30px #fff inset !important;
   -webkit-text-fill-color: var(--text) !important;
 }
@@ -129,81 +148,118 @@ body {
 /* Fókusz: arany gyűrű */
 #reservation .form-control:focus,
 #reservation .form-select:focus,
-#reservation textarea:focus{
+#reservation textarea:focus {
   border-color: var(--gold);
-  box-shadow: 0 0 0 .2rem rgba(194,138,55,.20);
+  box-shadow: 0 0 0 0.2rem rgba(194, 138, 55, 0.2);
   outline: none;
 }
 
 /* 4) CTA – arany pill gomb */
-#reservation .btn-primary-air{
+#reservation .btn-primary-air {
   background: var(--gold);
   border-color: var(--gold);
   color: #1f2328;
   border-radius: 999px;
   font-weight: 700;
-  padding: .9rem 2.2rem;
-  box-shadow: 0 10px 20px rgba(194,138,55,.22);
+  padding: 0.9rem 2.2rem;
+  box-shadow: 0 10px 20px rgba(194, 138, 55, 0.22);
 }
-#reservation .btn-primary-air:hover{
+
+#reservation .btn-primary-air:hover {
   background: #ad7a2f;
   border-color: #ad7a2f;
-  box-shadow: 0 14px 28px rgba(173,122,47,.26);
+  box-shadow: 0 14px 28px rgba(173, 122, 47, 0.26);
 }
-#reservation .btn-primary-air:disabled{
-  opacity: .65;
+
+#reservation .btn-primary-air:disabled {
+  opacity: 0.65;
   box-shadow: none;
 }
 
 /* 5) Gäste számláló – kontrasztos, jól látható */
-.guests-field{
-  display: flex; align-items: center; justify-content: space-between;
-  gap: 12px; height: 56px;
+.guests-field {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  height: 56px;
   padding: 10px 12px;
-  border: 1px solid rgba(13,22,33,.14);
-  border-radius: 14px; background: #fff;
+  border: 1px solid rgba(13, 22, 33, 0.14);
+  border-radius: 14px;
+  background: #fff;
 }
-.guests-field .label{ color:#3b2f17; font-weight:600; }
-.guests-field .ctrl{ display:flex; align-items:center; gap:10px; }
 
-.guests-field .count{
-  min-width: 48px; height: 36px;
-  display:inline-flex; align-items:center; justify-content:center;
-  padding: 0 .6rem;
+.guests-field .label {
+  color: #3b2f17;
+  font-weight: 600;
+}
+
+.guests-field .ctrl {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.guests-field .count {
+  min-width: 48px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 0.6rem;
   border-radius: 999px;
   font-weight: 800;
-  color:#0f1418;
+  color: #0f1418;
   background: #f2f4f7;
-  border: 1px solid rgba(13,22,33,.12);
+  border: 1px solid rgba(13, 22, 33, 0.12);
 }
-.guests-field .btn-ghost{
-  width: 36px; height: 36px;
-  display:inline-flex; align-items:center; justify-content:center;
+
+.guests-field .btn-ghost {
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border-radius: 50%;
-  border: 1px solid rgba(13,22,33,.18);
-  background: #fff; font-weight: 800; line-height: 1;
-  box-shadow: 0 1px 0 rgba(255,255,255,.6) inset;
-  transition: transform .06s ease, box-shadow .15s ease, border-color .15s ease;
+  border: 1px solid rgba(13, 22, 33, 0.18);
+  background: #fff;
+  font-weight: 800;
+  line-height: 1;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.6) inset;
+  transition:
+    transform 0.06s ease,
+    box-shadow 0.15s ease,
+    border-color 0.15s ease;
 }
-.guests-field .btn-ghost:hover{
-  border-color: rgba(13,22,33,.28);
-  box-shadow: 0 2px 8px rgba(13,22,33,.12);
+
+.guests-field .btn-ghost:hover {
+  border-color: rgba(13, 22, 33, 0.28);
+  box-shadow: 0 2px 8px rgba(13, 22, 33, 0.12);
   transform: translateY(-1px);
 }
-.guests-field .btn-ghost:active{
+
+.guests-field .btn-ghost:active {
   transform: translateY(0);
-  box-shadow: 0 1px 4px rgba(13,22,33,.10);
+  box-shadow: 0 1px 4px rgba(13, 22, 33, 0.1);
 }
-.guests-field .btn-ghost:disabled{
-  opacity: .45; cursor: not-allowed; box-shadow: none;
+
+.guests-field .btn-ghost:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  box-shadow: none;
 }
 
 /* 6) Alert színezés (#resAlert) */
-#reservation #resAlert.alert-success{
-  background: #f0f7ec; border-color: #b7e1a1; color: #205b1f;
+#reservation #resAlert.alert-success {
+  background: #f0f7ec;
+  border-color: #b7e1a1;
+  color: #205b1f;
 }
-#reservation #resAlert.alert-danger{
-  background: #fff1f1; border-color: #f1c0c0; color: #7a1e1e;
+
+#reservation #resAlert.alert-danger {
+  background: #fff1f1;
+  border-color: #f1c0c0;
+  color: #7a1e1e;
 }
 
 /* =======================================================
@@ -218,13 +274,13 @@ body {
   padding: 2rem;
   border-radius: 20px;
   background: #fff;
-  border: 1px solid rgba(13,22,33,.08);
-  box-shadow: 0 8px 40px rgba(13,22,33,.12);
+  border: 1px solid rgba(13, 22, 33, 0.08);
+  box-shadow: 0 8px 40px rgba(13, 22, 33, 0.12);
   transition: all 0.3s ease;
 }
 
 #reservation .reserve-card:hover {
-  box-shadow: 0 12px 50px rgba(13,22,33,.15);
+  box-shadow: 0 12px 50px rgba(13, 22, 33, 0.15);
 }
 
 /* Jobb rács elrendezés */
@@ -239,14 +295,14 @@ body {
   min-height: 58px;
   padding: 1rem 1rem 0.5rem;
   border-radius: 12px;
-  border: 2px solid rgba(13,22,33,.1);
+  border: 2px solid rgba(13, 22, 33, 0.1);
   transition: all 0.2s ease;
 }
 
 #reservation .form-floating > .form-control:focus,
 #reservation .form-floating > .form-select:focus {
   border-color: var(--gold);
-  box-shadow: 0 0 0 3px rgba(194,138,55,.15);
+  box-shadow: 0 0 0 3px rgba(194, 138, 55, 0.15);
 }
 
 /* Label stílusok */
@@ -259,15 +315,17 @@ body {
 .guests-field {
   height: 58px;
   padding: 12px 16px;
-  border: 2px solid rgba(13,22,33,.1);
+  border: 2px solid rgba(13, 22, 33, 0.1);
   border-radius: 12px;
   background: #fff;
   transition: all 0.2s ease;
 }
+
 .guests-field:focus-within {
   border-color: var(--gold);
-  box-shadow: 0 0 0 3px rgba(194,138,55,.15);
+  box-shadow: 0 0 0 3px rgba(194, 138, 55, 0.15);
 }
+
 .guests-field .label {
   color: #4a5568;
   font-weight: 500;
@@ -287,9 +345,11 @@ body {
     padding: 1.5rem;
     border-radius: 16px;
   }
+
   #reservation .reserve-card .row {
     --bs-gutter-y: 0.75rem;
   }
+
   #reservation .btn-primary-air {
     width: 100%;
     padding: 0.875rem 2rem;
@@ -302,21 +362,59 @@ body {
     border-radius: 12px;
   }
 }
+
 /* 7) Reszponzív finomítások */
-@media (max-width: 992px){
-  #reservation{ padding-top: 56px; padding-bottom: 64px; }
-  #reservation .reserve-card{ max-width: 720px; }
+@media (max-width: 992px) {
+  #reservation {
+    padding-top: 56px;
+    padding-bottom: 64px;
+  }
+
+  #reservation .reserve-card {
+    max-width: 720px;
+  }
 }
-@media (max-width: 768px){
-  #reservation{ padding-top: 48px; padding-bottom: 56px; }
-  #reservation .reserve-card{ max-width: 100%; border-radius: 14px; padding: 18px; }
-  #reservation .text-center.mb-5{ margin-bottom: 1.25rem !important; }
+
+@media (max-width: 768px) {
+  #reservation {
+    padding-top: 48px;
+    padding-bottom: 56px;
+  }
+
+  #reservation .reserve-card {
+    max-width: 100%;
+    border-radius: 14px;
+    padding: 18px;
+  }
+
+  #reservation .text-center.mb-5 {
+    margin-bottom: 1.25rem !important;
+  }
+
   #reservation .form-floating > .form-control,
-  #reservation .form-floating > .form-select{ min-height: 52px; }
-  .guests-field{ height: 52px; padding: 8px 10px; }
-  .guests-field .btn-ghost{ width: 34px; height: 34px; }
-  .guests-field .count{ min-width: 44px; height: 34px; }
+  #reservation .form-floating > .form-select {
+    min-height: 52px;
+  }
+
+  .guests-field {
+    height: 52px;
+    padding: 8px 10px;
+  }
+
+  .guests-field .btn-ghost {
+    width: 34px;
+    height: 34px;
+  }
+
+  .guests-field .count {
+    min-width: 44px;
+    height: 34px;
+  }
 }
-@media (prefers-reduced-motion: reduce){
-  #reservation *{ transition: none !important; animation: none !important; }
+
+@media (prefers-reduced-motion: reduce) {
+  #reservation * {
+    transition: none !important;
+    animation: none !important;
+  }
 }

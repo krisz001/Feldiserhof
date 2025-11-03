@@ -10,7 +10,7 @@
     enableParallax: true,
     enableAutoPlay: true,
     enableNavigation: true,
-    enableProgress: true
+    enableProgress: true,
   };
 
   try {
@@ -23,10 +23,10 @@
     console.error('Error parsing hero config:', error);
     config.images = [
       '/img/hero/feldiserhof-winter.jpg',
-      '/img/hero/feldiserhof-sunset.jpg', 
+      '/img/hero/feldiserhof-sunset.jpg',
       '/img/hero/feldiserhof-view.jpg',
       '/img/hero/miratoedi.jpg',
-      '/img/her/IMG_0365 2.jpg'
+      '/img/her/IMG_03652.jpg',
     ];
   }
 
@@ -36,7 +36,7 @@
   const existingNav = container.querySelector('.hero-nav');
 
   const preloadImages = () => {
-    config.images.forEach(src => {
+    config.images.forEach((src) => {
       const img = new Image();
       img.src = src;
     });
@@ -103,7 +103,7 @@
     if (next === current || isAnimating || config.images.length < 2) return;
     isAnimating = true;
     if (progressItems && progressItems.length > 0) {
-      progressItems.forEach(item => {
+      progressItems.forEach((item) => {
         item.classList.remove('active', 'paused');
         const fill = item.querySelector('.progress-fill');
         if (fill) {
@@ -129,7 +129,7 @@
       }
     }
     current = next;
-    await new Promise(resolve => setTimeout(resolve, config.fadeDuration));
+    await new Promise((resolve) => setTimeout(resolve, config.fadeDuration));
     isAnimating = false;
   };
 
@@ -251,7 +251,7 @@
     // Keyboard navigation
     document.addEventListener('keydown', (e) => {
       if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
-      switch(e.key) {
+      switch (e.key) {
         case 'ArrowLeft':
           e.preventDefault();
           prevSlide();
@@ -262,7 +262,8 @@
           break;
         case ' ':
           e.preventDefault();
-          if (timer) stopTimer(); else startTimer();
+          if (timer) stopTimer();
+          else startTimer();
           break;
       }
     });

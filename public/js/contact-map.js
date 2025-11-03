@@ -1,7 +1,7 @@
 (() => {
   const shell = document.querySelector('.map-shell');
   const frameHost = document.getElementById('map-frame');
-  if(!shell || !frameHost) return;
+  if (!shell || !frameHost) return;
 
   const load = () => {
     if (frameHost.dataset.loaded) return;
@@ -18,5 +18,13 @@
   };
 
   shell.querySelector('.map-load-btn')?.addEventListener('click', load);
-  new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { load(); } }), { rootMargin:'200px 0' }).observe(shell);
+  new IntersectionObserver(
+    (es) =>
+      es.forEach((e) => {
+        if (e.isIntersecting) {
+          load();
+        }
+      }),
+    { rootMargin: '200px 0' },
+  ).observe(shell);
 })();

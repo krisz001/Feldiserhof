@@ -1,56 +1,156 @@
 <%
-// Képek tömbjének előkészítése
-const heroImagesList = (typeof heroImages !== "undefined" && Array.isArray(heroImages) && heroImages.length)
-  ? heroImages
-  : [
-      "/img/hero/feldiserhof-winter.jpg",
-      "/img/hero/feldiserhof-sunset.jpg", 
-      "/img/hero/feldiserhof-view.jpg",
-      '/img/hero/miratoedi.jpg',
-      '/img/her/IMG_0365 2.jpg'
-    ];
+// --- i18n fallback ---
+const T = (typeof t === 'function') ? t : (k => k);
+
+// --- Hasznos utilok ---
+const clamp = (v, min, max) => {
+  const n = Number(v);
+  if (!Number.isFinite(n)) return min;
+  return Math.max(min, Math.min(max, n));
+};
+
+// --- Csak JPG/JPEG engedélyezése ---
+const isJpg = s => /\.(jpe?g)$/i.test(String(s));
+
+// Csak engedélyezett képutak (megelőzzük a "javascript:" stb.)
+const isSafePath = s =>
+  typeof s === 'string' &&
+  s.trim().length &&
+  /^[/.a-zA-Z0-9_\-]+$/.test(s) &&
+  (s.startsWith('/img/hero/') || s.startsWith('./') || s.startsWith('../') || s.startsWith('/img/')) &&
+  isJpg(s);
+
+const normalizePath = s =>
+  String(s).replace('/img/her/', '/img/hero/').trim();
+
+// --- Bejövő képek normalizálása ---
+const rawList = (typeof heroImages !== 'undefined' && Array.isArray(heroImages)) ? heroImages : [];
+
+const cleaned = rawList
+  .filter(isSafePath)
+  .map(normalizePath);
+
+// default fallback képek (ha nincs/üres a lista)
+const FALLBACKS = [
+  '/img/hero/feldiserhof-winter.jpg',
+  '/img/hero/feldiserhof-sunset.jpg',
+  '/img/hero/feldiserhof.jpg',
+  '/img/hero/miratoedi.jpg',
+  '/img/hero/IMG_03652.jpg'
+];
+
+// összeállított végső lista + deduplikálás
+const heroImagesList = Array.from(new Set((cleaned.length ? cleaned : FALLBACKS).filter(Boolean)));
+
+// legalább 1 kép legyen
+const firstImage = heroImagesList[0] || '/img/hero/feldiserhof.jpg';
+
+// --- Konfig (ésszerű határok) ---
+const interval     = clamp((typeof heroInterval     === 'number' ? heroInterval     : 7000),  2500, 60000);
+const fadeDuration = clamp((typeof heroFadeDuration === 'number' ? heroFadeDuration : 1600),   200, 10000);
 
 const heroConfig = {
   images: heroImagesList,
-  interval: 7000,
-  fadeDuration: 1600,
-  enableParallax: true,
-  enableAutoPlay: true,
-  enableNavigation: true,
-  enableProgress: true
+  interval,
+  fadeDuration,
+  enableParallax:   (typeof enableParallax   === 'boolean') ? enableParallax   : true,
+  enableAutoPlay:   (typeof enableAutoPlay   === 'boolean') ? enableAutoPlay   : true,
+  enableNavigation: (typeof enableNavigation === 'boolean') ? enableNavigation : true,
+  enableProgress:   (typeof enableProgress   === 'boolean') ? enableProgress   : true
 };
+
+const hasMultiple = heroImagesList.length > 1;
+
+// JSON egyattribútumos biztonságos beágyazása (egyszeres idéző jelek escapelése)
+const heroConfigAttr = JSON.stringify(heroConfig).replace(/'/g, '&#39;');
+
+// CSS url() biztonságos beágyazása
+const cssUrl = (p) => `url('${String(p).replace(/'/g, "\\'")}')`;
 %>
 
 <header
   id="home"
   class="container-fluid hero-header mb-5 d-flex align-items-center hero"
   data-hero
-  data-hero-config='<%= JSON.stringify(heroConfig) %>'
-  style="--slide-transition: 1600ms; --kenburns-duration: 20000ms; --parallax-intensity: 0.05;">
-
-  <!-- háttér slideshow réteg -->
-  <div class="hero-slides" aria-hidden="true"></div>
-  
-  <!-- Navigációs gombok -->
-  <div class="hero-nav" aria-label="<%= t('hero.navigationLabel') %>">
-    <button class="hero-nav-button hero-nav-prev" aria-label="<%= t('hero.previousImage') %>">
-      <span aria-hidden="true">‹</span>
-    </button>
-    <button class="hero-nav-button hero-nav-next" aria-label="<%= t('hero.nextImage') %>">
-      <span aria-hidden="true">›</span>
-    </button>
-  </div>
-
-  <!-- Progress indicator -->
-  <div class="hero-progress" aria-label="<%= t('hero.progressLabel') %>">
-    <% heroImagesList.forEach((image, index) => { %>
-      <button 
-        class="hero-progress-item <%= index === 0 ? 'active' : '' %>" 
-        data-progress-index="<%= index %>"
-        aria-label="<%= t('hero.goToImage', { n: index + 1 }) %>">
-        <div class="progress-fill"></div>
-      </button>
+  data-hero-config='<%- heroConfigAttr %>'
+  style="--slide-transition: <%= fadeDuration %>ms; --kenburns-duration: 20000ms; --parallax-intensity: 0.05;"
+  aria-label="<%= T('hero.sectionLabel') %>"
+>
+  <!-- Slideshow réteg: CSAK <img>, nincs <picture> -->
+  <div class="hero-slides" aria-hidden="true">
+    <% heroImagesList.forEach((src, i) => { %>
+      <img
+        class="hero-slide <%= i === 0 ? 'is-active' : '' %>"
+        src="<%- src %>"
+        alt="<%= T('hero.imageAlt', { n: i + 1 }) %>"
+        loading="<%= i === 0 ? 'eager' : 'lazy' %>"
+        decoding="<%= i === 0 ? 'auto' : 'async' %>"
+        fetchpriority="<%= i === 0 ? 'high' : 'low' %>"
+        draggable="false"
+        role="presentation"
+        style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;opacity:<%= i === 0 ? '1' : '0' %>;transition:opacity <%= fadeDuration %>ms ease-in-out;will-change:opacity,transform;backface-visibility:hidden;"
+      />
     <% }); %>
   </div>
+
+  <% if (heroConfig.enableNavigation && hasMultiple) { %>
+    <!-- Navigációs gombok -->
+    <div class="hero-nav" aria-label="<%= T('hero.navigationLabel') %>">
+      <button type="button" class="hero-nav-button hero-nav-prev" aria-label="<%= T('hero.previousImage') %>">
+        <span aria-hidden="true">‹</span>
+      </button>
+      <button type="button" class="hero-nav-button hero-nav-next" aria-label="<%= T('hero.nextImage') %>">
+        <span aria-hidden="true">›</span>
+      </button>
+    </div>
+  <% } %>
+
+  <% if (heroConfig.enableProgress && hasMultiple) { %>
+    <!-- Progress indicator -->
+    <div class="hero-progress" role="tablist" aria-label="<%= T('hero.progressLabel') %>">
+      <% heroImagesList.forEach((image, index) => { %>
+        <button
+          type="button"
+          class="hero-progress-item <%= index === 0 ? 'active' : '' %>"
+          data-progress-index="<%= index %>"
+          role="tab"
+          aria-selected="<%= index === 0 ? 'true' : 'false' %>"
+          aria-label="<%= T('hero.goToImage', { n: index + 1 }) %>">
+          <span class="sr-only"><%= T('hero.imageNumber', { n: index + 1 }) %></span>
+          <div class="progress-fill" aria-hidden="true"></div>
+        </button>
+      <% }); %>
+    </div>
+  <% } %>
+
+  <!-- Noscript fallback (statikus háttér) -->
+  <noscript>
+    <style>
+      .hero-slides { position: relative; }
+      .hero-slides::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background-image: <%- cssUrl(firstImage) %>;
+        background-size: cover;
+        background-position: center;
+      }
+      .hero-progress, .hero-nav { display: none !important; }
+    </style>
+  </noscript>
 </header>
+
+<!-- Mozgáscsökkentés: animációk letiltása preferenciára -->
+<style>
+  .hero { position: relative; overflow: hidden; }
+  .hero-slides { position: absolute; inset: 0; }
+  /* Opcionális: fix arány, ha szeretnéd csökkenteni a CLS-t
+  .hero { aspect-ratio: 16 / 9; }
+  */
+  @media (prefers-reduced-motion: reduce) {
+    .hero-slide { transition: none !important; animation: none !important; }
+    .hero-progress .progress-fill { transition: none !important; }
+  }
+</style>
+
 <div class="section-separator"></div>

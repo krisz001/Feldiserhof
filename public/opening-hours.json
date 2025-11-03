@@ -14,7 +14,7 @@
     { "type": "closed", "start": "2025-11-03", "end": "2025-11-25" },
     { "type": "closed", "start": "2026-03-16", "end": "2026-03-26" }
   ],
-"overrides": [],
+  "overrides": [],
   "labels": {
     "days": ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"],
     "openBadge": "GEÖFFNET",

@@ -9,5 +9,5 @@
   "endDate": "2026-01-01",
   "priority": 1,
   "targetAudience": "all",
-  "isActive": false
+  "isActive": true
 }

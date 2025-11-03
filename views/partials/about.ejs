@@ -1,55 +1,120 @@
 <!-- views/partials/about.ejs -->
-<section id="about" class="card-frame pad">
+<section id="about" class="card-frame pad" aria-labelledby="about-title">
   <div class="row g-4 align-items-center">
     <!-- TEXT COLUMN -->
     <div class="col-12 col-lg-6">
       <p class="overline mb-2">Über uns</p>
-      <h2 class="headline">Willkommen im <a class="brand" href="#">Feldiserhof</a></h2>
+      <h2 class="headline" id="about-title">
+        Willkommen im <a class="brand" href="#">Feldiserhof</a>
+      </h2>
+
       <p class="lede mb-3">
         Der Feldiserhof ist ein ruhiger Rückzugsort für Genussmenschen – eingebettet in die Bündner Berge.
         Ob gepflegte Küche im Restaurant, ein Kaffee im Tagesbetrieb oder Entspannung in unserer kleinen Wellness-Oase:
         Qualität, Beständigkeit und herzliche Gastfreundschaft stehen bei uns im Mittelpunkt.
       </p>
 
-      <div class="chips">
-        <span class="chip"><i class="fa-solid fa-mountain-sun"></i> 1’500 m ü. M.</span>
-        <span class="chip"><i class="fa-solid fa-seedling"></i> Regional & saisonal</span>
-        <span class="chip"><i class="fa-solid fa-award"></i> Familiengeführt</span>
+      <div class="chips" aria-label="Highlights">
+        <span class="chip"><i class="fa-solid fa-mountain-sun" aria-hidden="true"></i> 1'500&nbsp;m&nbsp;ü.&nbsp;M.</span>
+        <span class="chip"><i class="fa-solid fa-seedling" aria-hidden="true"></i> Regional &amp; saisonal</span>
+        <span class="chip"><i class="fa-solid fa-award" aria-hidden="true"></i> Familiengeführt</span>
       </div>
 
       <ul class="keypoints">
-        <li><i class="fa-solid fa-utensils"></i> Regionale Spezialitäten aus saisonalen Zutaten</li>
-        <li><i class="fa-solid fa-bread-slice"></i> Hausgemachte Backwaren & Desserts</li>
-        <li><i class="fa-solid fa-mug-saucer"></i> Café-Betrieb & kleine Wellness-Oase</li>
-        <li><i class="fa-solid fa-location-dot"></i> Ausgangspunkt für Wanderungen & Ausflüge</li>
+        <li><i class="fa-solid fa-utensils" aria-hidden="true"></i> Regionale Spezialitäten aus saisonalen Zutaten</li>
+        <li><i class="fa-solid fa-bread-slice" aria-hidden="true"></i> Hausgemachte Backwaren &amp; Desserts</li>
+        <li><i class="fa-solid fa-mug-saucer" aria-hidden="true"></i> Café-Betrieb &amp; kleine Wellness-Oase</li>
+        <li><i class="fa-solid fa-location-dot" aria-hidden="true"></i> Ausgangspunkt für Wanderungen &amp; Ausflüge</li>
       </ul>
 
       <div class="d-flex flex-wrap gap-2 pt-1">
-        <a href="#menu" class="btn btn-amber"><i class="fa-regular fa-clipboard me-2"></i>Zur Speisekarte</a>
-        <a href="#wellness" class="btn btn-soft"><i class="fa-regular fa-face-smile me-2"></i>Wellness ansehen</a>
+        <a href="#menu" class="btn btn-amber">
+          <i class="fa-regular fa-clipboard me-2" aria-hidden="true"></i>Zur Speisekarte
+        </a>
+        <a href="#wellness" class="btn btn-soft">
+          <i class="fa-regular fa-face-smile me-2" aria-hidden="true"></i>Wellness ansehen
+        </a>
       </div>
     </div>
 
     <!-- MEDIA COLUMN -->
     <div class="col-12 col-lg-6">
-      <figure class="about-media rounded-4 overflow-hidden" aria-label="Feldiserhof · Restaurant Innenraum">
+      <figure class="about-media rounded-4 overflow-hidden" aria-labelledby="about-media-caption">
         <div class="skeleton" aria-hidden="true"></div>
-        <picture>
-          <source srcset="/img/feldis.webp" type="image/webp" media="(min-width: 992px)">
-          <source srcset="/img/feldis.jpg" media="(min-width: 992px)">
+
+        <%
+          // Ellenőrizzük a különböző formátumokat és méreteket
+          const aboutWebp1200 = assetIfExists('/img/feldis.jpg');
+          const aboutWebp800  = assetIfExists('/img/feldis-800.jpg');
+          const aboutJpg1200  = assetIfExists('/img/feldis.jpg');
+          const aboutJpg800   = assetIfExists('/img/feldis-800.jpg');
+          const placeholder   = '/img/placeholder-room.jpg';
+
+          // Fallback: ha nincs 1200px-es, használjuk a 800px-eset vagy placeholdert
+          const finalSrc = aboutJpg1200 || aboutJpg800 || placeholder;
+        %>
+
+        <% if (aboutWebp1200 || aboutWebp800 || aboutJpg800) { %>
+          <!-- Van modern formátum vagy több méret -> picture tag -->
+          <picture>
+            <% if (aboutWebp1200 || aboutWebp800) { %>
+              <% 
+                const webpSources = [];
+                if (aboutWebp800) webpSources.push(`${aboutWebp800} 800w`);
+                if (aboutWebp1200) webpSources.push(`${aboutWebp1200} 1200w`);
+                const webpSet = webpSources.join(', ');
+              %>
+              <source type="image/webp" srcset="<%= webpSet %>" sizes="(min-width: 992px) 50vw, 100vw">
+            <% } %>
+
+            <% if (aboutJpg1200 || aboutJpg800) { %>
+              <% 
+                const jpgSources = [];
+                if (aboutJpg800) jpgSources.push(`${aboutJpg800} 800w`);
+                if (aboutJpg1200) jpgSources.push(`${aboutJpg1200} 1200w`);
+                const jpgSet = jpgSources.join(', ');
+              %>
+              <source type="image/jpeg" srcset="<%= jpgSet %>" sizes="(min-width: 992px) 50vw, 100vw">
+            <% } %>
+
+            <img
+              src="<%= finalSrc %>"
+              alt="Feldiserhof – Restaurant Innenraum"
+              loading="lazy"
+              decoding="async"
+              fetchpriority="low"
+              width="1200" 
+              height="900"
+              class="about-img ratio-4-3"
+              data-placeholder="<%= placeholder %>"
+              data-skeleton-selector=".skeleton"
+            >r
+          </pictue>
+        <% } else { %>
+          <!-- Csak egyszerű JPG van -> img tag -->
           <img
-            src="/img/feldis.jpg"
-            alt="Feldiserhof Restaurant Innenraum"
+            src="<%= finalSrc %>"
+            alt="Feldiserhof – Restaurant Innenraum"
             loading="lazy"
             decoding="async"
-            width="1200" height="900"
-            onload="this.closest('figure').querySelector('.skeleton')?.remove()"
-            onerror="this.classList.add('broken'); this.closest('.about-media').classList.add('broken'); this.closest('figure').querySelector('.skeleton')?.remove()"
+            fetchpriority="low"
+            width="1200" 
+            height="900"
+            class="about-img ratio-4-3"
+            data-placeholder="<%= placeholder %>"
+            data-skeleton-selector=".skeleton"
           >
-        </picture>
-        <figcaption class="media-badge"><i class="fa-regular fa-image me-1"></i> Restaurant Innenraum</figcaption>
+        <% } %>
+
+        <figcaption id="about-media-caption" class="media-badge">
+          <i class="fa-regular fa-image me-1" aria-hidden="true"></i> Restaurant Innenraum
+        </figcaption>
+
+        <noscript>
+          <img src="<%= finalSrc %>" alt="Feldiserhof – Restaurant Innenraum" width="1200" height="900">
+        </noscript>
       </figure>
     </div>
   </div>
 </section>
-<div class="section-separator"></div>
+<div class="section-separator" role="separator" aria-hidden="true"></div>

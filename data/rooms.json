@@ -3,46 +3,65 @@
     "id": "double",
     "emoji": "🛏",
     "title": "Doppelzimmer im Alpenstil",
-    "image": "/img/rooms/double.jpg",
+    "image": "/img/rooms/doppelzimmer.jpg",
     "paragraphs": [
       "Fühlen Sie sich wohl in unserem liebevoll eingerichteten Doppelzimmer im gemütlichen Alpenstil. Warme Holzelemente und natürliche Materialien schaffen eine behagliche Atmosphäre zum Ankommen und Durchatmen.",
       "Das Zimmer bietet ein komfortables Doppelbett, ein einfaches Bad mit Dusche/WC, Föhn und Pflegeprodukte. Ein TV sorgt für Unterhaltung, und auf dem Balkon mit Blick auf die Alpen genießen Sie herrliche Ausblicke und frische Bergluft.",
       "Auf Wunsch stellen wir gerne ein gratis Kinderbett zur Verfügung. Ein Ort zum Entspannen, Träumen und die Schönheit der Berge zu spüren."
     ],
     "features": ["Doppelbett", "Balkon mit Alpenblick", "TV", "Gratis Kinderbett"],
-    "price": { "label": "Preis pro Zimmer 2 Personen mit Frühstück pro Nacht", "amount": "Fr 180.–" }
+    "price": {
+      "label": "Preis pro Zimmer 2 Personen mit Frühstück pro Nacht",
+      "amount": "Fr 180.–"
+    }
   },
   {
     "id": "single-in-double",
     "emoji": "🧍‍♀️",
     "title": "Einzelbelegung im Doppelzimmer",
-    "image": "/img/rooms/single-in-double.jpg",
+    "image": "/img/rooms/einzelbelegung.jpg",
     "paragraphs": [
       "Für alle, die sich etwas mehr Raum und Ruhe gönnen möchten: Unsere Einzelbelegung im Doppelzimmer vereint Komfort und Gemütlichkeit im typischen Alpenstil.",
       "Das Zimmer ist mit einem Doppelbett zur Alleinbenutzung, Dusche/WC, Föhn und Pflegeprodukten ausgestattet. Ein TV sorgt für Unterhaltung, und vom Balkon aus genießen Sie den Blick auf die Alpen, um den Tag entspannt ausklingen zu lassen.",
       "Auch hier kann auf Wunsch ein gratis Kinderbett bereitgestellt werden. Ihr persönlicher Rückzugsort in den Bergen – ruhig, herzlich und erholsam."
     ],
-    "features": ["Doppelbett zur Alleinnutzung", "Balkon mit Alpenblick", "TV", "Extra Privatsphäre"],
-    "price": { "label": "Preis pro Zimmer 1 Person mit Frühstück pro Nacht", "amount": "Fr 120.–" }
+    "features": [
+      "Doppelbett zur Alleinnutzung",
+      "Balkon mit Alpenblick",
+      "TV",
+      "Extra Privatsphäre"
+    ],
+    "price": {
+      "label": "Preis pro Zimmer 1 Person mit Frühstück pro Nacht",
+      "amount": "Fr 140.–"
+    }
   },
   {
     "id": "family",
     "emoji": "🏡",
     "title": "Familienzimmer im Alpenstil",
-    "image": "/img/rooms/family.jpg",
+    "image": "/img/rooms/familienzimmer.jpg",
     "paragraphs": [
       "Ideal für Familien oder Freunde, die gemeinsam Urlaub in den Bergen genießen möchten. Unser geräumiges Familienzimmer vereint gemütlichen Alpencharme mit praktischem Komfort.",
       "Es bietet zwei getrennte Schlafbereiche mit Doppelbett und Einzel- oder Stockbetten, ein Bad mit Dusche/WC, Föhn und Pflegeprodukte. Ein TV sorgt für Unterhaltung, und vom Balkon mit herrlicher Sicht auf die Alpen erleben Sie gemeinsame Momente voller Ruhe und Freude.",
       "Ein gratis Kinderbett kann gerne dazu reserviert werden. Viel Platz zum Entspannen, Lachen und Zusammensein – für große und kleine Bergliebhaber."
     ],
-    "features": ["2 Schlafbereiche", "Doppel- & Stockbetten", "Balkon mit Alpenblick", "Familienfreundlich"],
-    "price": { "label": "Preis pro Nacht 2 Erwachsene 2 Kinder mit Frühstück", "amount": "Fr 220.–" }
+    "features": [
+      "2 Schlafbereiche",
+      "Doppel- & Stockbetten",
+      "Balkon mit Alpenblick",
+      "Familienfreundlich"
+    ],
+    "price": {
+      "label": "Preis pro Nacht 2 Erwachsene 2 Kinder mit Frühstück",
+      "amount": "Fr 220.–"
+    }
   },
   {
     "id": "dogs",
     "emoji": "🐾",
     "title": "Doppelzimmer – Hunde willkommen",
-    "image": "/img/rooms/dogs.jpg",
+    "image": "/img/rooms/hunde-zimmer.jpg",
     "paragraphs": [
       "Auch Vierbeiner sind bei uns herzlich willkommen! 🐕 In unserem gemütlichen Doppelzimmer im Alpenstil fühlen sich Mensch und Hund gleichermaßen wohl.",
       "Warme Holzelemente und natürliche Materialien schaffen eine behagliche Atmosphäre, in der Sie und Ihr treuer Begleiter entspannen können. Das Zimmer bietet ein komfortables Doppelbett, Dusche/WC, Föhn und Pflegeprodukte.",
@@ -50,6 +69,38 @@
       "Auf Wunsch stellen wir Ihnen gerne ein gratis Kinderbett zur Verfügung. Ein Ort zum Wohlfühlen – für Zwei- und Vierbeiner."
     ],
     "features": ["Haustierfreundlich", "Doppelbett", "Balkon mit Alpenblick", "TV"],
-    "price": { "label": "Preis pro Zimmer 2 Personen mit Frühstück pro Nacht", "amount": "Fr 200.–" }
+    "price": {
+      "label": "Preis pro Zimmer 2 Personen mit Frühstück pro Nacht",
+      "amount": "Fr 200.–"
+    }
+  },
+  {
+    "id": "gruppenzimmer",
+    "emoji": "👥",
+    "title": "Gruppenzimmer im Hotel – ideal für Familien, Vereine oder Schulklassen",
+    "description": "Unser gemütliches Gruppenzimmer bietet Platz für bis zu 13 Personen ...",
+    "features": [
+      "2 Vierbettzimmer",
+      "1 Dreibettzimmer",
+      "Studio mit 2 Zimmern (inkl. Dusche/WC)",
+      "Zusätzliches Etagenbad",
+      "Gemütlicher Aufenthaltsraum",
+      "Essraum mit Sitzplatz",
+      "WLAN inklusive",
+      "Halb- oder Vollpension möglich"
+    ],
+    "image": "/img/rooms/gruppenzimmer.jpg",
+    "priceTiers": [
+      {
+        "title": "Gruppenzimmer",
+        "amount": "ab Fr 65.–",
+        "details": "pro Person · inkl. Frühstück · pro Nacht"
+      },
+      {
+        "title": "Studio (2 Zimmer)",
+        "amount": "Fr 210.–",
+        "details": "pro Nacht · inkl. Frühstück"
+      }
+    ]
   }
 ]

@@ -1,4 +1,5 @@
-html, body {
+html,
+body {
   height: 100vh;
   min-height: 100vh;
   width: 100vw;
@@ -7,8 +8,14 @@ html, body {
 }
 
 body {
-  font-family: "Roboto", system-ui, -apple-system, Segoe UI, Arial, sans-serif;
-  background: #fbeac2 !important;   /* Egységes krémes háttér */
+  font-family:
+    Roboto,
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    Arial,
+    sans-serif;
+  background: #fbeac2 !important; /* Egységes krémes háttér */
   color: #212529;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -19,21 +26,38 @@ body {
 }
 
 /* Minden wrapper, card, section is egységes háttérrel */
-main, #page, .main-bg, .site-bg, section, .container, .container-fluid, #gallery, #wellness, #contact, #reservation,
-.card, .contact-card, .price-card, .gallery-item, .folder-card, .alert-note {
+main,
+#page,
+.main-bg,
+.site-bg,
+section,
+.container,
+.container-fluid,
+#gallery,
+#wellness,
+#contact,
+#reservation,
+.card,
+.contact-card,
+.price-card,
+.gallery-item,
+.folder-card,
+.alert-note {
   background: #fbeac2 !important;
   box-shadow: none !important;
   border: none !important;
 }
 
 /* Fókusz gyűrű gombokra, linkekre, formokra */
-:where(a,button,[role="button"],.btn,.form-control,.form-select):focus-visible {
+:where(a, button, [role='button'], .btn, .form-control, .form-select):focus-visible {
   outline: none !important;
-  box-shadow: 0 0 0 .25rem rgba(244,166,31,.35) !important;
+  box-shadow: 0 0 0 0.25rem rgba(244, 166, 31, 0.35) !important;
 }
 
 /* Anchor + section margin */
-:target { scroll-margin-top: var(--nav-height); }
+:target {
+  scroll-margin-top: var(--nav-height);
+}
 
 section {
   padding: 56px 0;
@@ -42,15 +66,18 @@ section {
 
 /* ELEGÁNS, HALVÁNY ARANY CSÍK */
 section + section::before {
-  content:"";
-  position:absolute;
-  left:0; right:0; top:-1px;
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -1px;
   height: 2px; /* Egy igazi luxus site-on ennyi elég! */
-  background: linear-gradient(90deg,#e3c176 0%,#e9cd8c 100%);
-  opacity: 0.50; /* Halvány, diszkrét – nem tolakodó */
+  background: linear-gradient(90deg, #e3c176 0%, #e9cd8c 100%);
+  opacity: 0.5; /* Halvány, diszkrét – nem tolakodó */
   border-radius: 1.5px;
   z-index: 2;
 }
+
 /* Alap mini separator stílus ha extra kell */
 .separator {
   height: 2px;

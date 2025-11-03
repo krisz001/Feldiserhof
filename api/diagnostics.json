@@ -1,0 +1,24 @@
+{
+  "summary": {
+    "uptime": 12345,
+    "errorCount": 0,
+    "warningCount": 2,
+    "environment": "development"
+  },
+  "errors": [],
+  "warnings": [
+    {
+      "timestamp": "2025-11-02T15:10:23.456Z",
+      "level": "warning",
+      "category": "rooms",
+      "message": "rooms.json hiányzik, beépített adat használata"
+    }
+  ],
+  "fileChecks": {
+    "/path/to/hu/translation.json": true,
+    "/path/to/rooms.ejs": true
+  },
+  "settings": {
+    "menuBookEnabled": true
+  }
+}

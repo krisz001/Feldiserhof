@@ -50,9 +50,10 @@
   backdrop-filter: blur(20px);
   border-radius: 20px;
   padding: 30px;
-  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5),
-              0 0 0 1px rgba(255, 255, 255, 0.1),
-              inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  box-shadow:
+    0 25px 50px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(255, 255, 255, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
   position: relative;
   overflow: hidden;
 }
@@ -60,10 +61,7 @@
 .admin-modal-container::before {
   content: '';
   position: absolute;
-  top: -2px;
-  left: -2px;
-  right: -2px;
-  bottom: -2px;
+  inset: -2px;
   background: linear-gradient(45deg, #6d28d9, #06b6d4, #f59e0b, #6d28d9);
   border-radius: 22px;
   z-index: -1;
@@ -73,9 +71,17 @@
 }
 
 @keyframes border-rotate {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 .admin-close-btn {
@@ -131,7 +137,7 @@
   font-weight: 700;
   margin-bottom: 8px;
   background: linear-gradient(90deg, #8b5cf6, #06b6d4);
-  -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
@@ -164,8 +170,9 @@
 .input-group input:focus {
   outline: none;
   border-color: #8b5cf6;
-  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2),
-              0 0 20px rgba(139, 92, 246, 0.3);
+  box-shadow:
+    0 0 0 3px rgba(139, 92, 246, 0.2),
+    0 0 20px rgba(139, 92, 246, 0.3);
   background: rgba(0, 0, 0, 0.4);
 }
 
@@ -280,11 +287,11 @@
   .admin-modal-container {
     padding: 25px 20px;
   }
-  
+
   .admin-title {
     font-size: 1.5rem;
   }
-  
+
   .admin-logo {
     width: 60px;
     height: 60px;

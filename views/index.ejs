@@ -1,6 +1,9 @@
+<% /* i18n fallback: ha nincs t(), ne essen szét a render */ %>
+<% const T = (typeof t === 'function') ? t : (k => k); %>
+
 <%- include('partials/head', {
-  title: t('home.title'),
-  description: t('home.description')
+  title: T('home.title'),
+  description: T('home.description')
 }) %>
 
 <%- include('partials/navbar') %>
@@ -8,14 +11,14 @@
 <main id="main-content">
   <!-- HERO SECTION: csak slideshow-képek -->
   <%- include('partials/hero', {
-    heroImages: (typeof heroImages !== 'undefined' && Array.isArray(heroImages) && heroImages.length)
+    heroImages: (typeof heroImages !== 'undefined' && Array.isArray(heroImages) && heroImages.length > 0)
       ? heroImages
       : [
           '/img/hero/feldiserhof-winter.jpg',
           '/img/hero/feldiserhof-sunset.jpg',
           '/img/hero/feldiserhof-view.jpg',
           '/img/hero/miratoedi.jpg',
-          '/img/hero/IMG_0365 2.jpg'
+          '/img/hero/IMG_03652.jpg'
         ]
   }) %>
 
@@ -32,68 +35,50 @@
     menuData: (typeof menuData !== 'undefined')
       ? menuData
       : ((typeof menu !== 'undefined') ? menu : null),
-    menuTitle: t('menu.title'),
-    menuSubtitle: t('menu.subtitle'),
-    menuIntro: t('menu.intro')
+    menuTitle: T('menu.title'),
+    menuSubtitle: T('menu.subtitle'),
+    menuIntro: T('menu.intro')
   }) %>
 
   <!-- WELLNESS -->
   <%- include('partials/wellness', {
     wellnessFeatures: [
-      { icon: 'fas fa-fire', name: t('wellness.features.sauna') },
-      { icon: 'fas fa-sun', name: t('wellness.features.infrared') },
-      { icon: 'fas fa-tint', name: t('wellness.features.cold') },
-      { icon: 'fas fa-shower', name: t('Duschen') }
+      { icon: 'fas fa-fire',    name: T('wellness.features.sauna') },
+      { icon: 'fas fa-sun',     name: T('wellness.features.infrared') },
+      { icon: 'fas fa-tint',    name: T('wellness.features.cold') },
+      { icon: 'fas fa-rain',    name: T('wellness.features.rain') }
     ],
     includedServices: [
-      t('wellness.services.water'),
-      t('wellness.services.fruits'),
-      t('wellness.services.towels')
+      T('wellness.services.water'),
+      T('wellness.services.fruits'),
+      T('wellness.services.towels')
     ],
     pricingOptions: [
-      { title: t('wellness.pricing.sauna.title'), meta: t('wellness.pricing.sauna.meta'), sub: t('wellness.pricing.sauna.sub'), highlighted: false },
-      { title: t('wellness.pricing.spa.title'),   meta: t('wellness.pricing.spa.meta'),   sub: t('wellness.pricing.spa.sub'),   highlighted: true  }
+      { title: T('wellness.pricing.sauna.title'), meta: T('wellness.pricing.sauna.meta'), sub: T('wellness.pricing.sauna.sub'), highlighted: false },
+      { title: T('wellness.pricing.spa.title'),   meta: T('wellness.pricing.spa.meta'),   sub: T('wellness.pricing.spa.sub'),   highlighted: true  }
     ],
-    note: t('wellness.note'),
-    ctaText: t('wellness.cta'),
+    note:   T('wellness.note'),
+    ctaText: T('wellness.cta'),
     ctaLink: '#contact',
     galleryImages: [
-      { src: '/img/jpg1.jpg', alt: t('wellness.images.sauna'),    size: 'large', width: 1280, height: 720 },
-      { src: '/img/jpg2.jpg', alt: t('wellness.images.infrared'), size: 'small', width: 640,  height: 360 }
+      { src: '/img/jpg1.jpg', alt: T('wellness.images.sauna'),    size: 'large', width: 1280, height: 720 },
+      { src: '/img/jpg2.jpg', alt: T('wellness.images.infrared'), size: 'small', width: 640,  height: 360 }
     ]
   }) %>
 
-  <!-- ROOMS (Wellness mintájára, közvetlenül alatta) -->
+  <!-- ROOMS (a partial saját fallback adatokkal dolgozik, roomsData opcionális) -->
   <%- include('partials/rooms', {
+    roomsBadge: 'UNSERE ZIMMER',
     roomsTitle: 'Unsere Zimmer im Alpenstil',
-    roomsLead:  'Erleben Sie gemütliche Wohlfühlmomente in unseren liebevoll eingerichteten Zimmern – jedes im traditionellen Alpenstil mit viel Holz, warmen Farben und einem Hauch von Bergromantik.',
-    roomsFeatures: [
-      { icon: 'fa-solid fa-bed',    name: 'Doppelbett' },
-      { icon: 'fa-regular fa-eye',  name: 'Balkon mit Alpenblick' },
-      { icon: 'fa-solid fa-bath',   name: 'Dusche/WC' },
-      { icon: 'fa-solid fa-tv',     name: 'TV' }
-    ],
-    roomCards: [
-      { id:'double',           title:'Doppelzimmer im Alpenstil',       meta:'2 Pers. · mit Frühstück',     sub:'Fr 180.– / Nacht', highlighted:false },
-      { id:'single-in-double', title:'Einzelbelegung im Doppelzimmer',  meta:'1 Pers. · mit Frühstück',     sub:'Fr 140.– / Nacht', highlighted:false },
-      { id:'family',           title:'Familienzimmer im Alpenstil',     meta:'2 Erw. + Kinder · Frühstück', sub:'Fr 220.– / Nacht', highlighted:true  },
-      { id:'dogs',             title:'Doppelzimmer – Hunde willkommen', meta:'2 Pers. · mit Frühstück',     sub:'Fr 200.– / Nacht', highlighted:false }
-    ],
-    roomsGalleryImages: [
-      { src:'/img/rooms/double.jpg',           alt:'Doppelzimmer',  size:'large', width:1280, height:720 },
-      { src:'/img/rooms/single-in-double.jpg', alt:'Einzelbelegung', size:'small', width:640,  height:360 },
-      { src:'/img/rooms/family.jpg',           alt:'Familienzimmer', size:'small', width:640,  height:360 }
-    ],
-    roomsCtaText: 'Alle Zimmer ansehen',
-    roomsCtaLink: '/zimmer'
+    roomsLead: 'Erleben Sie gemütliche Wohlfühlmomente in unseren liebevoll eingerichteten Zimmern – jedes im traditionellen Alpenstil mit viel Holz, warmen Farben und einem Hauch von Bergromantik.'
   }) %>
 
   <!-- GALLERY (folders / album view) -->
   <%- include('partials/gallery', {
-    view:   (typeof view !== 'undefined') ? view : 'folders',
+    view:   (typeof view   !== 'undefined') ? view   : 'folders',
     albums: (typeof albums !== 'undefined' && Array.isArray(albums)) ? albums : [],
     photos: (typeof photos !== 'undefined' && Array.isArray(photos)) ? photos : [],
-    album:  (typeof album  !== 'undefined') ? album : null
+    album:  (typeof album  !== 'undefined') ? album  : null
   }) %>
 
   <!-- CONTACT -->
@@ -107,5 +92,7 @@
 <%- include('partials/admin-login-modal') %>
 
 <!-- Scripts -->
-<script src="/js/hero-rotator.js" defer></script>
-<script src="/js/secret-admin.js" defer></script>
+<script defer src="/js/hero-rotator.js"></script>
+<script defer src="/js/secret-admin.js"></script>
+<!-- RENDELT NÉV: a menu.js helyett ez fut -->
+<script defer src="/js/menu-portfolio-book.js?v=<%= Date.now() %>"></script>

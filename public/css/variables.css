@@ -1,14 +1,14 @@
 /* =================== VARIABLES =================== */
-:root{
-  --site-bg:            #FBEAC2;
-  --site-bg-2:          #F5DFB0;
-  --brand-primary:      #f4a61f;
+:root {
+  --site-bg: #fbeac2;
+  --site-bg-2: #f5dfb0;
+  --brand-primary: #f4a61f;
   --brand-primary-dark: #b37e21;
-  --nav-height:         100px;
-  --shadow-sm:          0 8px 20px rgba(0,0,0,.06);
-  --shadow-md:          0 12px 28px rgba(0,0,0,.12);
-  --shadow-lg:          0 20px 40px rgba(0,0,0,.16);
-  --book-side-pad:      56px;
+  --nav-height: 100px;
+  --shadow-sm: 0 8px 20px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 12px 28px rgba(0, 0, 0, 0.12);
+  --shadow-lg: 0 20px 40px rgba(0, 0, 0, 0.16);
+  --book-side-pad: 56px;
 }
 
 /* ===== EGYSÉGES GRADIENTES HÁTTÉR MINDENHOL ===== */

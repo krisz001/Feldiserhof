@@ -151,7 +151,7 @@
           </div>
         </div>
 
-        <!-- Feature-Schalter (Mitarbeitende) – IDE ÁTMOZGATVA -->
+        <!-- Feature-Schalter (Mitarbeitende) -->
         <div class="col-md-6 col-lg-4 mb-4">
           <div class="card border-secondary h-100">
             <div class="card-body d-flex flex-column">
@@ -160,7 +160,7 @@
                 <span>Feature-Schalter</span>
               </h5>
               <p class="card-text flex-grow-1">
-                „Speisekarte – Buch öffnen” engedélyezése/tiltása.
+                „Speisekarte – Buch öffnen" engedélyezése/tiltása.
               </p>
 
               <div class="mb-3">
@@ -177,7 +177,6 @@
             </div>
           </div>
         </div>
-        <!-- /Feature-Schalter -->
       </div>
     </div>
   </div>
@@ -185,7 +184,136 @@
 
 <!-- Hero Box Szerkesztő Modal -->
 <div class="modal fade" id="heroBoxModal" tabindex="-1" aria-labelledby="heroBoxModalLabel" aria-hidden="true">
-  <!-- ... változatlan tartalom (ahogy küldted) ... -->
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="heroBoxModalLabel">
+          <i class="fas fa-mountain me-2"></i>Hero Box Szerkesztése
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-md-6">
+            <!-- Enabled kapcsoló -->
+            <div class="mb-3 form-check form-switch">
+              <input type="checkbox" class="form-check-input" id="heroBoxEnabled" checked>
+              <label class="form-check-label" for="heroBoxEnabled">Aktiválva</label>
+            </div>
+
+            <!-- Icon -->
+            <div class="mb-3">
+              <label for="heroBoxIcon" class="form-label">
+                <i class="fas fa-icons me-1"></i>Ikon (emoji)
+              </label>
+              <input type="text" class="form-control" id="heroBoxIcon" placeholder="🏔️" maxlength="2">
+            </div>
+
+            <!-- Title -->
+            <div class="mb-3">
+              <label for="heroBoxTitle" class="form-label">
+                <i class="fas fa-heading me-1"></i>Cím
+              </label>
+              <input type="text" class="form-control" id="heroBoxTitle" placeholder="Aktuelles Angebot" required>
+            </div>
+
+            <!-- Description -->
+            <div class="mb-3">
+              <label for="heroBoxDescription" class="form-label">
+                <i class="fas fa-align-left me-1"></i>Leírás
+              </label>
+              <textarea class="form-control" id="heroBoxDescription" rows="3" placeholder="Genießen Sie unseren speziellen Bergblick mit 3-Gänge-Menü" required></textarea>
+            </div>
+
+            <!-- Button Text -->
+            <div class="mb-3">
+              <label for="heroBoxButtonText" class="form-label">
+                <i class="fas fa-mouse-pointer me-1"></i>Gomb szöveg
+              </label>
+              <input type="text" class="form-control" id="heroBoxButtonText" placeholder="Mehr erfahren">
+            </div>
+
+            <!-- Button Link -->
+            <div class="mb-3">
+              <label for="heroBoxButtonLink" class="form-label">
+                <i class="fas fa-link me-1"></i>Gomb link
+              </label>
+              <input type="text" class="form-control" id="heroBoxButtonLink" placeholder="#offers">
+            </div>
+
+            <!-- Start Date -->
+            <div class="mb-3">
+              <label for="heroBoxStartDate" class="form-label">
+                <i class="fas fa-calendar-check me-1"></i>Kezdő dátum
+              </label>
+              <input type="date" class="form-control" id="heroBoxStartDate">
+            </div>
+
+            <!-- End Date -->
+            <div class="mb-3">
+              <label for="heroBoxEndDate" class="form-label">
+                <i class="fas fa-calendar-times me-1"></i>Befejező dátum
+              </label>
+              <input type="date" class="form-control" id="heroBoxEndDate">
+            </div>
+
+            <!-- Priority -->
+            <div class="mb-3">
+              <label for="heroBoxPriority" class="form-label">
+                <i class="fas fa-sort-numeric-up me-1"></i>Prioritás
+              </label>
+              <input type="number" class="form-control" id="heroBoxPriority" value="1" min="1">
+            </div>
+
+            <!-- Target Audience -->
+            <div class="mb-3">
+              <label for="heroBoxTargetAudience" class="form-label">
+                <i class="fas fa-users me-1"></i>Célközönség
+              </label>
+              <select class="form-select" id="heroBoxTargetAudience">
+                <option value="all">Mindenki</option>
+                <option value="restaurant">Étterem</option>
+                <option value="hotel">Hotel</option>
+                <option value="wellness">Wellness</option>
+              </select>
+            </div>
+
+            <!-- Is Active -->
+            <div class="mb-3 form-check form-switch">
+              <input type="checkbox" class="form-check-input" id="heroBoxIsActive" checked>
+              <label class="form-check-label" for="heroBoxIsActive">Aktív állapot</label>
+            </div>
+          </div>
+
+          <!-- Preview -->
+          <div class="col-md-6">
+            <h6 class="mb-3"><i class="fas fa-eye me-1"></i>Előnézet</h6>
+            <div id="heroBoxPreview" class="p-4 bg-light rounded border">
+              <div class="d-flex align-items-start">
+                <span id="previewIcon" class="fs-1 me-3">🏔️</span>
+                <div class="flex-grow-1">
+                  <h5 id="previewTitle" class="mb-2">Aktuelles Angebot</h5>
+                  <p id="previewDescription" class="mb-3">Genießen Sie unseren speziellen Bergblick mit 3-Gänge-Menü</p>
+                  <a href="#" id="previewButton" class="btn btn-primary btn-sm">Mehr erfahren</a>
+                  <div class="mt-2">
+                    <small id="previewDates" class="text-muted">Gültig bis: 25.11.2025</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          <i class="fas fa-times me-1"></i>Mégse
+        </button>
+        <button type="button" class="btn btn-primary" onclick="saveHeroBox()">
+          <i class="fas fa-save me-1"></i>Mentés
+        </button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <%- include('../partials/footer') %>
@@ -199,7 +327,7 @@
 </style>
 
 <script>
-// CSRF token a többi admin művelethez (változatlanul hagyva)
+// CSRF token a többi admin művelethez
 let csrfToken = '';
 (async () => {
   try {
@@ -213,8 +341,7 @@ let csrfToken = '';
   }
 })();
 
-// (OPCIONÁLIS) A Feature-Schalter jelvény frissítése betöltéskor,
-// ha közben másik lapon állítottad a kapcsolót.
+// Feature-Schalter jelvény frissítése betöltéskor
 document.addEventListener('DOMContentLoaded', async () => {
   const badge = document.getElementById('flagBadge');
   if (!badge) return;
@@ -229,84 +356,138 @@ document.addEventListener('DOMContentLoaded', async () => {
   } catch {}
 });
 
-// === Hero Box funkcióid maradnak, ahogy küldted ===
+// Hero Box funkciók
 let currentHeroBoxData = {};
-async function getCsrfToken(){
-  if(!csrfToken){
-    try{
-      const r = await fetch('/api/csrf-token'); const d = await r.json(); csrfToken = d.token;
-    }catch(e){ console.error('CSRF token lekérési hiba:', e); }
+
+async function getCsrfToken() {
+  if (!csrfToken) {
+    try {
+      const r = await fetch('/api/csrf-token');
+      const d = await r.json();
+      csrfToken = d.token;
+    } catch (e) {
+      console.error('CSRF token lekérési hiba:', e);
+    }
   }
   return csrfToken;
 }
-function updatePreview(){
-  document.getElementById('previewIcon').textContent = document.getElementById('heroBoxIcon').value || '🏔️';
-  document.getElementById('previewTitle').textContent = document.getElementById('heroBoxTitle').value || 'Aktuelles Angebot';
-  document.getElementById('previewDescription').textContent = document.getElementById('heroBoxDescription').value || 'Genießen Sie unseren speziellen Bergblick mit 3-Gänge-Menü';
-  document.getElementById('previewButton').textContent = document.getElementById('heroBoxButtonText').value || 'Mehr erfahren';
-  const endDate = document.getElementById('heroBoxEndDate').value;
-  document.getElementById('previewDates').textContent = endDate
-    ? `Gültig bis: ${new Date(endDate).toLocaleDateString('de-DE')}`
-    : 'Gültig bis: 25.11.2025';
-}
-document.addEventListener('DOMContentLoaded', function(){
-  ['heroBoxIcon','heroBoxTitle','heroBoxDescription','heroBoxButtonText','heroBoxEndDate']
-    .forEach(id => { const el = document.getElementById(id); if(el) el.addEventListener('input', updatePreview); });
-});
-async function openHeroBoxEditor(){
-  try{
-    const response = await fetch('/api/hero-box', { headers: { 'CSRF-Token': await getCsrfToken() } });
-    if(!response.ok) throw new Error('Failed to load hero box data');
-    currentHeroBoxData = await response.json();
-    document.getElementById('heroBoxEnabled').checked = currentHeroBoxData.enabled || false;
-    document.getElementById('heroBoxIcon').value = currentHeroBoxData.icon || '';
-    document.getElementById('heroBoxTitle').value = currentHeroBoxData.title || '';
-    document.getElementById('heroBoxDescription').value = currentHeroBoxData.description || '';
-    document.getElementById('heroBoxButtonText').value = currentHeroBoxData.buttonText || '';
-    document.getElementById('heroBoxButtonLink').value = currentHeroBoxData.buttonLink || '';
-    document.getElementById('heroBoxStartDate').value = currentHeroBoxData.startDate || '';
-    document.getElementById('heroBoxEndDate').value = currentHeroBoxData.endDate || '';
-    document.getElementById('heroBoxPriority').value = currentHeroBoxData.priority || 1;
-    document.getElementById('heroBoxTargetAudience').value = currentHeroBoxData.targetAudience || 'all';
-    document.getElementById('heroBoxIsActive').checked = currentHeroBoxData.isActive !== false;
-    updatePreview();
-    const modal = new bootstrap.Modal(document.getElementById('heroBoxModal')); modal.show();
-  }catch(e){
-    console.error('Hiba a hero box betöltésekor:', e); alert('Hiba a hero box adatok betöltésekor.');
+
+function updatePreview() {
+  const iconEl = document.getElementById('previewIcon');
+  const titleEl = document.getElementById('previewTitle');
+  const descEl = document.getElementById('previewDescription');
+  const btnEl = document.getElementById('previewButton');
+  const datesEl = document.getElementById('previewDates');
+
+  if (iconEl) iconEl.textContent = document.getElementById('heroBoxIcon')?.value || '🏔️';
+  if (titleEl) titleEl.textContent = document.getElementById('heroBoxTitle')?.value || 'Aktuelles Angebot';
+  if (descEl) descEl.textContent = document.getElementById('heroBoxDescription')?.value || 'Genießen Sie unseren speziellen Bergblick mit 3-Gänge-Menü';
+  if (btnEl) btnEl.textContent = document.getElementById('heroBoxButtonText')?.value || 'Mehr erfahren';
+
+  const endDate = document.getElementById('heroBoxEndDate')?.value;
+  if (datesEl) {
+    datesEl.textContent = endDate
+      ? `Gültig bis: ${new Date(endDate).toLocaleDateString('de-DE')}`
+      : 'Gültig bis: 25.11.2025';
   }
 }
-async function saveHeroBox(){
-  try{
+
+document.addEventListener('DOMContentLoaded', function() {
+  ['heroBoxIcon', 'heroBoxTitle', 'heroBoxDescription', 'heroBoxButtonText', 'heroBoxEndDate']
+    .forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('input', updatePreview);
+    });
+});
+
+async function openHeroBoxEditor() {
+  try {
+    const response = await fetch('/admin/api/hero-box', {
+      credentials: 'same-origin',
+      headers: { 'CSRF-Token': await getCsrfToken() }
+    });
+
+    if (!response.ok) throw new Error('Failed to load hero box data');
+
+    currentHeroBoxData = await response.json();
+
+    // Csak akkor állítunk be értéket, ha az elem létezik
+    const enabledEl = document.getElementById('heroBoxEnabled');
+    const iconEl = document.getElementById('heroBoxIcon');
+    const titleEl = document.getElementById('heroBoxTitle');
+    const descEl = document.getElementById('heroBoxDescription');
+    const btnTextEl = document.getElementById('heroBoxButtonText');
+    const btnLinkEl = document.getElementById('heroBoxButtonLink');
+    const startDateEl = document.getElementById('heroBoxStartDate');
+    const endDateEl = document.getElementById('heroBoxEndDate');
+    const priorityEl = document.getElementById('heroBoxPriority');
+    const targetEl = document.getElementById('heroBoxTargetAudience');
+    const activeEl = document.getElementById('heroBoxIsActive');
+
+    if (enabledEl) enabledEl.checked = currentHeroBoxData.enabled || false;
+    if (iconEl) iconEl.value = currentHeroBoxData.icon || '';
+    if (titleEl) titleEl.value = currentHeroBoxData.title || '';
+    if (descEl) descEl.value = currentHeroBoxData.description || '';
+    if (btnTextEl) btnTextEl.value = currentHeroBoxData.buttonText || '';
+    if (btnLinkEl) btnLinkEl.value = currentHeroBoxData.buttonLink || '';
+    if (startDateEl) startDateEl.value = currentHeroBoxData.startDate || '';
+    if (endDateEl) endDateEl.value = currentHeroBoxData.endDate || '';
+    if (priorityEl) priorityEl.value = currentHeroBoxData.priority || 1;
+    if (targetEl) targetEl.value = currentHeroBoxData.targetAudience || 'all';
+    if (activeEl) activeEl.checked = currentHeroBoxData.isActive !== false;
+
+    updatePreview();
+
+    const modal = new bootstrap.Modal(document.getElementById('heroBoxModal'));
+    modal.show();
+  } catch (e) {
+    console.error('Hiba a hero box betöltésekor:', e);
+    alert('Hiba a hero box adatok betöltésekor.');
+  }
+}
+
+async function saveHeroBox() {
+  try {
     const formData = {
-      enabled: document.getElementById('heroBoxEnabled').checked,
-      icon: document.getElementById('heroBoxIcon').value,
-      title: document.getElementById('heroBoxTitle').value,
-      description: document.getElementById('heroBoxDescription').value,
-      buttonText: document.getElementById('heroBoxButtonText').value,
-      buttonLink: document.getElementById('heroBoxButtonLink').value,
-      startDate: document.getElementById('heroBoxStartDate').value,
-      endDate: document.getElementById('heroBoxEndDate').value,
-      priority: parseInt(document.getElementById('heroBoxPriority').value),
-      targetAudience: document.getElementById('heroBoxTargetAudience').value,
-      isActive: document.getElementById('heroBoxIsActive').checked
+      enabled: document.getElementById('heroBoxEnabled')?.checked || false,
+      icon: document.getElementById('heroBoxIcon')?.value || '',
+      title: document.getElementById('heroBoxTitle')?.value || '',
+      description: document.getElementById('heroBoxDescription')?.value || '',
+      buttonText: document.getElementById('heroBoxButtonText')?.value || '',
+      buttonLink: document.getElementById('heroBoxButtonLink')?.value || '',
+      startDate: document.getElementById('heroBoxStartDate')?.value || '',
+      endDate: document.getElementById('heroBoxEndDate')?.value || '',
+      priority: parseInt(document.getElementById('heroBoxPriority')?.value) || 1,
+      targetAudience: document.getElementById('heroBoxTargetAudience')?.value || 'all',
+      isActive: document.getElementById('heroBoxIsActive')?.checked !== false
     };
-    if(!formData.title.trim()) return alert('A cím megadása kötelező!');
-    if(!formData.description.trim()) return alert('A leírás megadása kötelező!');
-    const response = await fetch('/api/hero-box', {
-      method:'POST',
-      headers:{ 'Content-Type':'application/json', 'CSRF-Token': await getCsrfToken() },
+
+    if (!formData.title.trim()) return alert('A cím megadása kötelező!');
+    if (!formData.description.trim()) return alert('A leírás megadása kötelező!');
+
+    const response = await fetch('/admin/api/hero-box', {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: {
+        'Content-Type': 'application/json',
+        'CSRF-Token': await getCsrfToken()
+      },
       body: JSON.stringify(formData)
     });
-    if(!response.ok) throw new Error('Failed to save hero box data');
+
+    if (!response.ok) throw new Error('Failed to save hero box data');
+
     const result = await response.json();
-    if(result.ok){
-      const modal = bootstrap.Modal.getInstance(document.getElementById('heroBoxModal')); modal.hide();
+    if (result.ok) {
+      const modal = bootstrap.Modal.getInstance(document.getElementById('heroBoxModal'));
+      if (modal) modal.hide();
       alert('Hero Box sikeresen mentve!');
-    }else{
+    } else {
       alert('Hiba a mentés során: ' + (result.msg || 'Ismeretlen hiba'));
     }
-  }catch(e){
-    console.error('Hiba a hero box mentésekor:', e); alert('Hiba a hero box mentésekor.');
+  } catch (e) {
+    console.error('Hiba a hero box mentésekor:', e);
+    alert('Hiba a hero box mentésekor.');
   }
 }
 </script>

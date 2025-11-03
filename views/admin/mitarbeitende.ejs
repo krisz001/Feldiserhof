@@ -22,7 +22,7 @@
           </div>
 
           <p class="text-muted mb-3">
-            „Speisekarte – Buch öffnen” engedélyezése/tiltása.
+            „Speisekarte – Buch öffnen" engedélyezése/tiltása.
           </p>
 
           <!-- Állapot badge -->
@@ -44,7 +44,7 @@
             <input class="form-check-input" type="checkbox" id="toggle-menu-book"
                    <%= bookEnabled ? 'checked' : '' %> >
             <label class="form-check-label" for="toggle-menu-book">
-              „Speisekarte – Buch öffnen” engedélyezése
+              „Speisekarte – Buch öffnen" engedélyezése
             </label>
           </div>
           <div class="small text-muted mb-4">
@@ -69,6 +69,9 @@
   </div>
 </main>
 
+<!-- Hidden CSRF token -->
+<input type="hidden" id="csrfToken" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+
 <%- include('../partials/footer') %>
 
 <script>
@@ -77,6 +80,7 @@
   const badge  = document.getElementById('stateBadge');
   const saveBtn= document.getElementById('saveBtn');
   const toast  = document.getElementById('miniToast');
+  const csrfTokenInput = document.getElementById('csrfToken');
 
   function setBadge(enabled){
     if (!badge) return;
@@ -90,7 +94,7 @@
     if (!toast) return;
     toast.className = 'mt-3 small alert ' + (ok ? 'alert-success' : 'alert-danger') + ' show';
     toast.textContent = msg;
-    setTimeout(()=> { toast.className = 'fade'; toast.textContent=''; }, 2200);
+    setTimeout(()=> { toast.className = 'fade mt-3 small'; toast.textContent=''; }, 2200);
   }
 
   async function saveState({redirect=false}={}){
@@ -101,21 +105,35 @@
       saveBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Mentés...';
       cb.disabled = true;
 
+      // CSRF token
+      const csrfToken = csrfTokenInput ? csrfTokenInput.value : '';
+
       const res = await fetch('/admin/feature-flags/menu-book', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'CSRF-Token': csrfToken
+        },
         body: JSON.stringify({ enabled })
       });
-      if (!res.ok) throw new Error('Save failed: ' + res.status);
+      
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.error('Save failed:', res.status, errorText);
+        throw new Error('Save failed: ' + res.status);
+      }
+      
       const data = await res.json();
       setBadge(!!data.menuBookEnabled);
       showToast('Beállítás elmentve.');
+      
       if (redirect) {
         // kis késleltetés, hogy látszódjon a visszajelzés
         setTimeout(()=> { window.location.href = '/admin'; }, 350);
       }
     } catch (e) {
-      alert('Nem sikerült menteni. Próbáld újra.');
+      console.error('Error saving:', e);
+      showToast('Nem sikerült menteni. Próbáld újra.', false);
     } finally {
       saveBtn.disabled = false;
       saveBtn.innerHTML = '<i class="fas fa-save me-1"></i> Mentés';

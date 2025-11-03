@@ -3,230 +3,55 @@
    (eredeti stílus + célzott felülírások a base.css ellen)
    ======================================================= */
 
-:root{
-  --primary:   #0a2540;
-  --accent:    #ff6b6b;
+:root {
+  --primary: #0a2540;
+  --accent: #ff6b6b;
   --secondary: #4ecdc4;
-  --light:     #f8f9fa;
-  --dark:      #212529;
-  --gray:      #6c757d;
-  --transition: all .3s ease;
+  --light: #f8f9fa;
+  --dark: #212529;
+  --gray: #6c757d;
+  --transition: all 0.3s ease;
 
   --warm-bg-start: #f6ddb0;
-  --warm-bg-end:   #edd09a;
+  --warm-bg-end: #edd09a;
 
-  --accent-gold:   #e3c176;      /* csak keretekhez, mint a képen */
+  --accent-gold: #e3c176; /* csak keretekhez, mint a képen */
   --radius-sm: 12px;
   --radius-md: 16px;
   --radius-lg: 24px;
-  --shadow-sm: 0 2px 8px rgba(0,0,0,.05);
-  --shadow-md: 0 5px 20px rgba(0,0,0,.06);
-  --shadow-lg: 0 12px 30px rgba(0,0,0,.12);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 5px 20px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 12px 30px rgba(0, 0, 0, 0.12);
 }
 
-@media (prefers-reduced-motion: reduce){
-  :root { --transition: none; }
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --transition: none;
+  }
 }
 
-body{
-  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+body {
+  font-family:
+    'Segoe UI',
+    system-ui,
+    -apple-system,
+    sans-serif;
   line-height: 1.6;
   color: var(--dark);
 }
 
-/* ===== Szekció (meleg háttér) ===== */
-.wellness-section{
+/* ===== Galéria (globális: minden kép egymás alatt, azonos méret) ===== */
+.gallery-container {
   position: relative;
-  overflow: hidden;
-  background: linear-gradient(180deg, var(--warm-bg-start) 0%, var(--warm-bg-end) 100%) !important;
-}
-.wellness-section::before,
-.wellness-section::after{ content: none !important; }
-.wellness-container{ position: relative; z-index: 1; }
-
-/* ----- BASE.CSS FELÜLÍRÁSOK (SZIGORÚ SCOPE) ----- */
-#wellness .wellness-container,
-#wellness .container,
-#wellness.container{
-  background: transparent !important;
-  box-shadow: none !important;
-  border: none !important;
-}
-#wellness .price-card,
-#wellness .gallery-item,
-#wellness .alert-note{
-  background: #fff !important;
-  border: 1.8px solid var(--accent-gold) !important;
-  box-shadow: 0 8px 26px rgba(227,193,118,.12) !important;
 }
 
-/* ===== Fejléc ===== */
-.wellness-badge{
-  background: var(--primary);
-  color:#fff;
-  font-size:.85rem;
-  font-weight:600;
-  letter-spacing:.5px;
-  padding:.5rem 1.25rem;
-  border-radius:50px;
-  display:inline-block;
-  margin-bottom:1.5rem;
-  box-shadow:0 4px 12px rgba(10,37,64,.1);
-}
-
-.wellness-title{
-  font-weight:800;
-  font-size:2.8rem;
-  line-height:1.2;
-  margin-bottom:1.5rem;
-  color:var(--primary);
-}
-.wellness-title span{
-  color:var(--accent);
-  position:relative;
-}
-.wellness-title span::after{
-  content:'';
-  position:absolute;
-  bottom:5px; left:0;
-  width:100%; height:8px;
-  background-color: rgba(255,107,107,.2);
-  z-index:-1; border-radius:4px;
-}
-
-.wellness-lead{
-  font-size:1.2rem;
-  color:rgb(158, 88, 18);
-  margin-bottom:2rem;
-  font-weight:400;
-}
-
-/* ===== Feature chipek ===== */
-.wellness-features{
-  display:flex; flex-wrap:wrap;
-  gap:1rem; margin-bottom:2.5rem;
-}
-.feature-chip{
-  appearance: none;
-  background:#fff;
-  border:1px solid rgba(0,0,0,.08);
-  border-radius:50px;
-  padding:.7rem 1.2rem;
-  font-weight:500;
-  box-shadow:var(--shadow-sm);
-  transition:var(--transition);
-  display:flex; align-items:center; gap:.5rem;
-  cursor:default;
-}
-.feature-chip:hover{
-  transform:translateY(-3px);
-  box-shadow:0 6px 15px rgba(0,0,0,.1);
-  border-color:var(--secondary);
-}
-.feature-chip:focus-visible{
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(78,205,196,.4);
-}
-.feature-icon{ color:var(--secondary); font-size:1.1rem; }
-
-/* ===== Inklusivleistungen ===== */
-.included-title{
-  font-weight:700; font-size:1.2rem;
-  margin-bottom:1rem; color:var(--primary);
-}
-#wellness .included-list{
-  list-style:none; padding:1rem; margin-bottom:2.5rem;
-  background:#fff !important;
-  border:1.8px solid var(--accent-gold) !important;
-  border-radius: var(--radius-md);
-  box-shadow: 0 8px 26px rgba(227,193,118,.12) !important;
-}
-.included-list li{ margin-bottom:.9rem; display:flex; align-items:center; gap:.8rem; }
-.included-list li:last-child{ margin-bottom:0; }
-.tick-icon{
-  color:var(--secondary); font-size:1.2rem;
-  width:24px; height:24px; display:flex; align-items:center; justify-content:center;
-  background:rgba(78,205,196,.1); border-radius:50%;
-}
-
-/* ===== Hinweis – KÁRTYA (BIZTOS KERET) ===== */
-#wellness .alert-note{
-  background:#fff9e8 !important;
-  border:1.8px solid var(--accent-gold) !important;
-  border-radius: var(--radius-md);
-  padding: 1.1rem 1.2rem !important;
-  margin-bottom: 2.0rem;
-  color: var(--primary);
-}
-#wellness .alert-note strong{ color:var(--accent); }
-
-/* ===== Árkártyák – KÁRTYA (BIZTOS KERET) ===== */
-.pricing-cards{
-  display:grid;
-  grid-template-columns: repeat( auto-fit, minmax(220px, 1fr) );
-  gap:1.5rem; margin-bottom:2.2rem;
-}
-#wellness .price-card{
-  border-radius:var(--radius-md) !important;
-  padding:1.3rem 1.1rem !important;
-  transition:var(--transition) !important;
-  display:flex; flex-direction:column;
-  min-height: 160px;
-}
-#wellness .price-card:hover{
-  transform:translateY(-4px);
-  box-shadow:0 16px 40px rgba(227,193,118,.16) !important;
-}
-#wellness .price-card.highlighted{
-  border:2.4px solid var(--accent-gold) !important;
-  position:relative; overflow:hidden;
-}
-#wellness .price-card.highlighted::before{
-  content:'Empfohlen';
-  position:absolute; top:0; right:0;
-  background:var(--accent-gold); color:#fff;
-  font-size:.75rem; font-weight:700;
-  padding:.42rem 1.05rem; border-bottom-left-radius:12px;
-}
-.pc-title{ font-weight:700; font-size:1.25rem; color:var(--primary); margin-bottom:.5rem; }
-.pc-meta{ font-weight:700; font-size:1.1rem;   color: rgb(138, 90, 43) !important; margin-bottom:.35rem; }
-.pc-sub{ color:var(--gray); font-size:.95rem; margin-top:auto; }
-
-/* ===== CTA ===== */
-.btn-primary-custom{
-  background:var(--primary); color:#fff; border:none;
-  border-radius:50px; padding:.9rem 2rem;
-  font-weight:600; font-size:1.1rem; transition:var(--transition);
-  box-shadow:0 4px 12px rgba(10,37,64,.2);
-  display:inline-flex; align-items:center; gap:.7rem;
-  text-decoration:none;
-}
-.btn-primary-custom:hover{
-  background:#0d2f52; transform:translateY(-2px);
-  box-shadow:0 6px 18px rgba(10,37,64,.3);
-}
-.btn-primary-custom:focus-visible{
-  outline:none; box-shadow: 0 0 0 3px rgba(10,37,64,.35);
-}
-
-/* Sticky CTA mobilon */
-.sticky-mobile{ position: static; }
-@media (max-width: 768px){
-  .sticky-mobile{
-    position: sticky; bottom: .75rem; z-index: 10;
-    display:block;
-  }
-  .sticky-mobile .btn-primary-custom{ width:100%; justify-content:center; }
-}
-
-/* ===== Galéria (javított: minden kép egymás alatt, azonos méret) ===== */
-.gallery-container{ position:relative; }
-.gallery-stack{
+.gallery-stack {
   display: grid;
   grid-template-columns: 1fr;
   gap: 1.5rem;
   height: 100%;
 }
+
 .gallery-item {
   aspect-ratio: 16 / 9;
   width: 100%;
@@ -236,16 +61,321 @@ body{
   transition: var(--transition) !important;
   will-change: transform;
 }
-.gallery-item:hover{ transform:scale(1.02); }
-.gallery-img{ width:100%; height:100%; object-fit:cover; display:block; }
+
+.gallery-item:hover {
+  transform: scale(1.02);
+}
+
+.gallery-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* ===== Szekció (meleg háttér) ===== */
+.wellness-section {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(180deg, var(--warm-bg-start) 0%, var(--warm-bg-end) 100%) !important;
+}
+
+.wellness-section::before,
+.wellness-section::after {
+  content: none !important;
+}
+
+.wellness-container {
+  position: relative;
+  z-index: 1;
+}
+
+/* ----- BASE.CSS FELÜLÍRÁSOK (SZIGORÚ SCOPE) ----- */
+#wellness .wellness-container,
+#wellness .container,
+#wellness.container {
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+
+#wellness .price-card,
+#wellness .gallery-item,
+#wellness .alert-note {
+  background: #fff !important;
+  border: 1.8px solid var(--accent-gold) !important;
+  box-shadow: 0 8px 26px rgba(227, 193, 118, 0.12) !important;
+}
+
+/* ===== Fejléc ===== */
+.wellness-badge {
+  background: var(--primary);
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  padding: 0.5rem 1.25rem;
+  border-radius: 50px;
+  display: inline-block;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 4px 12px rgba(10, 37, 64, 0.1);
+}
+
+.wellness-title {
+  font-weight: 800;
+  font-size: 2.8rem;
+  line-height: 1.2;
+  margin-bottom: 1.5rem;
+  color: var(--primary);
+}
+
+.wellness-title span {
+  color: var(--accent);
+  position: relative;
+}
+
+.wellness-title span::after {
+  content: '';
+  position: absolute;
+  bottom: 5px;
+  left: 0;
+  width: 100%;
+  height: 8px;
+  background-color: rgba(255, 107, 107, 0.2);
+  z-index: -1;
+  border-radius: 4px;
+}
+
+.wellness-lead {
+  font-size: 1.2rem;
+  color: rgb(158, 88, 18);
+  margin-bottom: 2rem;
+  font-weight: 400;
+}
+
+/* ===== Feature chipek ===== */
+.wellness-features {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 2.5rem;
+}
+
+.feature-chip {
+  appearance: none;
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 50px;
+  padding: 0.7rem 1.2rem;
+  font-weight: 500;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: default;
+}
+
+.feature-chip:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+  border-color: var(--secondary);
+}
+
+.feature-chip:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.4);
+}
+
+.feature-icon {
+  color: var(--secondary);
+  font-size: 1.1rem;
+}
+
+/* ===== Inklusivleistungen ===== */
+.included-title {
+  font-weight: 700;
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+  color: var(--primary);
+}
+
+#wellness .included-list {
+  list-style: none;
+  padding: 1rem;
+  margin-bottom: 2.5rem;
+  background: #fff !important;
+  border: 1.8px solid var(--accent-gold) !important;
+  border-radius: var(--radius-md);
+  box-shadow: 0 8px 26px rgba(227, 193, 118, 0.12) !important;
+}
+
+.included-list li {
+  margin-bottom: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.included-list li:last-child {
+  margin-bottom: 0;
+}
+
+.tick-icon {
+  color: var(--secondary);
+  font-size: 1.2rem;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(78, 205, 196, 0.1);
+  border-radius: 50%;
+}
+
+/* ===== Hinweis – KÁRTYA (BIZTOS KERET) ===== */
+#wellness .alert-note {
+  background: #fff9e8 !important;
+  border: 1.8px solid var(--accent-gold) !important;
+  border-radius: var(--radius-md);
+  padding: 1.1rem 1.2rem !important;
+  margin-bottom: 2rem;
+  color: var(--primary);
+}
+
+#wellness .alert-note strong {
+  color: var(--accent);
+}
+
+/* ===== Árkártyák – KÁRTYA (BIZTOS KERET) ===== */
+.pricing-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2.2rem;
+}
+
+#wellness .price-card {
+  border-radius: var(--radius-md) !important;
+  padding: 1.3rem 1.1rem !important;
+  transition: var(--transition) !important;
+  display: flex;
+  flex-direction: column;
+  min-height: 160px;
+}
+
+#wellness .price-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 40px rgba(227, 193, 118, 0.16) !important;
+}
+
+#wellness .price-card.highlighted {
+  border: 2.4px solid var(--accent-gold) !important;
+  position: relative;
+  overflow: hidden;
+}
+
+#wellness .price-card.highlighted::before {
+  content: 'Empfohlen';
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: var(--accent-gold);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.42rem 1.05rem;
+  border-bottom-left-radius: 12px;
+}
+
+.pc-title {
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: var(--primary);
+  margin-bottom: 0.5rem;
+}
+
+.pc-meta {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: rgb(138, 90, 43) !important;
+  margin-bottom: 0.35rem;
+}
+
+.pc-sub {
+  color: var(--gray);
+  font-size: 0.95rem;
+  margin-top: auto;
+}
+
+/* ===== CTA ===== */
+.btn-primary-custom {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: 50px;
+  padding: 0.9rem 2rem;
+  font-weight: 600;
+  font-size: 1.1rem;
+  transition: var(--transition);
+  box-shadow: 0 4px 12px rgba(10, 37, 64, 0.2);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  text-decoration: none;
+}
+
+.btn-primary-custom:hover {
+  background: #0d2f52;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(10, 37, 64, 0.3);
+}
+
+.btn-primary-custom:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(10, 37, 64, 0.35);
+}
+
+/* Sticky CTA mobilon */
+.sticky-mobile {
+  position: static;
+}
+
+@media (max-width: 768px) {
+  .sticky-mobile {
+    position: sticky;
+    bottom: 0.75rem;
+    z-index: 10;
+    display: block;
+  }
+
+  .sticky-mobile .btn-primary-custom {
+    width: 100%;
+    justify-content: center;
+  }
+}
 
 /* ===== Reszponzív ===== */
-@media (max-width: 992px){
-  .wellness-title{ font-size:2.3rem; }
-  .gallery-stack{ margin-top:2rem; }
+@media (max-width: 992px) {
+  .wellness-title {
+    font-size: 2.3rem;
+  }
+
+  .gallery-stack {
+    margin-top: 2rem;
+  }
 }
-@media (max-width: 576px){
-  .wellness-title{ font-size:2rem; }
-  .wellness-features{ flex-direction:column; }
-  .feature-chip{ justify-content:center; }
+
+@media (max-width: 576px) {
+  .wellness-title {
+    font-size: 2rem;
+  }
+
+  .wellness-features {
+    flex-direction: column;
+  }
+
+  .feature-chip {
+    justify-content: center;
+  }
 }

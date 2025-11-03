@@ -1,95 +1,108 @@
 /* Feldiserhof – kompakt, világos footer a homok háttérhez */
 
-:root{
+:root {
   --f-bg: radial-gradient(140% 120% at 50% -60%, #fbf0cf 0%, #f4e2b6 55%, #efd79e 100%);
   --f-border: #d1a856;
-  --f-text: #3b2f1f;        /* fő szöveg – sötét barna */
-  --f-muted:#6f5b3b;       /* halvány szöveg */
-  --f-link:#2b1f0f;        /* link */
-  --f-link-hover:#000;     /* link hover */
-  --f-accent:#ffd454;
+  --f-text: #3b2f1f; /* fő szöveg – sötét barna */
+  --f-muted: #6f5b3b; /* halvány szöveg */
+  --f-link: #2b1f0f; /* link */
+  --f-link-hover: #000; /* link hover */
+  --f-accent: #ffd454;
 }
 
-#custom-footer{
+#custom-footer {
   background: var(--f-bg);
   color: var(--f-text);
   border-top: 1px solid var(--f-border);
-  padding: 12px 0;                /* kisebb magasság */
+  padding: 12px 0; /* kisebb magasság */
   font-family: 'Patrick Hand SC', cursive, Arial, sans-serif;
   line-height: 1.5;
 }
 
-#custom-footer .custom-footer-container{
+#custom-footer .custom-footer-container {
   max-width: 1120px;
   margin: 0 auto;
   padding: 0 16px;
   display: flex;
   flex-direction: column;
-  gap: .4rem;                     /* szorosabb függőleges térköz */
+  gap: 0.4rem; /* szorosabb függőleges térköz */
   align-items: center;
 }
 
 /* finom felső fénycsík */
-#custom-footer::before{
-  content:"";
-  display:block;
-  height:1px;
-  background: linear-gradient(90deg, transparent, rgba(0,0,0,.06), transparent);
+#custom-footer::before {
+  content: '';
+  display: block;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.06), transparent);
 }
 
-#custom-footer .custom-footer-copy{
+#custom-footer .custom-footer-copy {
   color: var(--f-muted);
-  font-size: .90rem;              /* kisebb szöveg */
-  letter-spacing: .01em;
-  opacity: .9;
+  font-size: 0.9rem; /* kisebb szöveg */
+  letter-spacing: 0.01em;
+  opacity: 0.9;
   margin: 0;
 }
 
-#custom-footer .custom-footer-links{
-  display:flex;
-  gap:.8rem;                      /* kisebb vízszintes térköz */
-  flex-wrap:wrap;
-  align-items:center;
-  justify-content:center;
+#custom-footer .custom-footer-links {
+  display: flex;
+  gap: 0.8rem; /* kisebb vízszintes térköz */
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
 }
 
-#custom-footer .custom-footer-link{
+#custom-footer .custom-footer-link {
   color: var(--f-link);
   text-decoration: none;
-  font-size: .92rem;
-  padding: .2rem .5rem;           /* kompakt kapszula */
+  font-size: 0.92rem;
+  padding: 0.2rem 0.5rem; /* kompakt kapszula */
   border-radius: 9999px;
   border: 1px solid transparent;
-  background: rgba(255,255,255,.35);
-  box-shadow: 0 0 0 0 rgba(0,0,0,0);
-  transition: background-color .2s ease, border-color .2s ease, color .15s ease, transform .15s ease;
+  background: rgba(255, 255, 255, 0.35);
+  box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.15s ease,
+    transform 0.15s ease;
 }
 
 #custom-footer .custom-footer-link:hover,
-#custom-footer .custom-footer-link:focus-visible{
+#custom-footer .custom-footer-link:focus-visible {
   color: var(--f-link-hover);
-  border-color: rgba(0,0,0,.08);
-  background: rgba(255,255,255,.6);
+  border-color: rgba(0, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.6);
   transform: translateY(-1px);
   outline: none;
 }
 
 /* „Nach oben” enyhén kiemelve */
-#custom-footer .custom-footer-link[href="#home"]{
-  border-color: rgba(0,0,0,.08);
-  background: rgba(255,212,84,.18);
+#custom-footer .custom-footer-link[href='#home'] {
+  border-color: rgba(0, 0, 0, 0.08);
+  background: rgba(255, 212, 84, 0.18);
 }
 
-@media (min-width: 768px){
-  #custom-footer .custom-footer-container{
-    flex-direction: row;          /* szélesen egy sorban */
+@media (min-width: 768px) {
+  #custom-footer .custom-footer-container {
+    flex-direction: row; /* szélesen egy sorban */
     justify-content: space-between;
   }
 }
 
 /* extra tömörség nagyon kicsi képernyőn */
-@media (max-width: 360px){
-  #custom-footer{ padding: 10px 0; }
-  #custom-footer .custom-footer-copy{ font-size:.86rem; }
-  #custom-footer .custom-footer-link{ font-size:.9rem; padding:.18rem .45rem; }
+@media (max-width: 360px) {
+  #custom-footer {
+    padding: 10px 0;
+  }
+
+  #custom-footer .custom-footer-copy {
+    font-size: 0.86rem;
+  }
+
+  #custom-footer .custom-footer-link {
+    font-size: 0.9rem;
+    padding: 0.18rem 0.45rem;
+  }
 }

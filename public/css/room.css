@@ -1,67 +1,72 @@
 /* =========================================================
    ROOMS (Zimmer) – csak a #rooms szekcióra hat!
-   Egységes kártyaméret, világos háttér, jobb kontraszt, video support.
+   Egységes kártya, világos háttér, jobb kontraszt, image+video support.
    ========================================================= */
 
 #rooms {
   /* Lokális színek (nem globális root!) */
-  --rooms-bg: #f7e9c7;            /* krém sáv – a site stílusához */
-  --card-bg: #ffffff;
-  --ink: #1a3644;                 /* fő szöveg (navy) */
-  --ink-2: #6d5a47;               /* szekunder szöveg (brown) */
-  --accent: #e3c176;              /* arany keret/kiemelés */
+  --rooms-bg: #f7e9c7;
+  --card-bg: #fff;
+  --ink: #1a3644;
+  --ink-2: #6d5a47;
+  --accent: #e3c176;
   --pill-bg: #fff8ea;
   --ok: #49b38f;
 
   --radius-md: 16px;
   --radius-lg: 20px;
 
-  --shadow-sm: 0 2px 8px rgba(0,0,0,.06);
-  --shadow-md: 0 10px 22px rgba(0,0,0,.08);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 10px 22px rgba(0, 0, 0, 0.08);
 
   --gap: 28px;
 }
 
-/* Széles krém háttér – wellness-szel összhangban */
-#rooms .zimmer-container{
+/* Széles krém háttér */
+#rooms .zimmer-container {
   background: linear-gradient(180deg, #f6ddb0 0%, #edd09a 100%);
   padding: 28px 20px;
   border-radius: 22px;
 }
 
 /* ---------- Intro ---------- */
-#rooms .intro{
-  text-align:center;
+#rooms .intro {
+  text-align: center;
   margin-bottom: 28px;
   color: var(--ink);
 }
-#rooms .intro .badge{
-  display:inline-block;
-  padding:8px 14px;
+
+#rooms .intro .badge {
+  display: inline-block;
+  padding: 8px 14px;
   border-radius: 999px;
   background: var(--ink);
-  color:#fff;
+  color: #fff;
   font-weight: 700;
   font-size: 12px;
-  letter-spacing:.4px;
+  letter-spacing: 0.4px;
   box-shadow: var(--shadow-sm);
   margin-bottom: 12px;
 }
-#rooms .intro__title{
+
+#rooms .intro__title {
   font-size: clamp(24px, 3.2vw, 34px);
   line-height: 1.2;
   font-weight: 800;
-  margin: 0 0 8px 0;
+  margin: 0 0 8px;
   color: var(--ink);
 }
-#rooms .intro__title-highlight{ color: #e8915f; }
 
-/* IMPORTANT: a lead NEM legyen line-clamp alatt – felülírjuk a globális szabályokat */
-#rooms .intro__lead{
+#rooms .intro__title-highlight {
+  color: #e8915f;
+}
+
+/* A lead ne legyen line-clamp alatt – felülírjuk a globális szabályokat */
+#rooms .intro__lead {
   max-width: 860px;
   margin: 0 auto;
   color: var(--ink-2);
-  opacity: .95;
+  opacity: 0.95;
   display: block !important;
   -webkit-line-clamp: unset !important;
   -webkit-box-orient: unset !important;
@@ -71,163 +76,262 @@
 }
 
 /* ---------- Grid ---------- */
-#rooms .zimmer-grid{
+#rooms .zimmer-grid {
   display: grid;
   gap: var(--gap);
 }
 
-/* Kártya – egységes megjelenés, váltakozó elrendezés */
-#rooms .room-card{
+/* Kártya – váltakozó elrendezés desktopon */
+#rooms .room-card {
   background: var(--card-bg);
-  border: 2px solid rgba(227,193,118,.6);
+  border: 2px solid rgba(227, 193, 118, 0.6);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
   overflow: hidden;
   display: grid;
-  grid-template-columns: minmax(0,1fr) minmax(0,1fr);
-  grid-template-areas: "media content";
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-areas: 'media content';
   align-items: stretch;
-  min-height: 460px;                    /* egységes minimum kártyamagasság */
-  transition: transform .25s ease, box-shadow .25s ease;
+  min-height: 460px;
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
 }
-#rooms .room-card:nth-child(even){
-  grid-template-areas: "content media"; /* váltakozó elrendezés */
+
+#rooms .room-card:nth-child(even) {
+  grid-template-areas: 'content media';
 }
-#rooms .room-card:hover{
+
+#rooms .room-card:hover {
   transform: translateY(-2px);
   box-shadow: var(--shadow-md);
 }
 
 /* ---------- Media (KÉP vagy VIDEÓ) ---------- */
-#rooms .room-card__image-wrapper{
+#rooms .room-card__image-wrapper {
   grid-area: media;
   position: relative;
   height: 100%;
-  min-height: 460px;                    /* a min-height-et a kártyáéhoz igazítjuk */
-  background: linear-gradient(180deg,#fff7ea,#ffe3bf);
+  min-height: 460px;
+  background: linear-gradient(180deg, #fff7ea, #ffe3bf);
 }
 
-#rooms .room-card__media{
+/* egységes selector: img és video is kapja a kitöltést */
+#rooms .room-card__image,
+#rooms .room-card__media {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;                    /* kitölti a teret (szükség esetén vág) */
+  object-fit: cover;
   display: block;
   border: 0;
 }
 
-/* Videó-specifikus (poszter hiányában se villogjon) */
-#rooms .room-card__image-wrapper video.room-card__media { background: #000; }
+/* Videó-poszter hiány esetén ne villogjon */
+#rooms .room-card__image-wrapper video.room-card__media {
+  background: #000;
+}
 
 /* ---------- Content oszlop ---------- */
-#rooms .room-card__content{
+#rooms .room-card__content {
   grid-area: content;
   padding: clamp(16px, 2.5vw, 28px);
   display: flex;
   flex-direction: column;
   justify-content: center;
   color: var(--ink);
-  min-width: 0;                         /* hosszú szöveg ne tolja szét a rácsot */
+  min-width: 0;
 }
-#rooms .room-card__icon{
+
+#rooms .room-card__icon {
   font-size: 20px;
   margin-bottom: 6px;
   color: var(--ink-2);
 }
-#rooms .room-card__icon i{ color: var(--ink-2); }
 
-#rooms .room-card__title{
+#rooms .room-card__icon i {
+  color: var(--ink-2);
+}
+
+#rooms .room-card__title {
   font-size: clamp(18px, 2.2vw, 24px);
   font-weight: 800;
-  margin: 0 0 10px 0;
+  margin: 0 0 10px;
   color: var(--ink);
-  letter-spacing: -.2px;
+  letter-spacing: -0.2px;
 }
-#rooms .room-card__description{
+
+#rooms .room-card__description {
   color: var(--ink-2);
   line-height: 1.65;
-  margin: 0 0 14px 0;
+  margin: 0 0 14px;
 }
 
-/* Feature pill-ek – világos, kontrasztos */
-#rooms .room-card__features{
-  display:flex; flex-wrap:wrap; gap:10px;
-  margin: 10px 0 16px 0;
+/* Feature pill-ek */
+#rooms .room-card__features {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 10px 0 16px;
 }
-#rooms .feature-tag{
-  display:inline-flex; align-items:center; gap:8px;
-  padding:8px 12px;
+
+#rooms .feature-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
   border-radius: 999px;
   background: #fff;
-  border: 1px solid rgba(227,193,118,.6);
+  border: 1px solid rgba(227, 193, 118, 0.6);
   font-size: 12px;
   color: var(--ink);
-  box-shadow: 0 1px 3px rgba(0,0,0,.05);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
-#rooms .feature-tag i{ color: var(--ok); }
 
-/* Ár blokk – kártya stílus */
-#rooms .room-card__price-box{
+#rooms .feature-tag i {
+  color: var(--ok);
+}
+
+/* ===== Ár blokk – egydobozos alap ===== */
+#rooms .room-card__price-box {
   background: var(--pill-bg);
-  border: 1px solid rgba(227,193,118,.75);
+  border: 1px solid rgba(227, 193, 118, 0.75);
   border-radius: 14px;
   padding: 12px 16px;
   width: min(560px, 100%);
   box-shadow: var(--shadow-sm);
 }
-#rooms .room-card__price-label{
+
+#rooms .room-card__price-label {
   font-size: 12px;
-  letter-spacing:.3px;
+  letter-spacing: 0.3px;
   color: var(--ink-2);
   text-transform: uppercase;
   margin-bottom: 2px;
 }
-#rooms .room-card__price-amount{
+
+#rooms .room-card__price-amount {
   font-weight: 800;
   color: var(--ink);
   font-size: clamp(16px, 1.8vw, 20px);
 }
-#rooms .room-card__price-details{
+
+#rooms .room-card__price-details {
   font-size: 12.5px;
   color: var(--ink-2);
-  opacity: .95;
+  opacity: 0.95;
 }
 
+/* ===== Kétdobozos ármegjelenítés (priceTiers) ===== */
+#rooms .room-price-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 10px;
+}
+
+#rooms .price-tier {
+  background: var(--pill-bg);
+  border: 1px solid rgba(227, 193, 118, 0.75);
+  border-radius: 14px;
+  padding: 12px 16px;
+  box-shadow: var(--shadow-sm);
+}
+
+#rooms .price-tier__label {
+  font-size: 12px;
+  letter-spacing: 0.3px;
+  color: var(--ink-2);
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+
+#rooms .price-tier__amount {
+  font-weight: 800;
+  color: var(--ink);
+  font-size: clamp(16px, 1.8vw, 20px);
+}
+
+#rooms .price-tier__details {
+  font-size: 12.5px;
+  color: var(--ink-2);
+  opacity: 0.95;
+}
+
+/* CTA gomb (ha a projektben nincs globális .btn) */
+#rooms .btn.btn--primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 12px;
+  background: var(--ink);
+  color: #fff;
+  text-decoration: none;
+  padding: 10px 16px;
+  border-radius: 999px;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    background 0.15s ease;
+  box-shadow: var(--shadow-sm);
+}
+
+#rooms .btn.btn--primary:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+  background: #20465a;
+}
 
 /* ---------- Responsive ---------- */
-@media (max-width: 992px){
-  #rooms .room-card{
+@media (max-width: 992px) {
+  #rooms .room-card {
     grid-template-columns: 1fr;
     grid-template-areas:
-      "media"
-      "content";
+      'media'
+      'content';
     min-height: unset;
   }
-  #rooms .room-card__image-wrapper{
+
+  #rooms .room-card__image-wrapper {
     min-height: 260px;
-    aspect-ratio: 16 / 9;               /* mobilon stabil magasság */
+    aspect-ratio: 16 / 9;
   }
 }
 
-@media (max-width: 576px){
-  #rooms .zimmer-container{ padding: 18px 14px; }
-  #rooms .room-card__price-box{ width: 100%; }
+@media (max-width: 768px) {
+  #rooms .room-price-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
-/* ---------- Sötét mód (csak a rooms-ra): maradjon világos ---------- */
-@media (prefers-color-scheme: dark){
+@media (max-width: 576px) {
+  #rooms .zimmer-container {
+    padding: 18px 14px;
+  }
+
+  #rooms .room-card__price-box {
+    width: 100%;
+  }
+}
+
+/* ---------- Sötét mód: maradjon világos ---------- */
+@media (prefers-color-scheme: dark) {
   #rooms .room-card,
   #rooms .room-card__price-box,
-  #rooms .feature-tag{
-    background: #ffffff !important;
+  #rooms .feature-tag,
+  #rooms .price-tier {
+    background: #fff !important;
     color: var(--ink) !important;
   }
+
   #rooms .room-card__description,
-  #rooms .intro__lead{
+  #rooms .intro__lead,
+  #rooms .price-tier__details {
     color: var(--ink-2) !important;
   }
-  #rooms .room-card{
-    border-color: rgba(227,193,118,.6) !important;
+
+  #rooms .room-card {
+    border-color: rgba(227, 193, 118, 0.6) !important;
   }
 }

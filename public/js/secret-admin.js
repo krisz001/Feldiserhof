@@ -49,7 +49,7 @@
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && root.classList.contains('is-open')) close();
   });
-  
+
   root.addEventListener('click', (e) => {
     const t = e.target;
     if (t instanceof Element && t.hasAttribute('data-close')) close();
@@ -57,9 +57,10 @@
 
   // --- TITKOS TRIGGEREK ---
   // 1) Felhasználó begépeli: "FELDIS" (max 10s)
-  let buffer = '', lastTs = 0;
+  let buffer = '',
+    lastTs = 0;
   const SECRET = 'FELDIS';
-  
+
   document.addEventListener('keydown', (e) => {
     const now = Date.now();
     if (now - lastTs > 10000) buffer = '';
@@ -68,9 +69,9 @@
     const ch = e.key.length === 1 ? e.key.toUpperCase() : '';
     if (ch) {
       buffer += ch;
-      if (buffer.endsWith(SECRET)) { 
-        buffer = ''; 
-        open(); 
+      if (buffer.endsWith(SECRET)) {
+        buffer = '';
+        open();
       }
     }
   });
@@ -85,13 +86,13 @@
 
   // 3) Hosszan nyomott 'A' (>= 2000 ms)
   let aDownAt = 0;
-  
+
   document.addEventListener('keydown', (e) => {
     if (e.key.toLowerCase() === 'a' && !aDownAt) {
       aDownAt = Date.now();
     }
   });
-  
+
   document.addEventListener('keyup', (e) => {
     if (e.key.toLowerCase() === 'a') {
       if (aDownAt && Date.now() - aDownAt >= 2000) {
@@ -104,35 +105,35 @@
   // --- Submit kezelése ---
   form?.addEventListener('submit', async (e) => {
     e.preventDefault();
-    
+
     const pwd = (passEl?.value || '').trim();
-    if (!pwd) { 
+    if (!pwd) {
       showMessage('Kérjük, adja meg a jelszót.', 'error');
-      return; 
+      return;
     }
-    
+
     // Betöltő állapot beállítása
     if (submitBtn) {
       submitBtn.classList.add('loading');
     }
-    
+
     try {
       // Valódi fetch hívás a szerver felé
       const response = await fetch('/admin/login', {
         method: 'POST',
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
-          'CSRF-Token': csrfToken
+          'CSRF-Token': csrfToken,
         },
-        body: JSON.stringify({ password: pwd })
+        body: JSON.stringify({ password: pwd }),
       });
-      
+
       const result = await response.json();
-      
+
       if (submitBtn) {
         submitBtn.classList.remove('loading');
       }
-      
+
       if (response.ok && result.ok) {
         // Sikeres bejelentkezés - átirányítás az admin felületre
         showMessage('Sikeres bejelentkezés! Átirányítás...', 'success');
@@ -145,7 +146,6 @@
         passEl.value = '';
         passEl.focus();
       }
-      
     } catch (error) {
       console.error('Bejelentkezési hiba:', error);
       if (submitBtn) {
@@ -159,13 +159,13 @@
   function showMessage(message, type) {
     // Eltávolítjuk a korábbi üzeneteket
     const existingMessages = root.querySelectorAll('.admin-message');
-    existingMessages.forEach(msg => msg.remove());
-    
+    existingMessages.forEach((msg) => msg.remove());
+
     // Új üzenet létrehozása
     const messageEl = document.createElement('div');
     messageEl.className = `admin-message admin-message--${type}`;
     messageEl.textContent = message;
-    
+
     // Stílus beállítása
     messageEl.style.cssText = `
       position: fixed;
@@ -181,9 +181,9 @@
       animation: slideIn 0.3s ease-out;
       ${type === 'success' ? 'background: #10b981;' : 'background: #ef4444;'}
     `;
-    
+
     document.body.appendChild(messageEl);
-    
+
     // Üzenet eltűntetése 3 másodperc után
     setTimeout(() => {
       if (messageEl.parentNode) {
@@ -217,27 +217,26 @@
   // --- Fókuszcsapda, amíg nyitva van ---
   stage?.addEventListener('keydown', (e) => {
     if (e.key !== 'Tab' || !root.classList.contains('is-open')) return;
-    
+
     const focusables = stage.querySelectorAll(
-      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
     );
-    
-    const list = Array.from(focusables).filter(el => 
-      !el.hasAttribute('disabled') && 
-      el.getAttribute('aria-hidden') !== 'true'
+
+    const list = Array.from(focusables).filter(
+      (el) => !el.hasAttribute('disabled') && el.getAttribute('aria-hidden') !== 'true',
     );
-    
+
     if (!list.length) return;
-    
+
     const first = list[0];
     const last = list[list.length - 1];
-    
-    if (e.shiftKey && document.activeElement === first) { 
-      last.focus(); 
-      e.preventDefault(); 
-    } else if (!e.shiftKey && document.activeElement === last) { 
-      first.focus(); 
-      e.preventDefault(); 
+
+    if (e.shiftKey && document.activeElement === first) {
+      last.focus();
+      e.preventDefault();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      first.focus();
+      e.preventDefault();
     }
   });
 })();

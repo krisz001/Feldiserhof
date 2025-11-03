@@ -7,7 +7,22 @@
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
-    "hash": "node -e \"console.log(require('bcryptjs').hashSync(process.argv[1]||'ChangeMe123!', 12))\""
+    "hash": "node -e \"console.log(require('bcryptjs').hashSync(process.argv[1]||'ChangeMe123!', 12))\"",
+    "check": "npm-run-all --continue-on-error lint:* ejs:lint html:validate css:lint format",
+    "fix": "npm-run-all lint:fix ejs:lint html:validate css:fix format:write",
+    "lint:js": "eslint . --ext .js,.mjs",
+    "lint:fix": "eslint . --ext .js,.mjs --fix",
+    "ejs:lint": "ejslint 'views/**/*.ejs'",
+    "html:validate": "html-validate 'views/**/*.ejs' 'public/**/*.html' --rules 'no-unknown-elements: error' 'no-dup-id: error' 'valid-id: warn'",
+    "css:lint": "stylelint 'public/**/*.css'",
+    "css:fix": "stylelint 'public/**/*.css' --fix",
+    "format": "prettier --check .",
+    "format:write": "prettier --write .",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:headed": "playwright test --headed",
+    "test:e2e:debug": "PWDEBUG=1 playwright test",
+    "prepare": "playwright install"
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",
@@ -24,7 +39,17 @@
     "i18next-http-middleware": "^3.8.1"
   },
   "devDependencies": {
-    "nodemon": "^3.1.0"
+    "@playwright/test": "^1.56.1",
+    "ejs-lint": "^1.2.2",
+    "eslint": "^9.39.0",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-n": "^17.23.1",
+    "html-validate": "^8.29.0",
+    "nodemon": "^3.1.0",
+    "npm-run-all": "^4.1.5",
+    "prettier": "^3.6.2",
+    "stylelint": "^16.25.0",
+    "stylelint-config-standard": "^36.0.1"
   },
   "repository": {
     "type": "git",
@@ -33,5 +58,8 @@
   "bugs": {
     "url": "https://github.com/krisz001/Feldiserhof/issues"
   },
-  "homepage": "https://github.com/krisz001/Feldiserhof#readme"
+  "homepage": "https://github.com/krisz001/Feldiserhof#readme",
+  "engines": {
+    "node": ">=18.0.0"
+  }
 }

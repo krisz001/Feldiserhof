@@ -131,7 +131,7 @@
             <div class="col-md-6">
               <div class="mb-3">
                 <label for="itemPrice" class="form-label"><%= t('admin.price') %> (Fr) *</label>
-                <input type="number" class="form-control" id="itemPrice" min="0" required>
+                <input type="number" class="form-control" id="itemPrice" min="0" step="0.01" required>
               </div>
             </div>
           </div>
@@ -203,6 +203,26 @@
 let menuData = { title: "", categories: [] };
 let csrfToken = '';
 
+// Fordítási stringek (szerver oldalról átadva)
+const translations = {
+  errorLoadingMenu: '<%= t("admin.errorLoadingMenu") %>',
+  noCategories: '<%= t("admin.noCategories") %>',
+  noCategoriesHint: '<%= t("admin.noCategoriesHint") %>',
+  noItemsInCategory: '<%= t("admin.noItemsInCategory") %>',
+  editCategory: '<%= t("admin.editCategory") %>',
+  newCategory: '<%= t("admin.newCategory") %>',
+  editItem: '<%= t("admin.editItem") %>',
+  newItem: '<%= t("admin.newItem") %>',
+  selectCategory: '<%= t("admin.selectCategory") %>',
+  categoryRequired: '<%= t("admin.categoryRequired") %>',
+  namePriceCategoryRequired: '<%= t("admin.namePriceCategoryRequired") %>',
+  confirmDeleteCategory: '<%= t("admin.confirmDeleteCategory") %>',
+  confirmDeleteItem: '<%= t("admin.confirmDeleteItem") %>',
+  menuSaved: '<%= t("admin.menuSaved") %>',
+  errorSaving: '<%= t("admin.errorSaving") %>',
+  errorSavingMenu: '<%= t("admin.errorSavingMenu") %>'
+};
+
 // CSRF token lekérése
 async function getCsrfToken() {
   if (!csrfToken) {
@@ -229,8 +249,20 @@ async function loadMenu() {
   } catch (error) {
     console.error('Hiba a menü betöltésekor:', error);
     document.getElementById('loadingMessage').innerHTML = 
-      '<div class="alert alert-danger"><%= t('admin.errorLoadingMenu') %></div>';
+      `<div class="alert alert-danger">${translations.errorLoadingMenu}</div>`;
   }
+}
+
+// HTML escape funkció XSS védelem miatt
+function escapeHtml(text) {
+  const map = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#039;'
+  };
+  return String(text).replace(/[&<>"']/g, m => map[m]);
 }
 
 // Menü renderelése
@@ -241,8 +273,8 @@ function renderMenu() {
     container.innerHTML = `
       <div class="text-center py-5">
         <i class="fas fa-utensils fa-3x text-muted mb-3"></i>
-        <h5 class="text-muted"><%= t('admin.noCategories') %></h5>
-        <p class="text-muted"><%= t('admin.noCategoriesHint') %></p>
+        <h5 class="text-muted">${translations.noCategories}</h5>
+        <p class="text-muted">${translations.noCategoriesHint}</p>
       </div>
     `;
     return;
@@ -254,7 +286,7 @@ function renderMenu() {
     html += `
       <div class="menu-category">
         <div class="menu-category-header d-flex justify-content-between align-items-center">
-          <h5 class="mb-0">${category.name}</h5>
+          <h5 class="mb-0">${escapeHtml(category.name)}</h5>
           <div>
             <button class="btn btn-sm btn-outline-primary me-1" onclick="editCategory(${catIndex})">
               <i class="fas fa-edit"></i>
@@ -269,19 +301,23 @@ function renderMenu() {
 
     if (category.items && category.items.length > 0) {
       category.items.forEach((item, itemIndex) => {
+        const tags = item.tags ? item.tags.map(tag => 
+          `<span class="badge tag-badge me-1">${escapeHtml(tag)}</span>`
+        ).join('') : '';
+        
+        const allergens = item.allergens ? item.allergens.map(allergen => 
+          `<span class="badge allergen-badge me-1">${escapeHtml(allergen)}</span>`
+        ).join('') : '';
+        
         html += `
           <div class="menu-item">
             <div class="d-flex justify-content-between align-items-start">
               <div class="flex-grow-1">
-                <h6 class="mb-1">${item.name}</h6>
-                <p class="text-muted mb-1 small">${item.desc || ''}</p>
+                <h6 class="mb-1">${escapeHtml(item.name)}</h6>
+                <p class="text-muted mb-1 small">${escapeHtml(item.desc || '')}</p>
                 <div class="mb-1">
-                  ${item.tags ? item.tags.map(tag => 
-                    `<span class="badge tag-badge me-1">${tag}</span>`
-                  ).join('') : ''}
-                  ${item.allergens ? item.allergens.map(allergen => 
-                    `<span class="badge allergen-badge me-1">${allergen}</span>`
-                  ).join('') : ''}
+                  ${tags}
+                  ${allergens}
                 </div>
               </div>
               <div class="text-end ms-3">
@@ -302,7 +338,7 @@ function renderMenu() {
     } else {
       html += `
         <div class="text-center py-4 text-muted">
-          <i class="fas fa-utensils me-2"></i><%= t('admin.noItemsInCategory') %>
+          <i class="fas fa-utensils me-2"></i>${translations.noItemsInCategory}
         </div>
       `;
     }
@@ -319,13 +355,11 @@ function openCategoryModal(catIndex = null) {
   const form = document.getElementById('categoryForm');
   
   if (catIndex !== null) {
-    // Szerkesztés
-    document.getElementById('categoryModalTitle').textContent = '<%= t('admin.editCategory') %>';
+    document.getElementById('categoryModalTitle').textContent = translations.editCategory;
     document.getElementById('categoryIndex').value = catIndex;
     document.getElementById('categoryName').value = menuData.categories[catIndex].name;
   } else {
-    // Új
-    document.getElementById('categoryModalTitle').textContent = '<%= t('admin.newCategory') %>';
+    document.getElementById('categoryModalTitle').textContent = translations.newCategory;
     document.getElementById('categoryIndex').value = '';
     form.reset();
   }
@@ -340,14 +374,13 @@ function openItemModal(catIndex = null, itemIndex = null) {
   const categorySelect = document.getElementById('itemCategory');
   
   // Kategóriák betöltése a select-be
-  categorySelect.innerHTML = '<option value=""><%= t('admin.selectCategory') %></option>';
+  categorySelect.innerHTML = `<option value="">${translations.selectCategory}</option>`;
   menuData.categories.forEach((category, index) => {
-    categorySelect.innerHTML += `<option value="${index}">${category.name}</option>`;
+    categorySelect.innerHTML += `<option value="${index}">${escapeHtml(category.name)}</option>`;
   });
   
   if (catIndex !== null && itemIndex !== null) {
-    // Szerkesztés
-    document.getElementById('itemModalTitle').textContent = '<%= t('admin.editItem') %>';
+    document.getElementById('itemModalTitle').textContent = translations.editItem;
     document.getElementById('itemCategoryIndex').value = catIndex;
     document.getElementById('itemIndex').value = itemIndex;
     
@@ -359,8 +392,7 @@ function openItemModal(catIndex = null, itemIndex = null) {
     document.getElementById('itemAllergens').value = item.allergens ? item.allergens.join(', ') : '';
     document.getElementById('itemCategory').value = catIndex;
   } else {
-    // Új
-    document.getElementById('itemModalTitle').textContent = '<%= t('admin.newItem') %>';
+    document.getElementById('itemModalTitle').textContent = translations.newItem;
     document.getElementById('itemCategoryIndex').value = '';
     document.getElementById('itemIndex').value = '';
     form.reset();
@@ -379,19 +411,17 @@ function saveCategory() {
   const name = document.getElementById('categoryName').value.trim();
   
   if (!name) {
-    alert('<%= t('admin.categoryRequired') %>');
+    alert(translations.categoryRequired);
     return;
   }
   
   if (catIndex === '') {
-    // Új kategória
     if (!menuData.categories) menuData.categories = [];
     menuData.categories.push({
       name: name,
       items: []
     });
   } else {
-    // Szerkesztés
     menuData.categories[catIndex].name = name;
   }
   
@@ -401,7 +431,8 @@ function saveCategory() {
 
 // Tétel mentése
 function saveItem() {
-  const catIndex = parseInt(document.getElementById('itemCategoryIndex').value);
+  const catIndex = document.getElementById('itemCategoryIndex').value !== '' ? 
+    parseInt(document.getElementById('itemCategoryIndex').value) : null;
   const itemIndex = document.getElementById('itemIndex').value;
   const targetCatIndex = parseInt(document.getElementById('itemCategory').value);
   
@@ -411,8 +442,8 @@ function saveItem() {
   const tags = document.getElementById('itemTags').value.split(',').map(t => t.trim()).filter(t => t);
   const allergens = document.getElementById('itemAllergens').value.split(',').map(a => a.trim()).filter(a => a);
   
-  if (!name || !price || isNaN(price) || targetCatIndex === '') {
-    alert('<%= t('admin.namePriceCategoryRequired') %>');
+  if (!name || !price || isNaN(price) || isNaN(targetCatIndex)) {
+    alert(translations.namePriceCategoryRequired);
     return;
   }
   
@@ -425,18 +456,14 @@ function saveItem() {
   };
   
   if (itemIndex === '') {
-    // Új tétel
     if (!menuData.categories[targetCatIndex].items) {
       menuData.categories[targetCatIndex].items = [];
     }
     menuData.categories[targetCatIndex].items.push(itemData);
   } else {
-    // Szerkesztés - kategória változás ellenőrzése
     if (catIndex === targetCatIndex) {
-      // Ugyanabban a kategóriában marad
       menuData.categories[catIndex].items[itemIndex] = itemData;
     } else {
-      // Áthelyezés másik kategóriába
       menuData.categories[catIndex].items.splice(itemIndex, 1);
       if (!menuData.categories[targetCatIndex].items) {
         menuData.categories[targetCatIndex].items = [];
@@ -451,14 +478,14 @@ function saveItem() {
 
 // Törlés funkciók
 function deleteCategory(index) {
-  if (confirm('<%= t('admin.confirmDeleteCategory') %>')) {
+  if (confirm(translations.confirmDeleteCategory)) {
     menuData.categories.splice(index, 1);
     renderMenu();
   }
 }
 
 function deleteItem(catIndex, itemIndex) {
-  if (confirm('<%= t('admin.confirmDeleteItem') %>')) {
+  if (confirm(translations.confirmDeleteItem)) {
     menuData.categories[catIndex].items.splice(itemIndex, 1);
     renderMenu();
   }
@@ -490,13 +517,13 @@ async function saveMenu() {
     const result = await response.json();
     
     if (result.ok) {
-      alert('<%= t('admin.menuSaved') %>');
+      alert(translations.menuSaved);
     } else {
-      alert('<%= t('admin.errorSaving') %>' + (result.msg || 'Unbekannter Fehler'));
+      alert(translations.errorSaving + (result.msg || 'Unbekannter Fehler'));
     }
   } catch (error) {
     console.error('Hiba a menü mentésekor:', error);
-    alert('<%= t('admin.errorSavingMenu') %>');
+    alert(translations.errorSavingMenu);
   }
 }
 
