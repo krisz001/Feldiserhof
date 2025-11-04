@@ -235,7 +235,7 @@ const loadHeroBox = () => {
 };
 
 // ============================================================
-// „i18n locals” helyett egyszerű flags + debug log
+// „i18n locals" helyett egyszerű flags + debug log
 // ============================================================
 app.use((req, res, next) => {
   // Ha bárhol EJS-ben maradt volna <%= t('kulcs') %>, ne dőljön el az oldal:
@@ -431,13 +431,14 @@ app.post('/admin/logout', requireAdmin, (req, res) => {
   req.session.destroy(() => res.json({ ok: true }));
 });
 
-app.get('/admin', requireAdmin, (req, res) => {
+// ✅ JAVÍTVA: CSRF middleware hozzáadva
+app.get('/admin', requireAdmin, csrfProtection, (req, res) => {
   const heroBoxData = loadHeroBox();
   res.render('admin/dashboard', {
     title: 'Admin-Dashboard – Feldiserhof',
     description: 'Administrationsbereich der Feldiserhof-Website',
     heroBox: heroBoxData,
-    csrfToken: req.csrfToken ? req.csrfToken() : '',
+    csrfToken: req.csrfToken(),
   });
 });
 
@@ -534,8 +535,10 @@ const csrfErrorHandler = (err, req, res, next) => {
 };
 app.use(csrfErrorHandler);
 
-app.use((err, _req, res, _next) => {
+app.use((err, req, res, _next) => {
   console.error('💥 Váratlan hiba:', err);
+  console.error('📍 URL:', req.url);
+  console.error('📄 Stack:', err.stack);
   res.status(500).send('Internal Server Error');
 });
 
@@ -554,6 +557,6 @@ app.listen(PORT, () => {
   console.log(`📝 Menü szerkesztő: /admin/menu`);
   console.log(`🎯 Hero Box: aktív`);
   console.log('📁 Feature flags fájl:', SETTINGS_PATH);
-  console.log('⚙️  menuBookEnabled:', SETTINGS.menuBookEnabled);
-  console.log('🛏  Rooms: data/rooms.json betöltve.');
+  console.log('⚙️ menuBookEnabled:', SETTINGS.menuBookEnabled);
+  console.log('🛏 Rooms: data/rooms.json betöltve.');
 });
