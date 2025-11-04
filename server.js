@@ -319,7 +319,7 @@ app.use((req, res, next) => {
 // ============================================================
 app.post('/change-language', (req, res) => {
   const { lang } = req.body || {};
-  if (['hu', 'de'].includes(lang)) {
+  if (['de'].includes(lang)) {         // ⬅ csak de engedélyezett
     setLangCookie(res, lang);
     return res.json({ success: true });
   }
@@ -329,13 +329,12 @@ app.post('/change-language', (req, res) => {
 app.get('/set-language/:lang', (req, res) => {
   const { lang } = req.params;
   const { admin } = req.query;
-  if (!['hu', 'de'].includes(lang)) return res.status(400).send('Érvénytelen nyelv');
+  if (!['de'].includes(lang)) return res.status(400).send('Érvénytelen nyelv'); // ⬅ csak de
 
   const wasAdmin = !!req.session.isAdmin;
   setLangCookie(res, lang);
   if (wasAdmin || admin === 'true') req.session.isAdmin = true;
 
-  // Session mentés timeout-tal
   const saveTimeout = setTimeout(() => {
     console.warn('⚠️ Session mentés timeout');
     const referer = req.get('Referer') || (wasAdmin ? '/admin' : '/');
@@ -349,6 +348,7 @@ app.get('/set-language/:lang', (req, res) => {
     res.redirect(referer);
   });
 });
+
 
 // ============================================================
 // Oldalak
