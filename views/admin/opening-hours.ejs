@@ -60,7 +60,6 @@
       color: var(--danger);
       border: 2px solid var(--danger);
     }
-    /* Custom toggle switch */
     .toggle-switch {
       position: relative;
       width: 60px;
@@ -87,23 +86,28 @@
     .toggle-switch.active::after {
       transform: translateX(28px);
     }
-    .hours-input {
-      display: flex;
-      gap: 0.5rem;
-      align-items: center;
-    }
-    .hours-input input {
-      width: 80px;
-    }
     .day-row {
       padding: 1rem;
       border-bottom: 1px solid #f0f0f0;
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      gap: 1rem;
     }
     .day-row:last-child {
       border-bottom: none;
+    }
+    .day-name {
+      width: 120px;
+      font-weight: 600;
+    }
+    .time-inputs {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      flex: 1;
+    }
+    .time-inputs input {
+      width: 100px;
     }
     .btn-save {
       background: var(--primary);
@@ -117,6 +121,13 @@
     .btn-save:hover {
       transform: translateY(-2px);
       background: #a67428;
+    }
+    .exception-item {
+      background: #fff3cd;
+      border: 1px solid #ffc107;
+      border-radius: 8px;
+      padding: 0.75rem;
+      margin-bottom: 0.5rem;
     }
   </style>
 </head>
@@ -137,7 +148,7 @@
     <div class="status-toggle mb-4">
       <div class="flex-grow-1">
         <h5 class="mb-1">Restaurant Status</h5>
-        <p class="text-muted mb-0 small">Zeigt "Geschlossen" auf der Website, wenn deaktiviert</p>
+        <p class="text-muted mb-0 small">Manuell geschlossen setzen (überschreibt reguläre Öffnungszeiten)</p>
       </div>
       <div class="d-flex align-items-center gap-3">
         <span id="statusBadge" class="status-badge open">Geöffnet</span>
@@ -145,17 +156,28 @@
       </div>
     </div>
 
-    <!-- OPENING HOURS EDITOR -->
-    <div class="card">
+    <!-- EXCEPTIONS (GESCHLOSSEN ZEITRÄUME) -->
+    <div class="card mb-4">
       <div class="card-header">
-        <i class="fas fa-calendar-alt me-2"></i> Öffnungszeiten bearbeiten
+        <i class="fas fa-calendar-times me-2"></i> Geschlossen Zeiträume (Ferien, Feiertage)
       </div>
-      <div class="card-body p-0" id="hoursEditor">
-        <!-- JavaScript generates this -->
+      <div class="card-body">
+        <div id="exceptionsContainer"></div>
+        <button id="addExceptionBtn" class="btn btn-sm btn-outline-primary mt-2">
+          <i class="fas fa-plus me-1"></i> Zeitraum hinzufügen
+        </button>
       </div>
     </div>
 
-    <div class="text-end">
+    <!-- OPENING HOURS EDITOR -->
+    <div class="card">
+      <div class="card-header">
+        <i class="fas fa-calendar-alt me-2"></i> Reguläre Öffnungszeiten
+      </div>
+      <div class="card-body p-0" id="hoursEditor"></div>
+    </div>
+
+    <div class="text-end mt-3">
       <button id="saveBtn" class="btn-save">
         <i class="fas fa-save me-2"></i> Änderungen speichern
       </button>
@@ -167,55 +189,142 @@
     const csrfToken = '<%= csrfToken %>';
     let currentData = {};
 
-    // Load current data
+    // Napok nevei (0 = Sonntag, 1 = Montag, ...)
+    const dayNames = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
+
+    // Adatok betöltése
     async function loadData() {
       try {
         const res = await fetch('/api/opening-hours');
         currentData = await res.json();
+        
+        // Ha nincs week, létrehozzuk
+        if (!currentData.week) {
+          currentData.week = {
+            "0": [["09:00", "21:00"]],
+            "1": [],
+            "2": [],
+            "3": [["09:00", "21:00"]],
+            "4": [["09:00", "21:00"]],
+            "5": [["09:00", "23:00"]],
+            "6": [["09:00", "21:00"]]
+          };
+        }
+        
         renderHours();
+        renderExceptions();
         updateStatusUI();
       } catch (e) {
         console.error('Load error:', e);
+        alert('Fehler beim Laden der Daten');
       }
     }
 
-    // Render hours
+    // Órák megjelenítése (week objektum alapján)
     function renderHours() {
       const container = document.getElementById('hoursEditor');
-      const days = currentData.days || [];
+      const week = currentData.week || {};
       
-      container.innerHTML = days.map((day, idx) => `
-        <div class="day-row">
-          <div style="width: 120px; font-weight: 600;">${day.day}</div>
-          <div class="hours-input">
-            <input type="time" class="form-control" data-idx="${idx}" data-field="open" value="${day.open || ''}" ${day.closed ? 'disabled' : ''}>
-            <span>–</span>
-            <input type="time" class="form-control" data-idx="${idx}" data-field="close" value="${day.close || ''}" ${day.closed ? 'disabled' : ''}>
+      container.innerHTML = dayNames.map((dayName, idx) => {
+        const dayKey = String(idx);
+        const times = week[dayKey] || [];
+        const firstSlot = times[0] || ['', ''];
+        const isClosed = times.length === 0;
+
+        return `
+          <div class="day-row">
+            <div class="day-name">${dayName}</div>
+            <div class="time-inputs">
+              <input type="time" class="form-control" data-day="${idx}" data-field="start" 
+                     value="${firstSlot[0] || ''}" ${isClosed ? 'disabled' : ''}>
+              <span>–</span>
+              <input type="time" class="form-control" data-day="${idx}" data-field="end" 
+                     value="${firstSlot[1] || ''}" ${isClosed ? 'disabled' : ''}>
+            </div>
+            <div class="form-check">
+              <input type="checkbox" class="form-check-input" id="closed${idx}" data-day="${idx}" ${isClosed ? 'checked' : ''}>
+              <label class="form-check-label" for="closed${idx}">Geschlossen</label>
+            </div>
           </div>
-          <div class="form-check">
-            <input type="checkbox" class="form-check-input" id="closed${idx}" data-idx="${idx}" ${day.closed ? 'checked' : ''}>
-            <label class="form-check-label" for="closed${idx}">Geschlossen</label>
+        `;
+      }).join('');
+
+      // Event listeners - időpontok változása
+      container.querySelectorAll('input[type="time"]').forEach(input => {
+        input.addEventListener('change', (e) => {
+          const day = String(e.target.dataset.day);
+          const field = e.target.dataset.field;
+          
+          if (!currentData.week[day]) currentData.week[day] = [['', '']];
+          if (!currentData.week[day][0]) currentData.week[day][0] = ['', ''];
+          
+          currentData.week[day][0][field === 'start' ? 0 : 1] = e.target.value;
+        });
+      });
+
+      // Event listeners - zárva checkbox
+      container.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+        cb.addEventListener('change', (e) => {
+          const day = String(e.target.dataset.day);
+          currentData.week[day] = e.target.checked ? [] : [['09:00', '21:00']];
+          renderHours();
+        });
+      });
+    }
+
+    // Exceptions (geschlossen Zeiträume) megjelenítése
+    function renderExceptions() {
+      const container = document.getElementById('exceptionsContainer');
+      const exceptions = currentData.exceptions || [];
+
+      if (exceptions.length === 0) {
+        container.innerHTML = '<p class="text-muted small mb-0">Keine geschlossenen Zeiträume definiert</p>';
+        return;
+      }
+
+      container.innerHTML = exceptions.map((exc, idx) => `
+        <div class="exception-item">
+          <div class="d-flex gap-2 align-items-center">
+            <input type="date" class="form-control form-control-sm" value="${exc.start}" data-exc="${idx}" data-field="start">
+            <span>bis</span>
+            <input type="date" class="form-control form-control-sm" value="${exc.end}" data-exc="${idx}" data-field="end">
+            <button class="btn btn-sm btn-danger" data-exc="${idx}">
+              <i class="fas fa-trash"></i>
+            </button>
           </div>
         </div>
       `).join('');
 
-      // Event listeners
-      container.querySelectorAll('input[type="time"]').forEach(input => {
+      // Event listeners - dátum változás
+      container.querySelectorAll('input[type="date"]').forEach(input => {
         input.addEventListener('change', (e) => {
-          const idx = parseInt(e.target.dataset.idx);
+          const idx = parseInt(e.target.dataset.exc);
           const field = e.target.dataset.field;
-          currentData.days[idx][field] = e.target.value;
+          currentData.exceptions[idx][field] = e.target.value;
         });
       });
 
-      container.querySelectorAll('input[type="checkbox"]').forEach(cb => {
-        cb.addEventListener('change', (e) => {
-          const idx = parseInt(e.target.dataset.idx);
-          currentData.days[idx].closed = e.target.checked;
-          renderHours(); // Re-render to disable/enable inputs
+      // Event listeners - törlés
+      container.querySelectorAll('button[data-exc]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const idx = parseInt(e.target.closest('button').dataset.exc);
+          currentData.exceptions.splice(idx, 1);
+          renderExceptions();
         });
       });
     }
+
+    // Exception hozzáadása
+    document.getElementById('addExceptionBtn').addEventListener('click', () => {
+      if (!currentData.exceptions) currentData.exceptions = [];
+      const today = new Date().toISOString().split('T')[0];
+      currentData.exceptions.push({
+        type: 'closed',
+        start: today,
+        end: today
+      });
+      renderExceptions();
+    });
 
     // Status toggle
     const statusToggle = document.getElementById('statusToggle');
@@ -233,7 +342,7 @@
       statusBadge.className = `status-badge ${isOpen ? 'open' : 'closed'}`;
     }
 
-    // Save
+    // Mentés
     document.getElementById('saveBtn').addEventListener('click', async () => {
       try {
         const res = await fetch('/admin/api/opening-hours', {
@@ -247,6 +356,7 @@
         const data = await res.json();
         if (data.ok) {
           alert('✅ Erfolgreich gespeichert!');
+          location.reload();
         } else {
           alert('❌ Fehler: ' + data.msg);
         }

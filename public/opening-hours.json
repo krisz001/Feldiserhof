@@ -1,4 +1,5 @@
 {
+  "forceCloseForTesting": false,
   "timezone": "Europe/Zurich",
   "locale": "de-CH",
   "week": {

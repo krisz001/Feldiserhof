@@ -99,36 +99,35 @@
         
         const data = await res.json();
 
-        // ===== STÁTUSZ MEGJELENÍTÉSE =====
+        // ===== STÁTUSZ =====
         if (data.forceCloseForTesting) {
-          // ZÁRVA (admin által beállítva)
           badgeClosed.classList.remove('d-none');
           badgeOpen.classList.add('d-none');
           statusText.textContent = 'Bis auf weiteres geschlossen';
         } else {
-          // NYITVA
           badgeOpen.classList.remove('d-none');
           badgeClosed.classList.add('d-none');
           statusText.textContent = '';
         }
 
-        // ===== ÓRÁK MEGJELENÍTÉSE =====
-        if (data.days && Array.isArray(data.days)) {
-          hoursList.innerHTML = data.days.map(day => {
-            const timeStr = day.closed 
-              ? '<span class="text-muted">geschlossen</span>' 
-              : `${day.open || '–'} – ${day.close || '–'}`;
-            
-            return `
-              <li class="d-flex justify-content-between py-1 border-bottom">
-                <span class="fw-semibold">${day.day}</span>
-                <span>${timeStr}</span>
-              </li>
-            `;
-          }).join('');
-        } else {
-          hoursList.innerHTML = '<li class="text-muted">Keine Öffnungszeiten verfügbar</li>';
-        }
+        // ===== ÓRÁK (week formátumból days array-ba) =====
+        const days = data.labels?.days || ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
+        const week = data.week || {};
+        
+        hoursList.innerHTML = days.map((dayName, idx) => {
+          const times = week[idx] || [];
+          const isClosed = times.length === 0;
+          const timeStr = isClosed 
+            ? '<span class="text-muted">geschlossen</span>' 
+            : `${times[0][0]} – ${times[0][1]}`;
+          
+          return `
+            <li class="d-flex justify-content-between py-1 border-bottom">
+              <span class="fw-semibold">${dayName}</span>
+              <span>${timeStr}</span>
+            </li>
+          `;
+        }).join('');
 
       } catch (err) {
         console.error('Opening hours load error:', err);
