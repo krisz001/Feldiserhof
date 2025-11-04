@@ -32,31 +32,40 @@
 
   // ========== MENÜ BEZÁRÁSA MOBILON ==========
   if (navbarCollapse) {
-    // 1. Bezárás, ha menüpontra kattintasz
+    // 1. Bezárás menüpontra kattintva
     navLinks.forEach(link => {
       link.addEventListener('click', () => {
         if (navbarCollapse.classList.contains('show')) {
           // Bootstrap Collapse API használata
-          const bsCollapse = 
-            bootstrap.Collapse.getInstance(navbarCollapse) ||
-            new bootstrap.Collapse(navbarCollapse, { toggle: false });
-          bsCollapse.hide();
+          const bsCollapse = bootstrap.Collapse.getInstance(navbarCollapse);
+          if (bsCollapse) {
+            bsCollapse.hide();
+          } else {
+            // Ha nincs instance, manuálisan
+            navbarCollapse.classList.remove('show');
+          }
         }
       });
     });
 
-    // 2. Bezárás, ha a menün kívülre kattintasz (opcionális)
+    // 2. Bezárás, ha a menün kívülre kattintasz (de NEM a hamburger ikonra!)
     document.addEventListener('click', (e) => {
-      const isClickInsideNav =
-        navbarCollapse.contains(e.target) ||
-        (navbarToggler && navbarToggler.contains(e.target));
+      // Ellenőrizzük, hogy NEM a hamburger gombra vagy a menüre kattintott
+      const isClickOnToggler = navbarToggler && navbarToggler.contains(e.target);
+      const isClickInMenu = navbarCollapse.contains(e.target);
 
-      if (!isClickInsideNav && navbarCollapse.classList.contains('show')) {
-        const bsCollapse =
-          bootstrap.Collapse.getInstance(navbarCollapse) ||
-          new bootstrap.Collapse(navbarCollapse, { toggle: false });
-        bsCollapse.hide();
+      // Csak akkor zárjuk be, ha a menün kívülre kattintott ÉS nem a toggler gombra
+      if (!isClickOnToggler && !isClickInMenu && navbarCollapse.classList.contains('show')) {
+        const bsCollapse = bootstrap.Collapse.getInstance(navbarCollapse);
+        if (bsCollapse) {
+          bsCollapse.hide();
+        } else {
+          navbarCollapse.classList.remove('show');
+        }
       }
     });
   }
+
+  // FONTOS: NE avatkozzunk a hamburger gomb működésébe!
+  // A Bootstrap automatikusan kezeli a toggle-t.
 })();
