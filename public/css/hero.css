@@ -1,10 +1,43 @@
 :root {
   --nav-height: 64px;
 }
+/* FIX: Force disable webkit-app-region */
+* {
+  -webkit-app-region: no-drag !important;
+}
+
+html,
+body,
+header,
+main,
+section,
+div,
+img {
+  -webkit-app-region: no-drag !important;
+}
+/* FORCE FIX - Highest priority */
+* {
+  -webkit-app-region: no-drag !important;
+}
+
+html {
+  -webkit-app-region: no-drag !important;
+}
+
+body {
+  -webkit-app-region: no-drag !important;
+}
+
+.hero-header,
+.hero-slides,
+.hero-slide {
+  -webkit-app-region: no-drag !important;
+}
+
 
 .hero-header {
   position: relative;
-  min-height: calc(50vh - var(--nav-height));
+  min-height: max(600px, calc(80vh - var(--nav-height))); /* Minimum 600px VAGY 80vh - nav */
   background: radial-gradient(140% 120% at 50% -40%, #fff, #fbeac2 45%, #f5dfb0) !important;
   background-size: cover;
   background-position: center 38%;
@@ -15,6 +48,7 @@
   --kenburns-duration: 20000ms;
   --parallax-intensity: 0.05;
 }
+
 
 .hero-header::before {
   z-index: -3;
@@ -45,6 +79,10 @@
 .hero-header .hero-slide {
   position: absolute;
   inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
   background-size: cover;
   background-position: center center;
   background-repeat: no-repeat;
@@ -55,7 +93,9 @@
     opacity var(--slide-transition),
     transform var(--kenburns-duration) ease,
     filter var(--kenburns-duration) ease;
-  will-change: opacity, transform, filter;
+  will-change: opacity, transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 .hero-header .hero-slide.is-active {
@@ -104,6 +144,8 @@
   overflow: hidden;
   cursor: pointer;
   transition: background 0.3s ease;
+  border: none;
+  padding: 0;
 }
 
 .hero-progress-item:hover {
@@ -132,7 +174,6 @@
   0% {
     width: 100%;
   }
-
   100% {
     width: 0%;
   }
@@ -165,7 +206,9 @@
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
   backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  font-size: 1.5rem;
 }
 
 .hero-nav-button:hover {
@@ -178,3 +221,159 @@
 .hero-nav-button:active {
   transform: scale(0.95);
 }
+
+.hero-nav-button:focus-visible {
+  outline: 3px solid rgba(255, 255, 255, 0.6);
+  outline-offset: 3px;
+}
+
+/* Hero layout improvements - CLS prevention */
+.hero {
+  position: relative;
+  overflow: hidden;
+  min-height: 400px;
+}
+
+.hero-slides {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+/* Fix arány large képernyőkön CLS csökkentésére */
+@media (min-width: 768px) {
+  .hero {
+    aspect-ratio: 16 / 9;
+    max-height: 50vh;
+  }
+}
+
+/* Mobilon magasabb arány */
+@media (max-width: 767.98px) {
+  .hero {
+    aspect-ratio: 4 / 3;
+    min-height: 300px;
+  }
+  
+  .hero-nav {
+    padding: 0 1rem;
+  }
+  
+  .hero-nav-button {
+    width: 40px;
+    height: 40px;
+    font-size: 1.2rem;
+  }
+  
+  .hero-progress {
+    bottom: 1rem;
+    gap: 0.4rem;
+  }
+  
+  .hero-progress-item {
+    width: 30px;
+    height: 3px;
+  }
+}
+
+/* Kis képernyők */
+@media (max-width: 576px) {
+  .hero-nav-button {
+    width: 36px;
+    height: 36px;
+    font-size: 1rem;
+  }
+  
+  .hero-progress-item {
+    width: 24px;
+  }
+}
+
+/* Safari prefix a backface-visibility-hez */
+.hero-slide {
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+/* Prefers reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .hero-slide {
+    transition: none !important;
+    animation: none !important;
+    will-change: auto !important;
+  }
+  
+  .hero-progress .progress-fill {
+    transition: none !important;
+  }
+  
+  .hero-nav-button {
+    transition: none !important;
+  }
+  
+  .hero-progress-item {
+    transition: none !important;
+  }
+  
+  .hero-progress-item.active .progress-fill {
+    animation: none !important;
+  }
+}
+
+/* Screen reader only class */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Touch eszközök: nagyobb kattintható területek */
+@media (hover: none) and (pointer: coarse) {
+  .hero-nav-button {
+    width: 48px;
+    height: 48px;
+  }
+  
+  .hero-progress-item {
+    height: 5px;
+  }
+}
+
+/* Section separator */
+.section-separator {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto 48px;
+  height: 2px;
+  background: linear-gradient(90deg, #e3c176 0%, #ffe07a 100%);
+  opacity: 0.39;
+  border-radius: 2px;
+}
+
+@media (max-width: 600px) {
+  .section-separator {
+    height: 1px;
+    margin-bottom: 32px;
+  }
+}
+
+/* Print styles - Nyomtatáskor */
+@media print {
+  .hero-header {
+    min-height: 200px;
+    page-break-inside: avoid;
+  }
+  
+  .hero-progress,
+  .hero-nav,
+  .section-separator {
+    display: none !important;
+  }
+}
+

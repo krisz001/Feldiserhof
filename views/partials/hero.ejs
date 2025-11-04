@@ -9,16 +9,16 @@ const clamp = (v, min, max) => {
   return Math.max(min, Math.min(max, n));
 };
 
-// --- Csak JPG/JPEG engedélyezése ---
-const isJpg = s => /\.(jpe?g)$/i.test(String(s));
+// --- Csak JPG/JPEG/PNG/WEBP engedélyezése ---
+const isValidImage = s => /\.(jpe?g|png|webp)$/i.test(String(s));
 
-// Csak engedélyezett képutak (megelőzzük a "javascript:" stb.)
+// Csak engedélyezett képutak
 const isSafePath = s =>
   typeof s === 'string' &&
-  s.trim().length &&
+  s.trim().length > 0 &&
   /^[/.a-zA-Z0-9_\-]+$/.test(s) &&
-  (s.startsWith('/img/hero/') || s.startsWith('./') || s.startsWith('../') || s.startsWith('/img/')) &&
-  isJpg(s);
+  (s.startsWith('/img/hero/') || s.startsWith('./img/') || s.startsWith('../img/') || s.startsWith('/img/')) &&
+  isValidImage(s);
 
 const normalizePath = s =>
   String(s).replace('/img/her/', '/img/hero/').trim();
@@ -30,7 +30,7 @@ const cleaned = rawList
   .filter(isSafePath)
   .map(normalizePath);
 
-// default fallback képek (ha nincs/üres a lista)
+// default fallback képek
 const FALLBACKS = [
   '/img/hero/feldiserhof-winter.jpg',
   '/img/hero/feldiserhof-sunset.jpg',
@@ -45,7 +45,7 @@ const heroImagesList = Array.from(new Set((cleaned.length ? cleaned : FALLBACKS)
 // legalább 1 kép legyen
 const firstImage = heroImagesList[0] || '/img/hero/feldiserhof.jpg';
 
-// --- Konfig (ésszerű határok) ---
+// --- Konfig ---
 const interval     = clamp((typeof heroInterval     === 'number' ? heroInterval     : 7000),  2500, 60000);
 const fadeDuration = clamp((typeof heroFadeDuration === 'number' ? heroFadeDuration : 1600),   200, 10000);
 
@@ -61,11 +61,21 @@ const heroConfig = {
 
 const hasMultiple = heroImagesList.length > 1;
 
-// JSON egyattribútumos biztonságos beágyazása (egyszeres idéző jelek escapelése)
-const heroConfigAttr = JSON.stringify(heroConfig).replace(/'/g, '&#39;');
+// JSON biztonságos beágyazása
+const heroConfigAttr = JSON.stringify(heroConfig)
+  .replace(/'/g, '&#39;')
+  .replace(/"/g, '&quot;');
 
 // CSS url() biztonságos beágyazása
-const cssUrl = (p) => `url('${String(p).replace(/'/g, "\\'")}')`;
+const cssUrl = (p) => `url('${String(p).replace(/'/g, "\\'").replace(/\\/g, '\\\\')}')`;
+
+// HTML attribute escape helper
+const escapeHtml = (str) => String(str)
+  .replace(/&/g, '&amp;')
+  .replace(/</g, '&lt;')
+  .replace(/>/g, '&gt;')
+  .replace(/"/g, '&quot;')
+  .replace(/'/g, '&#39;');
 %>
 
 <header
@@ -73,36 +83,46 @@ const cssUrl = (p) => `url('${String(p).replace(/'/g, "\\'")}')`;
   class="container-fluid hero-header mb-5 d-flex align-items-center hero"
   data-hero
   data-hero-config='<%- heroConfigAttr %>'
-  style="--slide-transition: <%= fadeDuration %>ms; --kenburns-duration: 20000ms; --parallax-intensity: 0.05;"
   aria-label="<%= T('hero.sectionLabel') %>"
+  role="region"
 >
-  <!-- Slideshow réteg: CSAK <img>, nincs <picture> -->
-  <div class="hero-slides" aria-hidden="true">
+  <!-- Slideshow réteg -->
+  <div class="hero-slides" aria-hidden="true" role="presentation">
     <% heroImagesList.forEach((src, i) => { %>
       <img
         class="hero-slide <%= i === 0 ? 'is-active' : '' %>"
         src="<%- src %>"
-        alt="<%= T('hero.imageAlt', { n: i + 1 }) %>"
+        alt="<%= escapeHtml(T('hero.imageAlt', { n: i + 1 })) %>"
         loading="<%= i === 0 ? 'eager' : 'lazy' %>"
         decoding="<%= i === 0 ? 'auto' : 'async' %>"
         fetchpriority="<%= i === 0 ? 'high' : 'low' %>"
         draggable="false"
         role="presentation"
-        style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;opacity:<%= i === 0 ? '1' : '0' %>;transition:opacity <%= fadeDuration %>ms ease-in-out;will-change:opacity,transform;backface-visibility:hidden;"
+        <% if (i > 0) { %>data-lazy="true"<% } %>
       />
     <% }); %>
   </div>
 
   <% if (heroConfig.enableNavigation && hasMultiple) { %>
     <!-- Navigációs gombok -->
-    <div class="hero-nav" aria-label="<%= T('hero.navigationLabel') %>">
-      <button type="button" class="hero-nav-button hero-nav-prev" aria-label="<%= T('hero.previousImage') %>">
+    <nav class="hero-nav" aria-label="<%= T('hero.navigationLabel') %>">
+      <button 
+        type="button" 
+        class="hero-nav-button hero-nav-prev" 
+        aria-label="<%= escapeHtml(T('hero.previousImage')) %>"
+        tabindex="0"
+      >
         <span aria-hidden="true">‹</span>
       </button>
-      <button type="button" class="hero-nav-button hero-nav-next" aria-label="<%= T('hero.nextImage') %>">
+      <button 
+        type="button" 
+        class="hero-nav-button hero-nav-next" 
+        aria-label="<%= escapeHtml(T('hero.nextImage')) %>"
+        tabindex="0"
+      >
         <span aria-hidden="true">›</span>
       </button>
-    </div>
+    </nav>
   <% } %>
 
   <% if (heroConfig.enableProgress && hasMultiple) { %>
@@ -115,18 +135,19 @@ const cssUrl = (p) => `url('${String(p).replace(/'/g, "\\'")}')`;
           data-progress-index="<%= index %>"
           role="tab"
           aria-selected="<%= index === 0 ? 'true' : 'false' %>"
-          aria-label="<%= T('hero.goToImage', { n: index + 1 }) %>">
-          <span class="sr-only"><%= T('hero.imageNumber', { n: index + 1 }) %></span>
+          aria-controls="hero-slide-<%= index %>"
+          tabindex="<%= index === 0 ? '0' : '-1' %>"
+          aria-label="<%= escapeHtml(T('hero.goToImage', { n: index + 1 })) %>">
+          <span class="sr-only"><%= escapeHtml(T('hero.imageNumber', { n: index + 1 })) %></span>
           <div class="progress-fill" aria-hidden="true"></div>
         </button>
       <% }); %>
     </div>
   <% } %>
 
-  <!-- Noscript fallback (statikus háttér) -->
+  <!-- Noscript fallback -->
   <noscript>
     <style>
-      .hero-slides { position: relative; }
       .hero-slides::before {
         content: '';
         position: absolute;
@@ -134,23 +155,11 @@ const cssUrl = (p) => `url('${String(p).replace(/'/g, "\\'")}')`;
         background-image: <%- cssUrl(firstImage) %>;
         background-size: cover;
         background-position: center;
+        background-repeat: no-repeat;
       }
       .hero-progress, .hero-nav { display: none !important; }
     </style>
   </noscript>
 </header>
 
-<!-- Mozgáscsökkentés: animációk letiltása preferenciára -->
-<style>
-  .hero { position: relative; overflow: hidden; }
-  .hero-slides { position: absolute; inset: 0; }
-  /* Opcionális: fix arány, ha szeretnéd csökkenteni a CLS-t
-  .hero { aspect-ratio: 16 / 9; }
-  */
-  @media (prefers-reduced-motion: reduce) {
-    .hero-slide { transition: none !important; animation: none !important; }
-    .hero-progress .progress-fill { transition: none !important; }
-  }
-</style>
-
-<div class="section-separator"></div>
+<div class="section-separator" role="separator" aria-hidden="true"></div>

@@ -6,7 +6,6 @@ body {
   min-width: 100vw;
   scroll-behavior: smooth;
 }
-
 body {
   font-family:
     Roboto,
@@ -24,7 +23,15 @@ body {
   padding: 0;
   overflow-x: hidden;
 }
+/* Ha a gombhoz vagy egy szülő elemhez adódik a 'show' osztály kattintáskor */
+.dropdown-toggle.show + .dropdown-menu { /* Vagy csak .dropdown-menu.show */
+    display: block !important;
+}
 
+/* Ha hoverre szeretnéd, hogy megjelenjen (nem javasolt mobilon) */
+.dropdown:hover .dropdown-menu {
+    display: block !important;
+}
 /* Minden wrapper, card, section is egységes háttérrel */
 main,
 #page,

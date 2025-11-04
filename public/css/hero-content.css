@@ -13,7 +13,6 @@
 
 /* GLASS HERO BOX (kártya) */
 .hero-badge .card,
-.hero-content .hero-badge .card,
 .hero-ad-box,
 .promo-box {
   background: var(--glass-bg) !important;
@@ -21,21 +20,21 @@
   border-radius: 26px !important;
   box-shadow: var(--glass-shadow) !important;
   backdrop-filter: blur(20px) saturate(1.12) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(1.12) !important;
   color: #604820 !important;
   padding: 2.6rem 2.3rem 1.8rem !important;
   text-align: center !important;
   position: relative !important;
   font-family: 'Patrick Hand SC', cursive, sans-serif !important;
   transition:
-    box-shadow 0.23s,
-    border-color 0.19s !important;
+    box-shadow 0.23s ease,
+    border-color 0.19s ease !important;
   z-index: 10 !important;
   animation: glassPopIn 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s backwards;
 }
 
 /* Modern, ragyogó arany keret és fény overlay a kártyán */
-.hero-badge .card::before,
-.hero-content .hero-badge .card::before {
+.hero-badge .card::before {
   content: '';
   position: absolute;
   inset: 0;
@@ -48,8 +47,7 @@
   animation: glassBorderGlow 5s infinite linear;
 }
 
-.hero-badge .card::after,
-.hero-content .hero-badge .card::after {
+.hero-badge .card::after {
   content: '';
   position: absolute;
   left: 18px;
@@ -64,31 +62,26 @@
 }
 
 /* Glassmorph árnyék */
-.hero-badge,
-.hero-content .hero-badge {
+.hero-badge {
   filter: drop-shadow(0 7px 24px rgba(232, 180, 90, 0.15));
 }
 
 @keyframes glassBorderGlow {
-  0%,
-  100% {
+  0%, 100% {
     box-shadow:
       0 0 0 7px #ffe6a033,
       0 0 18px 1px #ffd45455;
   }
-
   45% {
     box-shadow:
       0 0 0 13px #ffe6a023,
       0 0 30px 2px #ffd45444;
   }
-
   50% {
     box-shadow:
       0 0 0 7px #ffe6a033,
       0 0 22px 0 #ffd45429;
   }
-
   70% {
     box-shadow:
       0 0 0 9px #ffd45411,
@@ -97,25 +90,11 @@
 }
 
 @keyframes glassShine {
-  0% {
-    opacity: 0.26;
-  }
-
-  45% {
-    opacity: 0.38;
-  }
-
-  55% {
-    opacity: 0.17;
-  }
-
-  70% {
-    opacity: 0.27;
-  }
-
-  100% {
-    opacity: 0.26;
-  }
+  0% { opacity: 0.26; }
+  45% { opacity: 0.38; }
+  55% { opacity: 0.17; }
+  70% { opacity: 0.27; }
+  100% { opacity: 0.26; }
 }
 
 @keyframes glassPopIn {
@@ -123,12 +102,10 @@
     opacity: 0;
     transform: scale(0.7) translateY(120px);
   }
-
   80% {
     opacity: 1;
     transform: scale(1.06) translateY(-7px);
   }
-
   100% {
     opacity: 1;
     transform: scale(1) translateY(0);
@@ -136,8 +113,7 @@
 }
 
 /* Tipográfia, címek, szöveg, badge, gombok */
-.hero-badge .card h5,
-.hero-content .hero-badge .card h5 {
+.hero-badge .card h5 {
   color: #c08e34 !important;
   font-size: 1.37rem !important;
   font-weight: 700 !important;
@@ -145,15 +121,13 @@
   letter-spacing: 0.01em !important;
 }
 
-.hero-badge .card p,
-.hero-content .hero-badge .card p {
+.hero-badge .card p {
   color: #7d6c4c !important;
   font-size: 1.13rem !important;
   font-family: 'Patrick Hand SC', cursive, sans-serif !important;
 }
 
-.hero-badge .card .btn,
-.hero-content .hero-badge .card .btn {
+.hero-badge .card .btn {
   border-radius: 16px !important;
   font-weight: 700 !important;
   background: #ffd454 !important;
@@ -164,9 +138,9 @@
   font-size: 1.07em !important;
   margin-top: 0.87em !important;
   transition:
-    background 0.15s,
-    box-shadow 0.11s,
-    color 0.11s !important;
+    background 0.15s ease,
+    box-shadow 0.11s ease,
+    color 0.11s ease !important;
   animation: btnPopIn 0.57s cubic-bezier(0.18, 0.67, 0.56, 1.36) 0.18s backwards;
 }
 
@@ -175,40 +149,35 @@
     opacity: 0.2;
     transform: scale(0.5);
   }
-
   90% {
     opacity: 1;
     transform: scale(1.08);
   }
-
   100% {
     opacity: 1;
     transform: scale(1);
   }
 }
 
-.hero-badge .card .btn:hover,
-.hero-content .hero-badge .card .btn:hover {
+.hero-badge .card .btn:hover {
   background: #ffae3c !important;
   color: #fff !important;
   box-shadow: 0 7px 17px 0 rgba(220, 187, 62, 0.19) !important;
 }
 
-/* Animációk és extra hero-content tipográfia */
+/* Animációk */
 @keyframes contentFadeIn {
   0% {
     opacity: 0;
     transform: translateY(40px);
   }
-
   100% {
     opacity: 1;
     transform: translateY(0);
   }
 }
 
-.hero-header .content-fade-in,
-.hero-content .content-fade-in {
+.content-fade-in {
   opacity: 0;
   transform: translateY(30px);
   animation: contentFadeIn 1.2s cubic-bezier(0.23, 1, 0.32, 1) forwards;
@@ -234,10 +203,9 @@
   margin-top: 0.18em !important;
 }
 
-/* Glass stílusú gombok, minden főbb hero gombnál */
+/* Glass stílusú gombok */
 .sajat-btn,
-.hero-header .btn,
-.hero-content .hero-header .btn {
+.hero-header .btn {
   border-radius: 15px !important;
   font-weight: 700 !important;
   background: var(--accent) !important;
@@ -248,17 +216,74 @@
   font-size: 1.12em !important;
   margin-right: 1em !important;
   transition:
-    background 0.16s,
-    box-shadow 0.13s,
-    color 0.11s !important;
+    background 0.16s ease,
+    box-shadow 0.13s ease,
+    color 0.11s ease !important;
   animation: btnPopIn 0.49s cubic-bezier(0.18, 0.67, 0.56, 1.36) 0.21s backwards;
   text-decoration: none;
 }
 
 .sajat-btn:hover,
-.hero-header .btn:hover,
-.hero-content .hero-header .btn:hover {
+.hero-header .btn:hover {
   background: var(--secondary) !important;
   color: var(--primary) !important;
   box-shadow: 0 7px 23px 0 rgba(220, 187, 62, 0.11) !important;
+}
+
+/* Reszponzív finomítások */
+@media (max-width: 768px) {
+  .hero-badge .card,
+  .hero-ad-box,
+  .promo-box {
+    padding: 2rem 1.5rem 1.5rem !important;
+  }
+  
+  .hero-badge .card h5 {
+    font-size: 1.2rem !important;
+  }
+  
+  .hero-badge .card p {
+    font-size: 1rem !important;
+  }
+  
+  .sajat-btn,
+  .hero-header .btn {
+    padding: 0.7em 1.5em !important;
+    font-size: 1em !important;
+    margin-right: 0.5em !important;
+  }
+}
+
+@media (max-width: 576px) {
+  .hero-badge .card,
+  .hero-ad-box,
+  .promo-box {
+    padding: 1.5rem 1.2rem 1.2rem !important;
+    border-width: 2.5px !important;
+  }
+  
+  .sajat-btn,
+  .hero-header .btn {
+    display: block;
+    width: 100%;
+    margin-right: 0 !important;
+    margin-bottom: 0.8em !important;
+  }
+}
+
+/* Prefers reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .hero-badge .card,
+  .content-fade-in,
+  .hero-badge .card .btn,
+  .sajat-btn,
+  .hero-header .btn {
+    animation: none !important;
+    transition: none !important;
+  }
+  
+  .hero-badge .card::before,
+  .hero-badge .card::after {
+    animation: none !important;
+  }
 }

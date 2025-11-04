@@ -64,14 +64,20 @@
       "buttonLink": "Gomb link",
       "startDate": "Kezdő dátum",
       "endDate": "Befejezés dátuma",
+      "validUntil": "Érvényes eddig",
       "priority": "Prioritás",
       "targetAudience": "Célközönség",
+      "restaurant": "Étterem",
+      "wellness": "Wellness",
+      "hotel": "Hotel",
+      "all": "Összes",
       "isActive": "Aktív",
       "preview": "Előnézet",
       "saveSuccess": "Hero Box sikeresen mentve!",
       "edit": "Szerkesztés",
       "heroBoxManager": "Hero Box Kezelő",
-      "heroBoxDesc": "A főoldali hero szekcióban megjelenő box tartalmának szerkesztése"
+      "heroBoxDesc": "A főoldali hero szekcióban megjelenő box tartalmának szerkesztése",
+      "heroBoxEdit": "Hero Box szerkesztése"
     }
   },
   "adminModal": {
@@ -83,42 +89,45 @@
     "close": "Bezárás"
   },
   "menu": {
-    "title": "Speisekarte",
-    "subtitle": "Entdecken Sie unsere Küche",
-    "intro": "Frisch, saisonal, regional – täglich für Sie."
+    "title": "Étlap",
+    "subtitle": "Fedezze fel konyhánkat",
+    "intro": "Friss, szezonális, regionális – naponta az Ön számára."
   },
   "wellness": {
     "features": {
-      "sauna": "Finnische Sauna",
-      "infrared": "Infrarot-Kabine",
-      "cold": "Kalter Bottich",
-      "rain": " Dusche"
+      "sauna": "Finn szauna",
+      "infrared": "Infrakabina",
+      "cold": "Hideg kád",
+      "rain": "Zuhanyzó"
     },
     "services": {
-      "water": "Aromatisiertes Wasser & Wellness-Tee",
-      "fruits": "Frische und getrocknete Früchte",
-      "towels": "Frottee- und Saunatuch"
+      "water": "Aromás víz és wellness tea",
+      "fruits": "Friss és szárított gyümölcsök",
+      "towels": "Frottír- és szaunatörölköző"
     },
     "pricing": {
       "sauna": {
-        "title": "Sauna",
-        "meta": "2 Std · Fr. 45.00",
-        "sub": "pro Person"
+        "title": "Szauna",
+        "meta": "2 óra · Fr. 45.00",
+        "sub": "személyenként"
       },
       "spa": {
-        "title": "Privat Spa",
-        "meta": "3 Std · 2 Pers · Fr. 240.00",
-        "sub": "inkl. Snacks & Prosecco"
+        "title": "Privát Spa",
+        "meta": "3 óra · 2 fő · Fr. 240.00",
+        "sub": "snackekkel és pezsgővel"
       }
     },
-    "note": "Nur nach Voranmeldung.",
-    "cta": "Jetzt anfragen",
+    "note": "Csak előzetes bejelentkezéssel.",
+    "cta": "Érdeklődés most",
     "images": {
-      "sauna": "Finnische Sauna – Holzfass",
-      "infrared": "Infrarot-Kabine"
+      "sauna": "Finn szauna – fahordó",
+      "infrared": "Infrakabina"
     }
   },
   "hero": {
+    "sectionLabel": "Főoldali diavetítés",
+    "imageAlt": "Feldiserhof kép {n}",
+    "imageNumber": "Kép {n}",
     "navigationLabel": "Képváltás vezérlése",
     "previousImage": "Előző kép",
     "nextImage": "Következő kép",
