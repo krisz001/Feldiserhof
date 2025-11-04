@@ -32,6 +32,7 @@
   letter-spacing: 0.3px;
   padding: 0.6rem 1.1rem;
   transition: color 0.2s ease;
+  font-family: 'Patrick Hand SC', cursive !important;
 }
 
 .navbar .nav-link:hover,
@@ -41,21 +42,77 @@
 }
 
 .navbar {
-  min-height: 150.5px; /* vagy használj nagyobb értéket, pl. 100px */
+  min-height: 150.5px;
 }
 
 .brand-logo-nav {
-  max-height: 150.5px !important; /* Növeld bátran a magasságot (pl. 100-140px) */
-  width: auto; /* Így arányosan nő */
-}
-
-.navbar .nav-link {
-  font-family: 'Patrick Hand SC', cursive !important;
-}
-
-.brand-logo-nav {
-  max-height: calc(var(--nav-height) + 10px);
+  max-height: 150.5px !important;
   width: auto;
   display: block;
   object-fit: contain;
+}
+
+/* ========== HAMBURGER IKON ANIMÁCIÓ ========== */
+.navbar-toggler {
+  border: none;
+  position: relative;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: transparent;
+}
+
+.navbar-toggler:focus {
+  box-shadow: none;
+  outline: none;
+}
+
+.navbar-toggler-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  background-image: none; /* Bootstrap default ikon kikapcsolása */
+}
+
+.navbar-toggler-icon i {
+  font-size: 1.5rem;
+  color: #2d2d2d;
+  transition: transform 0.3s ease;
+}
+
+/* Ha NYITVA van a menü → X ikon */
+.navbar-toggler:not(.collapsed) .navbar-toggler-icon i::before {
+  content: "\f00d"; /* Font Awesome X (times) */
+}
+
+/* Ha ZÁRVA van → hamburger ikon */
+.navbar-toggler.collapsed .navbar-toggler-icon i::before {
+  content: "\f0c9"; /* Font Awesome bars */
+}
+
+/* Forgás animáció nyitáskor */
+.navbar-toggler:not(.collapsed) .navbar-toggler-icon i {
+  transform: rotate(90deg);
+}
+
+/* Mobil menü háttér animáció */
+.navbar-collapse {
+  transition: all 0.3s ease;
+}
+
+/* Responsive: nagyobb kattintható terület mobilon */
+@media (max-width: 991.98px) {
+  .navbar-toggler {
+    width: 44px;
+    height: 44px;
+  }
+  
+  .navbar-toggler-icon i {
+    font-size: 1.6rem;
+  }
 }
