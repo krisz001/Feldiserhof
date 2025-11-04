@@ -315,42 +315,6 @@ app.use((req, res, next) => {
 });
 
 // ============================================================
-// Nyelvváltás
-// ============================================================
-app.post('/change-language', (req, res) => {
-  const { lang } = req.body || {};
-  if (['de'].includes(lang)) {         // ⬅ csak de engedélyezett
-    setLangCookie(res, lang);
-    return res.json({ success: true });
-  }
-  res.status(400).json({ success: false, message: 'Érvénytelen nyelv' });
-});
-
-app.get('/set-language/:lang', (req, res) => {
-  const { lang } = req.params;
-  const { admin } = req.query;
-  if (!['de'].includes(lang)) return res.status(400).send('Érvénytelen nyelv'); // ⬅ csak de
-
-  const wasAdmin = !!req.session.isAdmin;
-  setLangCookie(res, lang);
-  if (wasAdmin || admin === 'true') req.session.isAdmin = true;
-
-  const saveTimeout = setTimeout(() => {
-    console.warn('⚠️ Session mentés timeout');
-    const referer = req.get('Referer') || (wasAdmin ? '/admin' : '/');
-    res.redirect(referer);
-  }, 2000);
-
-  req.session.save((err) => {
-    clearTimeout(saveTimeout);
-    if (err) console.error('❌ Session mentési hiba:', err);
-    const referer = req.get('Referer') || (wasAdmin ? '/admin' : '/');
-    res.redirect(referer);
-  });
-});
-
-
-// ============================================================
 // Oldalak
 // ============================================================
 app.get('/', (req, res) => {
