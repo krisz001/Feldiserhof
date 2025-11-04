@@ -1,23 +1,39 @@
 {
-  "forceCloseForTesting": false,
+  "forceCloseForTesting": true,
   "timezone": "Europe/Zurich",
   "locale": "de-CH",
   "week": {
-    "0": [["09:00", "21:00"]],
+    "0": [],
     "1": [],
     "2": [],
-    "3": [["09:00", "21:00"]],
-    "4": [["09:00", "21:00"]],
-    "5": [["09:00", "23:00"]],
-    "6": [["09:00", "21:00"]]
+    "3": [],
+    "4": [],
+    "5": [],
+    "6": []
   },
   "exceptions": [
-    { "type": "closed", "start": "2025-11-03", "end": "2025-11-25" },
-    { "type": "closed", "start": "2026-03-16", "end": "2026-03-26" }
+    {
+      "type": "closed",
+      "start": "2025-11-03",
+      "end": "2025-11-25"
+    },
+    {
+      "type": "closed",
+      "start": "2026-03-16",
+      "end": "2026-03-26"
+    }
   ],
   "overrides": [],
   "labels": {
-    "days": ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"],
+    "days": [
+      "Sonntag",
+      "Montag",
+      "Dienstag",
+      "Mittwoch",
+      "Donnerstag",
+      "Freitag",
+      "Samstag"
+    ],
     "openBadge": "GEÖFFNET",
     "closedBadge": "GESCHLOSSEN",
     "todayOpen": "Heute geöffnet – bis {time} Uhr",
