@@ -17,6 +17,7 @@
 
           <!-- Nyelvválasztó teljesen kivéve, hogy ne legyen i18n hivatkozás -->
         </div>
+        
 
         <form id="logoutForm" method="post" action="/admin/logout">
           <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
@@ -66,6 +67,11 @@
             </div>
           </div>
         </div>
+
+        <a href="/admin/opening-hours" class="btn btn-primary">
+          <i class="fas fa-clock me-2"></i> Öffnungszeiten verwalten
+        </a>
+
 
         <!-- Galéria kezelése -->
         <div class="col-md-6 col-lg-4 mb-4">

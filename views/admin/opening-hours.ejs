@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title || 'Öffnungszeiten verwalten' %></title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #c28a37;
+      --success: #28a745;
+      --danger: #dc3545;
+    }
+    body {
+      background: #f8f9fa;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .admin-header {
+      background: linear-gradient(135deg, var(--primary), #a67428);
+      color: white;
+      padding: 2rem 0;
+      margin-bottom: 2rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .card {
+      border: none;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      margin-bottom: 1.5rem;
+    }
+    .card-header {
+      background: white;
+      border-bottom: 2px solid #f0f0f0;
+      padding: 1.25rem;
+      font-weight: 600;
+    }
+    .status-toggle {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1.5rem;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .status-badge {
+      padding: 0.5rem 1rem;
+      border-radius: 999px;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+    .status-badge.open {
+      background: rgba(40, 167, 69, 0.1);
+      color: var(--success);
+      border: 2px solid var(--success);
+    }
+    .status-badge.closed {
+      background: rgba(220, 53, 69, 0.1);
+      color: var(--danger);
+      border: 2px solid var(--danger);
+    }
+    /* Custom toggle switch */
+    .toggle-switch {
+      position: relative;
+      width: 60px;
+      height: 32px;
+      background: #ccc;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .toggle-switch.active {
+      background: var(--success);
+    }
+    .toggle-switch::after {
+      content: '';
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      width: 24px;
+      height: 24px;
+      background: white;
+      border-radius: 50%;
+      transition: transform 0.3s;
+    }
+    .toggle-switch.active::after {
+      transform: translateX(28px);
+    }
+    .hours-input {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+    .hours-input input {
+      width: 80px;
+    }
+    .day-row {
+      padding: 1rem;
+      border-bottom: 1px solid #f0f0f0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .day-row:last-child {
+      border-bottom: none;
+    }
+    .btn-save {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 0.75rem 2rem;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: transform 0.2s;
+    }
+    .btn-save:hover {
+      transform: translateY(-2px);
+      background: #a67428;
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-header">
+    <div class="container">
+      <h1><i class="fas fa-clock me-2"></i> Öffnungszeiten verwalten</h1>
+      <p class="mb-0">Restaurant-Status und Öffnungszeiten bearbeiten</p>
+    </div>
+  </div>
+
+  <div class="container">
+    <a href="/admin" class="btn btn-outline-secondary mb-3">
+      <i class="fas fa-arrow-left me-2"></i> Zurück zum Dashboard
+    </a>
+
+    <!-- STATUS TOGGLE -->
+    <div class="status-toggle mb-4">
+      <div class="flex-grow-1">
+        <h5 class="mb-1">Restaurant Status</h5>
+        <p class="text-muted mb-0 small">Zeigt "Geschlossen" auf der Website, wenn deaktiviert</p>
+      </div>
+      <div class="d-flex align-items-center gap-3">
+        <span id="statusBadge" class="status-badge open">Geöffnet</span>
+        <div id="statusToggle" class="toggle-switch active"></div>
+      </div>
+    </div>
+
+    <!-- OPENING HOURS EDITOR -->
+    <div class="card">
+      <div class="card-header">
+        <i class="fas fa-calendar-alt me-2"></i> Öffnungszeiten bearbeiten
+      </div>
+      <div class="card-body p-0" id="hoursEditor">
+        <!-- JavaScript generates this -->
+      </div>
+    </div>
+
+    <div class="text-end">
+      <button id="saveBtn" class="btn-save">
+        <i class="fas fa-save me-2"></i> Änderungen speichern
+      </button>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const csrfToken = '<%= csrfToken %>';
+    let currentData = {};
+
+    // Load current data
+    async function loadData() {
+      try {
+        const res = await fetch('/api/opening-hours');
+        currentData = await res.json();
+        renderHours();
+        updateStatusUI();
+      } catch (e) {
+        console.error('Load error:', e);
+      }
+    }
+
+    // Render hours
+    function renderHours() {
+      const container = document.getElementById('hoursEditor');
+      const days = currentData.days || [];
+      
+      container.innerHTML = days.map((day, idx) => `
+        <div class="day-row">
+          <div style="width: 120px; font-weight: 600;">${day.day}</div>
+          <div class="hours-input">
+            <input type="time" class="form-control" data-idx="${idx}" data-field="open" value="${day.open || ''}" ${day.closed ? 'disabled' : ''}>
+            <span>–</span>
+            <input type="time" class="form-control" data-idx="${idx}" data-field="close" value="${day.close || ''}" ${day.closed ? 'disabled' : ''}>
+          </div>
+          <div class="form-check">
+            <input type="checkbox" class="form-check-input" id="closed${idx}" data-idx="${idx}" ${day.closed ? 'checked' : ''}>
+            <label class="form-check-label" for="closed${idx}">Geschlossen</label>
+          </div>
+        </div>
+      `).join('');
+
+      // Event listeners
+      container.querySelectorAll('input[type="time"]').forEach(input => {
+        input.addEventListener('change', (e) => {
+          const idx = parseInt(e.target.dataset.idx);
+          const field = e.target.dataset.field;
+          currentData.days[idx][field] = e.target.value;
+        });
+      });
+
+      container.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+        cb.addEventListener('change', (e) => {
+          const idx = parseInt(e.target.dataset.idx);
+          currentData.days[idx].closed = e.target.checked;
+          renderHours(); // Re-render to disable/enable inputs
+        });
+      });
+    }
+
+    // Status toggle
+    const statusToggle = document.getElementById('statusToggle');
+    const statusBadge = document.getElementById('statusBadge');
+
+    statusToggle.addEventListener('click', () => {
+      currentData.forceCloseForTesting = !currentData.forceCloseForTesting;
+      updateStatusUI();
+    });
+
+    function updateStatusUI() {
+      const isOpen = !currentData.forceCloseForTesting;
+      statusToggle.classList.toggle('active', isOpen);
+      statusBadge.textContent = isOpen ? 'Geöffnet' : 'Geschlossen';
+      statusBadge.className = `status-badge ${isOpen ? 'open' : 'closed'}`;
+    }
+
+    // Save
+    document.getElementById('saveBtn').addEventListener('click', async () => {
+      try {
+        const res = await fetch('/admin/api/opening-hours', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'CSRF-Token': csrfToken
+          },
+          body: JSON.stringify(currentData)
+        });
+        const data = await res.json();
+        if (data.ok) {
+          alert('✅ Erfolgreich gespeichert!');
+        } else {
+          alert('❌ Fehler: ' + data.msg);
+        }
+      } catch (e) {
+        console.error('Save error:', e);
+        alert('❌ Fehler beim Speichern');
+      }
+    });
+
+    loadData();
+  </script>
+</body>
+</html>

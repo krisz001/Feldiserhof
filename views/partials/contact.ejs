@@ -50,17 +50,22 @@
             <a class="btn btn-outline-primary" href="mailto:info@feldiserhof.ch" aria-label="E-Mail senden">E-Mail</a>
           </div>
 
+          <!-- NYITVATARTÁS STÁTUSZ ÉS ÓRÁK -->
           <h5 class="mt-2 section-title">Öffnungszeiten</h5>
-          <div class="d-flex align-items-center gap-2 mb-2">
-            <span id="badgeOpen"   class="badge bg-success d-none">GEÖFFNET</span>
+          
+          <!-- Státusz badge és szöveg -->
+          <div class="d-flex align-items-center gap-2 mb-3">
+            <span id="badgeOpen" class="badge bg-success d-none">GEÖFFNET</span>
             <span id="badgeClosed" class="badge bg-danger d-none">GESCHLOSSEN</span>
-            <span id="statusText"  class="small"></span>
+            <span id="statusText" class="small text-muted"></span>
           </div>
+          
+          <!-- Órák lista -->
           <ul id="hoursList" class="list-unstyled mt-2 small mb-0"></ul>
         </div>
       </div>
 
-      <!-- Jobb: nagy, kerekített térkép -->
+      <!-- Jobb: térkép -->
       <div class="col-lg-7 d-flex">
         <div class="map-card rounded-4 shadow-sm flex-grow-1 mb-0">
           <div class="ratio ratio-16x9 map-ratio">
@@ -78,3 +83,61 @@
     </div>
   </div>
 </section>
+
+<!-- JAVASCRIPT A NYITVATARTÁS BETÖLTÉSÉHEZ -->
+<script>
+  (() => {
+    const badgeOpen = document.getElementById('badgeOpen');
+    const badgeClosed = document.getElementById('badgeClosed');
+    const statusText = document.getElementById('statusText');
+    const hoursList = document.getElementById('hoursList');
+
+    async function loadOpeningHours() {
+      try {
+        const res = await fetch('/api/opening-hours');
+        if (!res.ok) throw new Error('Failed to load');
+        
+        const data = await res.json();
+
+        // ===== STÁTUSZ MEGJELENÍTÉSE =====
+        if (data.forceCloseForTesting) {
+          // ZÁRVA (admin által beállítva)
+          badgeClosed.classList.remove('d-none');
+          badgeOpen.classList.add('d-none');
+          statusText.textContent = 'Bis auf weiteres geschlossen';
+        } else {
+          // NYITVA
+          badgeOpen.classList.remove('d-none');
+          badgeClosed.classList.add('d-none');
+          statusText.textContent = '';
+        }
+
+        // ===== ÓRÁK MEGJELENÍTÉSE =====
+        if (data.days && Array.isArray(data.days)) {
+          hoursList.innerHTML = data.days.map(day => {
+            const timeStr = day.closed 
+              ? '<span class="text-muted">geschlossen</span>' 
+              : `${day.open || '–'} – ${day.close || '–'}`;
+            
+            return `
+              <li class="d-flex justify-content-between py-1 border-bottom">
+                <span class="fw-semibold">${day.day}</span>
+                <span>${timeStr}</span>
+              </li>
+            `;
+          }).join('');
+        } else {
+          hoursList.innerHTML = '<li class="text-muted">Keine Öffnungszeiten verfügbar</li>';
+        }
+
+      } catch (err) {
+        console.error('Opening hours load error:', err);
+        badgeClosed.classList.remove('d-none');
+        statusText.textContent = 'Öffnungszeiten nicht verfügbar';
+        hoursList.innerHTML = '<li class="text-muted">Fehler beim Laden</li>';
+      }
+    }
+
+    loadOpeningHours();
+  })();
+</script>

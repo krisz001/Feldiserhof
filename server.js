@@ -1,5 +1,5 @@
 // ============================================================
-// Feldiserhof – Express.js szerver (admin-ready + i18n + Wellness + Rooms)
+// Feldiserhof – Express.js szerver (admin-ready + i18n + Wellness + Rooms + Opening Hours)
 // + Feature Flag: "menuBookEnabled" (könyv nyithatóság adminból)
 // ============================================================
 import express from 'express';
@@ -480,6 +480,14 @@ app.get('/api/hero-box', (req, res) => {
 });
 
 // ============================================================
+// 🆕 PUBLIKUS Opening Hours API (contact szekcióhoz)
+// ============================================================
+app.get('/api/opening-hours', (req, res) => {
+  const data = loadJSON('opening-hours.json');
+  res.json(data || {});
+});
+
+// ============================================================
 // Admin / CSRF / API-k
 // ============================================================
 const isAdmin = (req) => !!req.session?.isAdmin;
@@ -490,7 +498,7 @@ const requireAdmin = (req, res, next) => {
 
 const loginLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 20 });
 
-// CSRF middleware (session alapú) - KORÁBBAN DEFINIÁLVA
+// CSRF middleware (session alapú)
 const csrfProtection = csrf({ cookie: false });
 
 const csrfFromHeader = csrf({
@@ -524,13 +532,13 @@ app.post('/admin/logout', requireAdmin, (req, res) => {
   req.session.destroy(() => res.json({ ok: true }));
 });
 
-app.get('/admin', requireAdmin, (req, res) => {
+app.get('/admin', requireAdmin, csrfProtection, (req, res) => {
   const heroBoxData = loadHeroBox();
   res.render('admin/dashboard', {
     title: req.t('admin.title'),
     description: req.t('admin.description'),
     heroBox: heroBoxData,
-    csrfToken: req.csrfToken ? req.csrfToken() : '',
+    csrfToken: req.csrfToken(),
   });
 });
 
@@ -544,12 +552,21 @@ app.get('/admin/menu', requireAdmin, csrfProtection, (req, res) => {
   });
 });
 
-// Feature-Schalter oldal - ⚠️ JAVÍTVA: csrfProtection hozzáadva
+// Feature-Schalter oldal
 app.get('/admin/mitarbeitende', requireAdmin, csrfProtection, (req, res) => {
   res.render('admin/mitarbeitende', {
     title: 'Feature-Schalter',
     description: 'Interne Einstellungen',
     flags: { menuBookEnabled: !!SETTINGS.menuBookEnabled },
+    csrfToken: req.csrfToken(),
+  });
+});
+
+// 🆕 ADMIN Opening Hours Editor
+app.get('/admin/opening-hours', requireAdmin, csrfProtection, (req, res) => {
+  res.render('admin/opening-hours', {
+    title: 'Öffnungszeiten verwalten',
+    description: 'Restaurant-Status und Öffnungszeiten bearbeiten',
     csrfToken: req.csrfToken(),
   });
 });
@@ -595,12 +612,27 @@ app.post('/admin/api/hero-box', requireAdmin, csrfFromHeader, (req, res) => {
   }
 });
 
+// 🆕 ADMIN Opening Hours API (szerkesztéshez)
+app.post('/admin/api/opening-hours', requireAdmin, csrfFromHeader, (req, res) => {
+  const body = req.body && typeof req.body === 'object' ? req.body : null;
+  if (!body) return res.status(400).json({ ok: false, msg: 'Invalid body' });
+
+  try {
+    const fullPath = path.join(__dirname, 'public', 'opening-hours.json');
+    fs.writeFileSync(fullPath, JSON.stringify(body, null, 2), 'utf8');
+    console.log('✅ Öffnungszeiten gespeichert');
+    res.json({ ok: true });
+  } catch (e) {
+    console.error('❌ Öffnungszeiten Speicherfehler:', e);
+    res.status(500).json({ ok: false, msg: 'Save failed' });
+  }
+});
+
 // ===== Feature Flags API =====
 app.get('/api/feature-flags', (req, res) => {
   res.json({ menuBookEnabled: !!SETTINGS.menuBookEnabled });
 });
 
-// ⚠️ JAVÍTVA: csrfProtection használata csrfFromHeader helyett
 app.post('/admin/feature-flags/menu-book', requireAdmin, csrfProtection, (req, res) => {
   const { enabled } = req.body || {};
   if (typeof enabled !== 'boolean') {
@@ -628,8 +660,10 @@ const csrfErrorHandler = (err, req, res, next) => {
 };
 app.use(csrfErrorHandler);
 
-app.use((err, _req, res, _next) => {
+app.use((err, req, res, _next) => {
   console.error('💥 Váratlan hiba:', err);
+  console.error('📍 URL:', req.url);
+  console.error('📄 Stack:', err.stack);
   res.status(500).send('Internal Server Error');
 });
 
@@ -646,6 +680,7 @@ app.listen(PORT, () => {
   console.log(`🌐 Nyelvi támogatás: hu, de`);
   console.log(`🔐 Admin: /admin`);
   console.log(`📝 Menü szerkesztő: /admin/menu`);
+  console.log(`🕐 Nyitvatartás szerkesztő: /admin/opening-hours`);
   console.log(`🎯 Hero Box: aktív`);
   console.log('📁 Feature flags fájl:', SETTINGS_PATH);
   console.log('⚙️  menuBookEnabled:', SETTINGS.menuBookEnabled);
