@@ -30,42 +30,46 @@
     );
   }
 
-  // ========== MENÜ BEZÁRÁSA MOBILON ==========
-  if (navbarCollapse) {
-    // 1. Bezárás menüpontra kattintva
+  // ========== MENÜ BEZÁRÁSA ÉS TOGGLE ==========
+  if (navbarCollapse && navbarToggler) {
+    
+    // 1. HAMBURGER IKON - MANUÁLIS TOGGLE (nyit/zár)
+    navbarToggler.addEventListener('click', (e) => {
+      e.preventDefault(); // Megállítjuk a Bootstrap default működését
+      
+      // Toggle: ha nyitva van → bezár, ha zárva van → nyit
+      if (navbarCollapse.classList.contains('show')) {
+        navbarCollapse.classList.remove('show');
+        navbarToggler.classList.add('collapsed');
+        navbarToggler.setAttribute('aria-expanded', 'false');
+      } else {
+        navbarCollapse.classList.add('show');
+        navbarToggler.classList.remove('collapsed');
+        navbarToggler.setAttribute('aria-expanded', 'true');
+      }
+    });
+
+    // 2. Bezárás, ha menüpontra kattintasz
     navLinks.forEach(link => {
       link.addEventListener('click', () => {
         if (navbarCollapse.classList.contains('show')) {
-          // Bootstrap Collapse API használata
-          const bsCollapse = bootstrap.Collapse.getInstance(navbarCollapse);
-          if (bsCollapse) {
-            bsCollapse.hide();
-          } else {
-            // Ha nincs instance, manuálisan
-            navbarCollapse.classList.remove('show');
-          }
+          navbarCollapse.classList.remove('show');
+          navbarToggler.classList.add('collapsed');
+          navbarToggler.setAttribute('aria-expanded', 'false');
         }
       });
     });
 
-    // 2. Bezárás, ha a menün kívülre kattintasz (de NEM a hamburger ikonra!)
+    // 3. Bezárás, ha a menün KÍVÜLRE kattintasz (DE NEM a togglerre!)
     document.addEventListener('click', (e) => {
-      // Ellenőrizzük, hogy NEM a hamburger gombra vagy a menüre kattintott
-      const isClickOnToggler = navbarToggler && navbarToggler.contains(e.target);
-      const isClickInMenu = navbarCollapse.contains(e.target);
+      const isClickOnToggler = navbarToggler.contains(e.target);
+      const isClickInsideMenu = navbarCollapse.contains(e.target);
 
-      // Csak akkor zárjuk be, ha a menün kívülre kattintott ÉS nem a toggler gombra
-      if (!isClickOnToggler && !isClickInMenu && navbarCollapse.classList.contains('show')) {
-        const bsCollapse = bootstrap.Collapse.getInstance(navbarCollapse);
-        if (bsCollapse) {
-          bsCollapse.hide();
-        } else {
-          navbarCollapse.classList.remove('show');
-        }
+      if (!isClickOnToggler && !isClickInsideMenu && navbarCollapse.classList.contains('show')) {
+        navbarCollapse.classList.remove('show');
+        navbarToggler.classList.add('collapsed');
+        navbarToggler.setAttribute('aria-expanded', 'false');
       }
     });
   }
-
-  // FONTOS: NE avatkozzunk a hamburger gomb működésébe!
-  // A Bootstrap automatikusan kezeli a toggle-t.
 })();
