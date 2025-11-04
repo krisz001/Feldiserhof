@@ -1,6 +1,6 @@
 <%- include('../partials/head', { 
-  title: t('admin.menuEditor'),
-  description: t('admin.menuEditorDesc')
+  title: 'Speisekarte bearbeiten',
+  description: 'Speisen, Getränke und Kategorien verwalten, Preise aktualisieren.'
 }) %>
 
 <%- include('../partials/navbar') %>
@@ -12,38 +12,20 @@
         <div class="d-flex align-items-center">
           <h1 class="h2 text-primary mb-0">
             <i class="fas fa-utensils me-2"></i>
-            <span><%= t('admin.menuEditor') %></span>
+            <span>Speisekarte bearbeiten</span>
           </h1>
 
-          <!-- Nyelvválasztó -->
-          <div class="dropdown ms-3">
-            <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="languageDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-              <i class="fas fa-globe me-1"></i>
-              <span id="current-language"><%- (i18n.language === 'de' ? 'Deutsch' : 'Magyar') %></span>
-            </button>
-            <ul class="dropdown-menu" aria-labelledby="languageDropdown">
-              <li>
-                <a class="dropdown-item language-option <%- i18n.language === 'hu' ? 'active' : '' %>" href="/set-language/hu?admin=true" rel="nofollow">
-                  <i class="flag-icon flag-icon-hu me-2"></i><span>Magyar</span>
-                </a>
-              </li>
-              <li>
-                <a class="dropdown-item language-option <%- i18n.language === 'de' ? 'active' : '' %>" href="/set-language/de?admin=true" rel="nofollow">
-                  <i class="flag-icon flag-icon-de me-2"></i><span>Deutsch</span>
-                </a>
-              </li>
-            </ul>
-          </div>
+          <!-- Nyelvválasztó eltávolítva – csak Deutsch marad -->
         </div>
 
         <div>
           <a href="/admin" class="btn btn-outline-secondary me-2">
-            <i class="fas fa-arrow-left me-1"></i><%= t('admin.back') %>
+            <i class="fas fa-arrow-left me-1"></i>Zurück
           </a>
           <form id="logoutForm" method="post" action="/admin/logout" class="d-inline">
             <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
             <button class="btn btn-outline-danger" type="submit">
-              <i class="fas fa-sign-out-alt me-1"></i><%= t('admin.logout') %>
+              <i class="fas fa-sign-out-alt me-1"></i>Abmelden
             </button>
           </form>
         </div>
@@ -53,17 +35,17 @@
       <div class="row mb-4">
         <div class="col-md-4">
           <button class="btn btn-success w-100" onclick="openCategoryModal()">
-            <i class="fas fa-plus me-2"></i><%= t('admin.newCategory') %>
+            <i class="fas fa-plus me-2"></i>Neue Kategorie
           </button>
         </div>
         <div class="col-md-4">
           <button class="btn btn-primary w-100" onclick="openItemModal()">
-            <i class="fas fa-plus me-2"></i><%= t('admin.newItem') %>
+            <i class="fas fa-plus me-2"></i>Neuer Eintrag
           </button>
         </div>
         <div class="col-md-4">
           <button class="btn btn-info w-100" onclick="saveMenu()">
-            <i class="fas fa-save me-2"></i><%= t('admin.save') %>
+            <i class="fas fa-save me-2"></i>Speichern
           </button>
         </div>
       </div>
@@ -74,7 +56,7 @@
           <div id="menuEditor">
             <!-- Itt jelenik meg a menü szerkesztő -->
             <div class="text-center text-muted py-5" id="loadingMessage">
-              <i class="fas fa-spinner fa-spin me-2"></i><%= t('admin.loadingMenu') %>
+              <i class="fas fa-spinner fa-spin me-2"></i>Menü wird geladen...
             </div>
           </div>
         </div>
@@ -88,21 +70,21 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="categoryModalTitle"><%= t('admin.newCategory') %></h5>
+        <h5 class="modal-title" id="categoryModalTitle">Neue Kategorie</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
         <form id="categoryForm">
           <input type="hidden" id="categoryIndex" value="">
           <div class="mb-3">
-            <label for="categoryName" class="form-label"><%= t('admin.categoryName') %></label>
+            <label for="categoryName" class="form-label">Kategoriename</label>
             <input type="text" class="form-control" id="categoryName" required>
           </div>
         </form>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><%= t('admin.cancel') %></button>
-        <button type="button" class="btn btn-primary" onclick="saveCategory()"><%= t('admin.save') %></button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+        <button type="button" class="btn btn-primary" onclick="saveCategory()">Speichern</button>
       </div>
     </div>
   </div>
@@ -113,7 +95,7 @@
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="itemModalTitle"><%= t('admin.newItem') %></h5>
+        <h5 class="modal-title" id="itemModalTitle">Neuer Eintrag</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
@@ -124,44 +106,44 @@
           <div class="row">
             <div class="col-md-6">
               <div class="mb-3">
-                <label for="itemName" class="form-label"><%= t('admin.name') %> *</label>
+                <label for="itemName" class="form-label">Name *</label>
                 <input type="text" class="form-control" id="itemName" required>
               </div>
             </div>
             <div class="col-md-6">
               <div class="mb-3">
-                <label for="itemPrice" class="form-label"><%= t('admin.price') %> (Fr) *</label>
+                <label for="itemPrice" class="form-label">Preis (Fr) *</label>
                 <input type="number" class="form-control" id="itemPrice" min="0" step="0.01" required>
               </div>
             </div>
           </div>
 
           <div class="mb-3">
-            <label for="itemDescription" class="form-label"><%= t('admin.description') %></label>
+            <label for="itemDescription" class="form-label">Beschreibung</label>
             <textarea class="form-control" id="itemDescription" rows="3"></textarea>
           </div>
 
           <div class="mb-3">
-            <label for="itemTags" class="form-label"><%= t('admin.tags') %></label>
+            <label for="itemTags" class="form-label">Tags (mit Komma getrennt)</label>
             <input type="text" class="form-control" id="itemTags" placeholder="hausgemacht, frisch, würzig">
           </div>
 
           <div class="mb-3">
-            <label for="itemAllergens" class="form-label"><%= t('admin.allergens') %></label>
+            <label for="itemAllergens" class="form-label">Allergene (mit Komma getrennt)</label>
             <input type="text" class="form-control" id="itemAllergens" placeholder="Laktose, Gluten, Nüsse">
           </div>
 
           <div class="mb-3">
-            <label for="itemCategory" class="form-label"><%= t('admin.selectCategory') %> *</label>
+            <label for="itemCategory" class="form-label">Kategorie wählen... *</label>
             <select class="form-select" id="itemCategory" required>
-              <option value=""><%= t('admin.selectCategory') %></option>
+              <option value="">Kategorie wählen...</option>
             </select>
           </div>
         </form>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><%= t('admin.cancel') %></button>
-        <button type="button" class="btn btn-primary" onclick="saveItem()"><%= t('admin.save') %></button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+        <button type="button" class="btn btn-primary" onclick="saveItem()">Speichern</button>
       </div>
     </div>
   </div>
@@ -203,24 +185,24 @@
 let menuData = { title: "", categories: [] };
 let csrfToken = '';
 
-// Fordítási stringek (szerver oldalról átadva)
+// Fordítási stringek – most már fix német szövegek
 const translations = {
-  errorLoadingMenu: '<%= t("admin.errorLoadingMenu") %>',
-  noCategories: '<%= t("admin.noCategories") %>',
-  noCategoriesHint: '<%= t("admin.noCategoriesHint") %>',
-  noItemsInCategory: '<%= t("admin.noItemsInCategory") %>',
-  editCategory: '<%= t("admin.editCategory") %>',
-  newCategory: '<%= t("admin.newCategory") %>',
-  editItem: '<%= t("admin.editItem") %>',
-  newItem: '<%= t("admin.newItem") %>',
-  selectCategory: '<%= t("admin.selectCategory") %>',
-  categoryRequired: '<%= t("admin.categoryRequired") %>',
-  namePriceCategoryRequired: '<%= t("admin.namePriceCategoryRequired") %>',
-  confirmDeleteCategory: '<%= t("admin.confirmDeleteCategory") %>',
-  confirmDeleteItem: '<%= t("admin.confirmDeleteItem") %>',
-  menuSaved: '<%= t("admin.menuSaved") %>',
-  errorSaving: '<%= t("admin.errorSaving") %>',
-  errorSavingMenu: '<%= t("admin.errorSavingMenu") %>'
+  errorLoadingMenu: 'Fehler beim Laden des Menüs.',
+  noCategories: 'Noch keine Kategorien',
+  noCategoriesHint: 'Beginnen Sie mit dem Erstellen einer neuen Kategorie!',
+  noItemsInCategory: 'Noch keine Einträge in dieser Kategorie',
+  editCategory: 'Kategorie bearbeiten',
+  newCategory: 'Neue Kategorie',
+  editItem: 'Eintrag bearbeiten',
+  newItem: 'Neuer Eintrag',
+  selectCategory: 'Kategorie wählen...',
+  categoryRequired: 'Kategoriename ist erforderlich!',
+  namePriceCategoryRequired: 'Name, Preis und Kategorie sind erforderlich!',
+  confirmDeleteCategory: 'Sind Sie sicher, dass Sie diese Kategorie löschen möchten?',
+  confirmDeleteItem: 'Sind Sie sicher, dass Sie diesen Eintrag löschen möchten?',
+  menuSaved: 'Menü erfolgreich gespeichert!',
+  errorSaving: 'Fehler beim Speichern: ',
+  errorSavingMenu: 'Fehler beim Speichern des Menüs.'
 };
 
 // CSRF token lekérése
