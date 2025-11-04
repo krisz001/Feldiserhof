@@ -85,93 +85,6 @@
 </section>
 
 <!-- JAVASCRIPT A NYITVATARTÁS BETÖLTÉSÉHEZ -->
-<section id="contact" class="container-xxl pt-5 pb-0">
-  <div class="container">
-    <div class="row g-4 align-items-stretch contact-wrap">
-
-      <!-- Bal: info -->
-      <div class="col-lg-5">
-        <div class="contact-card h-100 mb-0">
-          <h5 class="section-title ff-secondary text-start fw-normal mb-2">Kontakt</h5>
-          <h1 class="mb-3 contact-headline">So erreichen Sie uns</h1>
-
-          <p class="mb-4">
-            Haben Sie Fragen oder möchten reservieren? Rufen Sie uns an oder schreiben Sie uns eine Nachricht.
-          </p>
-
-          <ul class="list-unstyled fs-5 mb-4">
-            <li class="mb-3 d-flex align-items-start contact-item">
-              <i class="fas fa-map-marker-alt icon" aria-hidden="true"></i>
-              <div>
-                <a
-                  href="https://www.google.com/maps/place/Feldiserhof,+7404+Feldis,+Schweiz"
-                  target="_blank" rel="noopener noreferrer"
-                  class="contact-link">
-                  Feldiserhof, 7404 Feldis, Schweiz
-                </a>
-                <div>
-                  <a
-                    href="https://www.google.com/maps/dir/?api=1&destination=Feldiserhof,+7404+Feldis,+Schweiz"
-                    target="_blank" rel="noopener noreferrer"
-                    class="contact-link with-icon">
-                    <i class="fas fa-map-location-dot" aria-hidden="true"></i>
-                    <span>Route anzeigen</span>
-                  </a>
-                </div>
-              </div>
-            </li>
-
-            <li class="mb-3 d-flex align-items-center contact-item">
-              <i class="fas fa-phone icon" aria-hidden="true"></i>
-              <a href="tel:+41816513030" class="contact-link">+41 81 651 30 30</a>
-            </li>
-
-            <li class="mb-3 d-flex align-items-center contact-item">
-              <i class="fas fa-envelope icon" aria-hidden="true"></i>
-              <a href="mailto:info@feldiserhof.ch" class="contact-link">info@feldiserhof.ch</a>
-            </li>
-          </ul>
-
-          <div class="mb-4">
-            <a class="btn btn-primary me-2" href="tel:+41816513030" aria-label="Anrufen">Anrufen</a>
-            <a class="btn btn-outline-primary" href="mailto:info@feldiserhof.ch" aria-label="E-Mail senden">E-Mail</a>
-          </div>
-
-          <!-- NYITVATARTÁS STÁTUSZ ÉS ÓRÁK -->
-          <h5 class="mt-2 section-title">Öffnungszeiten</h5>
-          
-          <!-- Státusz badge és szöveg -->
-          <div class="d-flex align-items-center gap-2 mb-3">
-            <span id="badgeOpen" class="badge bg-success d-none">GEÖFFNET</span>
-            <span id="badgeClosed" class="badge bg-danger d-none">GESCHLOSSEN</span>
-            <span id="statusText" class="small text-muted"></span>
-          </div>
-          
-          <!-- Órák lista -->
-          <ul id="hoursList" class="list-unstyled mt-2 small mb-0"></ul>
-        </div>
-      </div>
-
-      <!-- Jobb: térkép -->
-      <div class="col-lg-7 d-flex">
-        <div class="map-card rounded-4 shadow-sm flex-grow-1 mb-0">
-          <div class="ratio ratio-16x9 map-ratio">
-            <iframe
-              title="Karte – Feldiserhof"
-              src="https://www.google.com/maps?q=Feldiserhof,+Feldis,+Schweiz&output=embed"
-              class="d-block"
-              loading="lazy"
-              allowfullscreen
-              referrerpolicy="no-referrer-when-downgrade"></iframe>
-          </div>
-        </div>
-      </div>
-
-    </div>
-  </div>
-</section>
-
-<!-- JAVASCRIPT A NYITVATARTÁS BETÖLTÉSÉHEZ -->
 <script>
   (() => {
     const badgeOpen = document.getElementById('badgeOpen');
@@ -179,8 +92,14 @@
     const statusText = document.getElementById('statusText');
     const hoursList = document.getElementById('hoursList');
 
-    // Napok nevei (0 = Sonntag, 1 = Montag, ...)
     const dayNames = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
+
+    // Dátum formázás: 2025-11-25 → 25.11.
+    function formatDateShort(dateStr) {
+      if (!dateStr) return '';
+      const [year, month, day] = dateStr.split('-');
+      return `${day}.${month}.`;
+    }
 
     async function loadOpeningHours() {
       try {
@@ -189,54 +108,74 @@
         
         const data = await res.json();
 
-        // ===== STÁTUSZ MEGJELENÍTÉSE =====
+        // ===== 1. FORCE CLOSE CHECK (MANUÁLIS ZÁRVA) =====
         if (data.forceCloseForTesting) {
-          // ZÁRVA (admin által manuálisan beállítva)
           badgeClosed.classList.remove('d-none');
           badgeOpen.classList.add('d-none');
           statusText.textContent = 'Bis auf weiteres geschlossen';
           
-          // MINDEN NAPRA "GESCHLOSSEN" KIÍRÁSA
-          hoursList.innerHTML = dayNames.map(dayName => `
+          hoursList.innerHTML = dayNames.map(day => `
             <li class="d-flex justify-content-between py-1 border-bottom">
-              <span class="fw-semibold">${dayName}</span>
-              <span class="text-danger fw-bold">geschlossen</span>
+              <span class="fw-semibold">${day}</span>
+              <span class="text-danger">geschlossen</span>
             </li>
           `).join('');
-        } else {
-          // NYITVA - normál nyitvatartás megjelenítése
-          badgeOpen.classList.remove('d-none');
-          badgeClosed.classList.add('d-none');
-          statusText.textContent = '';
+          
+          return; // NEM MEGYÜNK TOVÁBB
+        }
 
-          // ===== ÓRÁK MEGJELENÍTÉSE (week objektum alapján) =====
-          if (data.week && typeof data.week === 'object') {
-            hoursList.innerHTML = dayNames.map((dayName, idx) => {
-              const dayKey = String(idx);
-              const times = data.week[dayKey] || [];
-              
-              let timeStr;
-              if (times.length === 0) {
-                // Üres tömb = zárva
-                timeStr = '<span class="text-muted">geschlossen</span>';
-              } else if (times[0] && times[0].length === 2) {
-                // Van nyitvatartás
-                timeStr = `${times[0][0] || '–'} – ${times[0][1] || '–'}`;
-              } else {
-                timeStr = '<span class="text-muted">–</span>';
+        // ===== 2. EXCEPTIONS CHECK (IDŐSZAKOS ZÁRVA) =====
+        const today = new Date();
+        const todayStr = today.toISOString().split('T')[0];
+        
+        if (data.exceptions && Array.isArray(data.exceptions)) {
+          for (const exc of data.exceptions) {
+            if (exc.type === 'closed' && exc.start && exc.end) {
+              if (todayStr >= exc.start && todayStr <= exc.end) {
+                // MA EXCEPTION IDŐSZAKBAN VAGYUNK
+                badgeClosed.classList.remove('d-none');
+                badgeOpen.classList.add('d-none');
+                statusText.textContent = `Geschlossen – bis einschließlich ${formatDateShort(exc.end)}`;
+                
+                hoursList.innerHTML = dayNames.map(day => `
+                  <li class="d-flex justify-content-between py-1 border-bottom">
+                    <span class="fw-semibold">${day}</span>
+                    <span class="text-danger">geschlossen</span>
+                  </li>
+                `).join('');
+                
+                return; // NEM MEGYÜNK TOVÁBB
               }
-              
-              return `
-                <li class="d-flex justify-content-between py-1 border-bottom">
-                  <span class="fw-semibold">${dayName}</span>
-                  <span>${timeStr}</span>
-                </li>
-              `;
-            }).join('');
-          } else {
-            hoursList.innerHTML = '<li class="text-muted">Keine Öffnungszeiten verfügbar</li>';
+            }
           }
         }
+
+        // ===== 3. NORMÁLIS MŰKÖDÉS (NYITVA) =====
+        badgeOpen.classList.remove('d-none');
+        badgeClosed.classList.add('d-none');
+        statusText.textContent = '';
+
+        const week = data.week || {};
+        
+        hoursList.innerHTML = dayNames.map((dayName, idx) => {
+          const dayKey = String(idx);
+          const times = week[dayKey] || [];
+          
+          let timeStr;
+          if (times.length === 0) {
+            timeStr = '<span class="text-muted">geschlossen</span>';
+          } else {
+            const firstSlot = times[0];
+            timeStr = `${firstSlot[0] || '–'} – ${firstSlot[1] || '–'}`;
+          }
+          
+          return `
+            <li class="d-flex justify-content-between py-1 border-bottom">
+              <span class="fw-semibold">${dayName}</span>
+              <span>${timeStr}</span>
+            </li>
+          `;
+        }).join('');
 
       } catch (err) {
         console.error('Opening hours load error:', err);
