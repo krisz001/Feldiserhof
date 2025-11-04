@@ -1,8 +1,10 @@
 <%
   const categories = Array.isArray(menuData?.categories) ? menuData.categories : [];
-  const titleTxt    = t('menu.title',    { defaultValue: 'Speisekarte' });
-  const subtitleTxt = t('menu.subtitle', { defaultValue: 'Entdecken Sie unsere Küche' });
-  const introTxt    = t('menu.intro',    { defaultValue: 'Frisch, saisonal, regional – täglich für Sie.' });
+
+  // Címsorok – vagy az include-ból kapott értékeket használjuk, vagy alap DE szöveget
+  const titleTxt    = (typeof menuTitle    !== 'undefined') ? menuTitle    : 'Speisekarte';
+  const subtitleTxt = (typeof menuSubtitle !== 'undefined') ? menuSubtitle : 'Entdecken Sie unsere Küche';
+  const introTxt    = (typeof menuIntro    !== 'undefined') ? menuIntro    : 'Frisch, saisonal, regional – täglich für Sie.';
 
   // ===== Front és back külön =====
   const ITEMS_PER_SIDE = 4; // egy OLDALON max 4 elem
