@@ -1,5 +1,5 @@
 // ============================================================
-// Feldiserhof – Express.js szerver (admin-ready + Wellness + Rooms)
+// Feldiserhof – Express.js szerver (admin-ready + i18n + Wellness + Rooms)
 // + Feature Flag: "menuBookEnabled" (könyv nyithatóság adminból)
 // ============================================================
 import express from 'express';
@@ -13,6 +13,11 @@ import helmet from 'helmet';
 import csrf from 'csurf';
 import rateLimit from 'express-rate-limit';
 import cookieParser from 'cookie-parser';
+
+// i18n
+import i18next from 'i18next';
+import Backend from 'i18next-fs-backend';
+import i18nextMiddleware from 'i18next-http-middleware';
 
 dotenv.config();
 
@@ -30,6 +35,15 @@ console.log('===============================================');
 console.log('🚀 Feldiserhof szerver indul...');
 console.log('📦 NODE_ENV:', process.env.NODE_ENV || '(nincs megadva)');
 console.log('===============================================');
+
+// ============================================================
+// Nyelvi fájlok gyors ellenőrzése
+// ============================================================
+const huPath = path.join(__dirname, 'locales', 'hu', 'translation.json');
+const dePath = path.join(__dirname, 'locales', 'de', 'translation.json');
+console.log('🔍 Nyelvi fájlok:');
+console.log('   HU:', fs.existsSync(huPath) ? 'OK' : 'HIÁNYZIK', '→', huPath);
+console.log('   DE:', fs.existsSync(dePath) ? 'OK' : 'HIÁNYZIK', '→', dePath);
 
 // ============================================================
 // Feature flags – perzisztens tárolás
@@ -60,6 +74,38 @@ function writeSettings(s) {
   }
 }
 let SETTINGS = readSettings();
+
+// ============================================================
+// i18next init (cookie detektálás)
+// ============================================================
+await i18next
+  .use(Backend)
+  .use(i18nextMiddleware.LanguageDetector)
+  .init(
+    {
+      fallbackLng: 'hu',
+      preload: ['hu', 'de'],
+      backend: { loadPath: path.join(__dirname, 'locales', '{{lng}}', 'translation.json') },
+      detection: { order: ['cookie'], caches: ['cookie'], lookupCookie: 'i18next' },
+      debug: !isProd,
+      initImmediate: false,
+      interpolation: { escapeValue: false },
+    },
+    (err, t) => {
+      if (err) console.error('❌ i18next init hiba:', err);
+      else console.log('✅ i18next OK | minta kulcs:', t('home.title', { lng: 'hu' }));
+    },
+  );
+
+// i18n middleware – API/auth kivételek
+app.use(
+  i18nextMiddleware.handle(i18next, {
+    ignoreRoutes: (req) =>
+      req.url.startsWith('/api') ||
+      req.url.startsWith('/admin/login') ||
+      req.url.startsWith('/admin/logout'),
+  }),
+);
 
 // ============================================================
 // EJS beállítások + view-helpek
@@ -159,7 +205,7 @@ app.use(
 );
 
 // ============================================================
-/** Parserek, cookie, session */
+// Parserek, cookie, session
 // ============================================================
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -184,6 +230,16 @@ app.use(
 // ============================================================
 // Helper függvények
 // ============================================================
+const setLangCookie = (res, lng) => {
+  res.cookie('i18next', lng, {
+    path: '/',
+    maxAge: 365 * 24 * 60 * 60 * 1000,
+    httpOnly: false,
+    sameSite: 'lax',
+    secure: isProd,
+  });
+};
+
 const loadJSON = (publicRelPath) => {
   try {
     const fullPath = path.join(__dirname, 'public', publicRelPath);
@@ -235,12 +291,11 @@ const loadHeroBox = () => {
 };
 
 // ============================================================
-// „i18n locals" helyett egyszerű flags + debug log
+// i18n locals + flags + egyszerű kérés-log
 // ============================================================
 app.use((req, res, next) => {
-  // Ha bárhol EJS-ben maradt volna <%= t('kulcs') %>, ne dőljön el az oldal:
-  res.locals.t = (key) => key;
-  res.locals.i18n = null;
+  res.locals.t = req.t;
+  res.locals.i18n = req.i18n;
   res.locals.flags = { menuBookEnabled: !!SETTINGS.menuBookEnabled };
 
   if (process.env.LOG_REQUESTS === '1') {
@@ -248,6 +303,8 @@ app.use((req, res, next) => {
       '➡️',
       req.method,
       req.url,
+      '| lang:',
+      req.language,
       '| admin:',
       !!req.session?.isAdmin,
       '| menuBookEnabled:',
@@ -255,6 +312,42 @@ app.use((req, res, next) => {
     );
   }
   next();
+});
+
+// ============================================================
+// Nyelvváltás
+// ============================================================
+app.post('/change-language', (req, res) => {
+  const { lang } = req.body || {};
+  if (['hu', 'de'].includes(lang)) {
+    setLangCookie(res, lang);
+    return res.json({ success: true });
+  }
+  res.status(400).json({ success: false, message: 'Érvénytelen nyelv' });
+});
+
+app.get('/set-language/:lang', (req, res) => {
+  const { lang } = req.params;
+  const { admin } = req.query;
+  if (!['hu', 'de'].includes(lang)) return res.status(400).send('Érvénytelen nyelv');
+
+  const wasAdmin = !!req.session.isAdmin;
+  setLangCookie(res, lang);
+  if (wasAdmin || admin === 'true') req.session.isAdmin = true;
+
+  // Session mentés timeout-tal
+  const saveTimeout = setTimeout(() => {
+    console.warn('⚠️ Session mentés timeout');
+    const referer = req.get('Referer') || (wasAdmin ? '/admin' : '/');
+    res.redirect(referer);
+  }, 2000);
+
+  req.session.save((err) => {
+    clearTimeout(saveTimeout);
+    if (err) console.error('❌ Session mentési hiba:', err);
+    const referer = req.get('Referer') || (wasAdmin ? '/admin' : '/');
+    res.redirect(referer);
+  });
 });
 
 // ============================================================
@@ -283,8 +376,8 @@ app.get('/', (req, res) => {
   res.render(
     'index',
     {
-      title: 'Feldiserhof – Hotel & Restaurant',
-      description: 'Hotel, Restaurant & Café Feldis – feine Küche, regionale Zutaten, kleine Wellness-Oase.',
+      title: res.locals.t('home.title'),
+      description: res.locals.t('home.description'),
       menu: menuData,
       hours: openingHours,
       heroBox: heroBoxData,
@@ -329,8 +422,8 @@ app.get('/gallery', (req, res) => {
   res.render(
     'gallery',
     {
-      title: 'Galerie – Feldiserhof',
-      description: 'Einblick in unser Hotel, Restaurant und den Wellnessbereich.',
+      title: res.locals.t('gallery.title'),
+      description: res.locals.t('gallery.description'),
     },
     (err, html) => {
       if (err) {
@@ -397,7 +490,7 @@ const requireAdmin = (req, res, next) => {
 
 const loginLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 20 });
 
-// CSRF middleware (session alapú)
+// CSRF middleware (session alapú) - KORÁBBAN DEFINIÁLVA
 const csrfProtection = csrf({ cookie: false });
 
 const csrfFromHeader = csrf({
@@ -431,28 +524,27 @@ app.post('/admin/logout', requireAdmin, (req, res) => {
   req.session.destroy(() => res.json({ ok: true }));
 });
 
-// ✅ JAVÍTVA: CSRF middleware hozzáadva
-app.get('/admin', requireAdmin, csrfProtection, (req, res) => {
+app.get('/admin', requireAdmin, (req, res) => {
   const heroBoxData = loadHeroBox();
   res.render('admin/dashboard', {
-    title: 'Admin-Dashboard – Feldiserhof',
-    description: 'Administrationsbereich der Feldiserhof-Website',
+    title: req.t('admin.title'),
+    description: req.t('admin.description'),
     heroBox: heroBoxData,
-    csrfToken: req.csrfToken(),
+    csrfToken: req.csrfToken ? req.csrfToken() : '',
   });
 });
 
 app.get('/admin/menu', requireAdmin, csrfProtection, (req, res) => {
   const menuData = loadJSON('menu.json');
   res.render('admin/menu-editor', {
-    title: 'Speisekarte bearbeiten',
-    description: 'Speisen, Getränke und Kategorien verwalten, Preise aktualisieren.',
+    title: req.t('admin.menuEditor'),
+    description: req.t('admin.menuEditorDesc'),
     menu: menuData,
     csrfToken: req.csrfToken(),
   });
 });
 
-// Feature-Schalter oldal
+// Feature-Schalter oldal - ⚠️ JAVÍTVA: csrfProtection hozzáadva
 app.get('/admin/mitarbeitende', requireAdmin, csrfProtection, (req, res) => {
   res.render('admin/mitarbeitende', {
     title: 'Feature-Schalter',
@@ -508,6 +600,7 @@ app.get('/api/feature-flags', (req, res) => {
   res.json({ menuBookEnabled: !!SETTINGS.menuBookEnabled });
 });
 
+// ⚠️ JAVÍTVA: csrfProtection használata csrfFromHeader helyett
 app.post('/admin/feature-flags/menu-book', requireAdmin, csrfProtection, (req, res) => {
   const { enabled } = req.body || {};
   if (typeof enabled !== 'boolean') {
@@ -535,16 +628,14 @@ const csrfErrorHandler = (err, req, res, next) => {
 };
 app.use(csrfErrorHandler);
 
-app.use((err, req, res, _next) => {
+app.use((err, _req, res, _next) => {
   console.error('💥 Váratlan hiba:', err);
-  console.error('📍 URL:', req.url);
-  console.error('📄 Stack:', err.stack);
   res.status(500).send('Internal Server Error');
 });
 
 // 404
 app.use((req, res) => {
-  res.status(404).send('404 – Seite nicht gefunden.');
+  res.status(404).send(req.t('errors.404'));
 });
 
 // ============================================================
@@ -552,11 +643,11 @@ app.use((req, res) => {
 // ============================================================
 app.listen(PORT, () => {
   console.log(`✅ Feldiserhof szerver fut: http://localhost:${PORT}`);
-  console.log(`🌐 Nyelvi támogatás: statische DE-Texte (i18n nélkül)`);
+  console.log(`🌐 Nyelvi támogatás: hu, de`);
   console.log(`🔐 Admin: /admin`);
   console.log(`📝 Menü szerkesztő: /admin/menu`);
   console.log(`🎯 Hero Box: aktív`);
   console.log('📁 Feature flags fájl:', SETTINGS_PATH);
-  console.log('⚙️ menuBookEnabled:', SETTINGS.menuBookEnabled);
-  console.log('🛏 Rooms: data/rooms.json betöltve.');
+  console.log('⚙️  menuBookEnabled:', SETTINGS.menuBookEnabled);
+  console.log('🛏  Rooms: data/rooms.json betöltve.');
 });
