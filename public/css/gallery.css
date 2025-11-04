@@ -357,15 +357,13 @@
 
 /* ----------- Egyéb (subnav, title, hero) ----------- */
 .gallery-subnav {
-  position: sticky;
-  top: calc(var(--nav-height, 80px) + 8px);
+  position: relative;
   z-index: 20;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
   margin: 0 0 1rem;
-  backdrop-filter: blur(8px);
 }
 
 .btn-back {
@@ -547,7 +545,7 @@ body #gallery :is(.folder-card:hover, .gallery-card:hover) {
   border-color: #e3c176 !important;
 }
 
-/* biztos aspect-ratio – nincs „ugrás” betöltéskor */
+/* biztos aspect-ratio – nincs „ugrás" betöltéskor */
 #gallery :is(.folder-card, .gallery-card),
 #gallery :is(.folder-cover, .gallery-card img) {
   aspect-ratio: var(--thumb-ratio) !important;
@@ -574,22 +572,3 @@ body #gallery :is(.folder-card:hover, .gallery-card:hover) {
   min-height: 1.6em;
   pointer-events: none;
 }
-
-/* sticky subnav biztos olvashatósággal */
-#gallery .gallery-subnav {
-  position: sticky;
-  top: calc(var(--nav-height, 80px) + 8px);
-  z-index: 20;
-  backdrop-filter: blur(8px);
-}
-
-#gallery {
-  --subnav-h: 56px;
-} /* igény szerint 48–64px */
-.gallery-subnav {
-  min-height: var(--subnav-h);
-}
-
-.gallery-subnav-spacer {
-  height: var(--subnav-h);
-} /* ez tolja le a rácsot */
