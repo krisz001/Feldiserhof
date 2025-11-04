@@ -43,38 +43,42 @@
         <div class="skeleton" aria-hidden="true"></div>
 
         <%
-          // Ellenőrizzük a különböző formátumokat és méreteket
-          const aboutWebp1200 = assetIfExists('/img/feldis.jpg');
-          const aboutWebp800  = assetIfExists('/img/feldis-800.jpg');
+          // Elérési utak a képekhez – webp + jpg
+          const aboutWebp1200 = assetIfExists('/img/feldis.webp');
+          const aboutWebp800  = assetIfExists('/img/feldis-800.webp');
           const aboutJpg1200  = assetIfExists('/img/feldis.jpg');
           const aboutJpg800   = assetIfExists('/img/feldis-800.jpg');
           const placeholder   = '/img/placeholder-room.jpg';
 
-          // Fallback: ha nincs 1200px-es, használjuk a 800px-eset vagy placeholdert
-          const finalSrc = aboutJpg1200 || aboutJpg800 || placeholder;
+          // Fallback: először JPG, aztán WEBP, végül placeholder
+          const finalSrc = aboutJpg1200 || aboutJpg800 || aboutWebp1200 || aboutWebp800 || placeholder;
         %>
 
-        <% if (aboutWebp1200 || aboutWebp800 || aboutJpg800) { %>
+        <% if (aboutWebp1200 || aboutWebp800 || aboutJpg1200 || aboutJpg800) { %>
           <!-- Van modern formátum vagy több méret -> picture tag -->
           <picture>
-            <% if (aboutWebp1200 || aboutWebp800) { %>
-              <% 
-                const webpSources = [];
-                if (aboutWebp800) webpSources.push(`${aboutWebp800} 800w`);
-                if (aboutWebp1200) webpSources.push(`${aboutWebp1200} 1200w`);
-                const webpSet = webpSources.join(', ');
-              %>
-              <source type="image/webp" srcset="<%= webpSet %>" sizes="(min-width: 992px) 50vw, 100vw">
+            <% if (aboutWebp1200 || aboutWebp800) { 
+                 const webpSources = [];
+                 if (aboutWebp800)  webpSources.push(`${aboutWebp800} 800w`);
+                 if (aboutWebp1200) webpSources.push(`${aboutWebp1200} 1200w`);
+                 const webpSet = webpSources.join(', ');
+            %>
+              <source
+                type="image/webp"
+                srcset="<%= webpSet %>"
+                sizes="(min-width: 992px) 50vw, 100vw">
             <% } %>
 
-            <% if (aboutJpg1200 || aboutJpg800) { %>
-              <% 
-                const jpgSources = [];
-                if (aboutJpg800) jpgSources.push(`${aboutJpg800} 800w`);
-                if (aboutJpg1200) jpgSources.push(`${aboutJpg1200} 1200w`);
-                const jpgSet = jpgSources.join(', ');
-              %>
-              <source type="image/jpeg" srcset="<%= jpgSet %>" sizes="(min-width: 992px) 50vw, 100vw">
+            <% if (aboutJpg1200 || aboutJpg800) { 
+                 const jpgSources = [];
+                 if (aboutJpg800)  jpgSources.push(`${aboutJpg800} 800w`);
+                 if (aboutJpg1200) jpgSources.push(`${aboutJpg1200} 1200w`);
+                 const jpgSet = jpgSources.join(', ');
+            %>
+              <source
+                type="image/jpeg"
+                srcset="<%= jpgSet %>"
+                sizes="(min-width: 992px) 50vw, 100vw">
             <% } %>
 
             <img
@@ -83,22 +87,22 @@
               loading="lazy"
               decoding="async"
               fetchpriority="low"
-              width="1200" 
+              width="1200"
               height="900"
               class="about-img ratio-4-3"
               data-placeholder="<%= placeholder %>"
               data-skeleton-selector=".skeleton"
-            >r
-          </pictue>
+            >
+          </picture>
         <% } else { %>
-          <!-- Csak egyszerű JPG van -> img tag -->
+          <!-- Csak egyszerű kép elérhető -> sima img tag -->
           <img
             src="<%= finalSrc %>"
             alt="Feldiserhof – Restaurant Innenraum"
             loading="lazy"
             decoding="async"
             fetchpriority="low"
-            width="1200" 
+            width="1200"
             height="900"
             class="about-img ratio-4-3"
             data-placeholder="<%= placeholder %>"
@@ -111,7 +115,11 @@
         </figcaption>
 
         <noscript>
-          <img src="<%= finalSrc %>" alt="Feldiserhof – Restaurant Innenraum" width="1200" height="900">
+          <img
+            src="<%= finalSrc %>"
+            alt="Feldiserhof – Restaurant Innenraum"
+            width="1200"
+            height="900">
         </noscript>
       </figure>
     </div>
