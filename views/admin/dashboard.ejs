@@ -1,6 +1,6 @@
 <%- include('../partials/head', { 
-  title: t('admin.title'),
-  description: t('admin.description')
+  title: 'Admin-Dashboard – Feldiserhof',
+  description: 'Administrationsbereich der Feldiserhof-Website'
 }) %>
 
 <%- include('../partials/navbar') %>
@@ -12,35 +12,17 @@
         <div class="d-flex align-items-center">
           <h1 class="h2 text-primary mb-0">
             <i class="fas fa-crown me-2"></i>
-            <span id="dashboard-title"><%= t('admin.dashboardTitle') %></span>
+            <span id="dashboard-title">Admin-Dashboard</span>
           </h1>
 
-          <!-- Nyelvválasztó - admin session megőrzésével -->
-          <div class="dropdown ms-3">
-            <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="languageDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-              <i class="fas fa-globe me-1"></i>
-              <span id="current-language"><%- (i18n.language === 'de' ? 'Deutsch' : 'Magyar') %></span>
-            </button>
-            <ul class="dropdown-menu" aria-labelledby="languageDropdown">
-              <li>
-                <a class="dropdown-item language-option <%- i18n.language === 'hu' ? 'active' : '' %>" href="/set-language/hu?admin=true" rel="nofollow">
-                  <i class="flag-icon flag-icon-hu me-2"></i><span>Magyar</span>
-                </a>
-              </li>
-              <li>
-                <a class="dropdown-item language-option <%- i18n.language === 'de' ? 'active' : '' %>" href="/set-language/de?admin=true" rel="nofollow">
-                  <i class="flag-icon flag-icon-de me-2"></i><span>Deutsch</span>
-                </a>
-              </li>
-            </ul>
-          </div>
+          <!-- Nyelvválasztó teljesen kivéve, hogy ne legyen i18n hivatkozás -->
         </div>
 
         <form id="logoutForm" method="post" action="/admin/logout">
           <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
           <button class="btn btn-outline-danger" id="logout-button" type="submit">
             <i class="fas fa-sign-out-alt me-1"></i>
-            <span id="logout-text"><%= t('admin.logout') %></span>
+            <span id="logout-text">Abmelden</span>
           </button>
         </form>
       </div>
@@ -48,7 +30,7 @@
       <div class="alert alert-success d-flex align-items-center" id="welcome-alert" role="status" aria-live="polite">
         <i class="fas fa-check-circle me-2 fs-5"></i>
         <div>
-          <span id="welcome-text"><%= t('admin.welcome') %></span>
+          <span id="welcome-text">Erfolgreich angemeldet! Willkommen im Admin-Bereich.</span>
         </div>
       </div>
 
@@ -61,7 +43,9 @@
                 <i class="fas fa-mountain me-2"></i>
                 <span>Hero Box Kezelő</span>
               </h5>
-              <p class="card-text flex-grow-1">A főoldali hero szekcióban megjelenő box tartalmának szerkesztése</p>
+              <p class="card-text flex-grow-1">
+                A főoldali hero szekcióban megjelenő box tartalmának szerkesztése
+              </p>
               <button class="btn btn-primary mt-auto" onclick="openHeroBoxEditor()">Szerkesztés</button>
             </div>
           </div>
@@ -73,10 +57,12 @@
             <div class="card-body d-flex flex-column">
               <h5 class="card-title text-primary">
                 <i class="fas fa-utensils me-2"></i>
-                <span id="menu-editor-title"><%= t('admin.menuEditor') %></span>
+                <span id="menu-editor-title">Speisekarte bearbeiten</span>
               </h5>
-              <p class="card-text flex-grow-1" id="menu-editor-desc"><%= t('admin.menuEditorDesc') %></p>
-              <a href="/admin/menu" class="btn btn-primary mt-auto" id="menu-editor-button"><%= t('admin.open') %></a>
+              <p class="card-text flex-grow-1" id="menu-editor-desc">
+                Speisen, Getränke und Kategorien verwalten, Preise aktualisieren.
+              </p>
+              <a href="/admin/menu" class="btn btn-primary mt-auto" id="menu-editor-button">Öffnen</a>
             </div>
           </div>
         </div>
@@ -87,10 +73,12 @@
             <div class="card-body d-flex flex-column">
               <h5 class="card-title text-success">
                 <i class="fas fa-image me-2"></i>
-                <span id="gallery-title"><%= t('admin.gallery') %></span>
+                <span id="gallery-title">Galerie verwalten</span>
               </h5>
-              <p class="card-text flex-grow-1" id="gallery-desc"><%= t('admin.galleryDesc') %></p>
-              <a href="/admin/gallery" class="btn btn-success mt-auto" id="gallery-button"><%= t('admin.open') %></a>
+              <p class="card-text flex-grow-1" id="gallery-desc">
+                Bilder hochladen, sortieren und Kategorien verwalten.
+              </p>
+              <a href="/admin/gallery" class="btn btn-success mt-auto" id="gallery-button">Öffnen</a>
             </div>
           </div>
         </div>
@@ -101,10 +89,12 @@
             <div class="card-body d-flex flex-column">
               <h5 class="card-title text-info">
                 <i class="fas fa-calendar-alt me-2"></i>
-                <span id="bookings-title"><%= t('admin.bookings') %></span>
+                <span id="bookings-title">Buchungen</span>
               </h5>
-              <p class="card-text flex-grow-1" id="bookings-desc"><%= t('admin.bookingsDesc') %></p>
-              <a href="/admin/bookings" class="btn btn-info mt-auto" id="bookings-button"><%= t('admin.open') %></a>
+              <p class="card-text flex-grow-1" id="bookings-desc">
+                Buchungen verwalten, prüfen und Status ändern.
+              </p>
+              <a href="/admin/bookings" class="btn btn-info mt-auto" id="bookings-button">Öffnen</a>
             </div>
           </div>
         </div>
@@ -115,10 +105,12 @@
             <div class="card-body d-flex flex-column">
               <h5 class="card-title text-warning">
                 <i class="fas fa-clock me-2"></i>
-                <span id="hours-title"><%= t('admin.hours') %></span>
+                <span id="hours-title">Öffnungszeiten</span>
               </h5>
-              <p class="card-text flex-grow-1" id="hours-desc"><%= t('admin.hoursDesc') %></p>
-              <a href="/admin/hours" class="btn btn-warning mt-auto" id="hours-button"><%= t('admin.open') %></a>
+              <p class="card-text flex-grow-1" id="hours-desc">
+                Öffnungszeiten anpassen und Feiertagsregelungen verwalten.
+              </p>
+              <a href="/admin/hours" class="btn btn-warning mt-auto" id="hours-button">Öffnen</a>
             </div>
           </div>
         </div>
@@ -129,10 +121,12 @@
             <div class="card-body d-flex flex-column">
               <h5 class="card-title text-secondary">
                 <i class="fas fa-users me-2"></i>
-                <span id="staff-title"><%= t('admin.staff') %></span>
+                <span id="staff-title">Mitarbeitende</span>
               </h5>
-              <p class="card-text flex-grow-1" id="staff-desc"><%= t('admin.staffDesc') %></p>
-              <a href="/admin/staff" class="btn btn-secondary mt-auto" id="staff-button"><%= t('admin.open') %></a>
+              <p class="card-text flex-grow-1" id="staff-desc">
+                Teammitglieder verwalten und Dienstpläne bearbeiten.
+              </p>
+              <a href="/admin/staff" class="btn btn-secondary mt-auto" id="staff-button">Öffnen</a>
             </div>
           </div>
         </div>
@@ -143,10 +137,12 @@
             <div class="card-body d-flex flex-column">
               <h5 class="card-title text-dark">
                 <i class="fas fa-chart-bar me-2"></i>
-                <span id="analytics-title"><%= t('admin.analytics') %></span>
+                <span id="analytics-title">Statistiken</span>
               </h5>
-              <p class="card-text flex-grow-1" id="analytics-desc"><%= t('admin.analyticsDesc') %></p>
-              <a href="/admin/analytics" class="btn btn-dark mt-auto" id="analytics-button"><%= t('admin.open') %></a>
+              <p class="card-text flex-grow-1" id="analytics-desc">
+                Website-Traffic und weitere Statistiken einsehen.
+              </p>
+              <a href="/admin/analytics" class="btn btn-dark mt-auto" id="analytics-button">Öffnen</a>
             </div>
           </div>
         </div>
@@ -293,7 +289,9 @@
                 <span id="previewIcon" class="fs-1 me-3">🏔️</span>
                 <div class="flex-grow-1">
                   <h5 id="previewTitle" class="mb-2">Aktuelles Angebot</h5>
-                  <p id="previewDescription" class="mb-3">Genießen Sie unseren speziellen Bergblick mit 3-Gänge-Menü</p>
+                  <p id="previewDescription" class="mb-3">
+                    Genießen Sie unseren speziellen Bergblick mit 3-Gänge-Menü
+                  </p>
                   <a href="#" id="previewButton" class="btn btn-primary btn-sm">Mehr erfahren</a>
                   <div class="mt-2">
                     <small id="previewDates" class="text-muted">Gültig bis: 25.11.2025</small>
@@ -331,7 +329,11 @@
 let csrfToken = '';
 (async () => {
   try {
-    const resp = await fetch('/api/csrf-token', { method: 'GET', credentials: 'same-origin', headers: { 'Accept': 'application/json' } });
+    const resp = await fetch('/api/csrf-token', {
+      method: 'GET',
+      credentials: 'same-origin',
+      headers: { 'Accept': 'application/json' }
+    });
     if (!resp.ok) throw new Error('CSRF fetch failed: ' + resp.status);
     const data = await resp.json();
     csrfToken = data.token || '';
@@ -411,30 +413,29 @@ async function openHeroBoxEditor() {
 
     currentHeroBoxData = await response.json();
 
-    // Csak akkor állítunk be értéket, ha az elem létezik
-    const enabledEl = document.getElementById('heroBoxEnabled');
-    const iconEl = document.getElementById('heroBoxIcon');
-    const titleEl = document.getElementById('heroBoxTitle');
-    const descEl = document.getElementById('heroBoxDescription');
-    const btnTextEl = document.getElementById('heroBoxButtonText');
-    const btnLinkEl = document.getElementById('heroBoxButtonLink');
+    const enabledEl   = document.getElementById('heroBoxEnabled');
+    const iconEl      = document.getElementById('heroBoxIcon');
+    const titleEl     = document.getElementById('heroBoxTitle');
+    const descEl      = document.getElementById('heroBoxDescription');
+    const btnTextEl   = document.getElementById('heroBoxButtonText');
+    const btnLinkEl   = document.getElementById('heroBoxButtonLink');
     const startDateEl = document.getElementById('heroBoxStartDate');
-    const endDateEl = document.getElementById('heroBoxEndDate');
-    const priorityEl = document.getElementById('heroBoxPriority');
-    const targetEl = document.getElementById('heroBoxTargetAudience');
-    const activeEl = document.getElementById('heroBoxIsActive');
+    const endDateEl   = document.getElementById('heroBoxEndDate');
+    const priorityEl  = document.getElementById('heroBoxPriority');
+    const targetEl    = document.getElementById('heroBoxTargetAudience');
+    const activeEl    = document.getElementById('heroBoxIsActive');
 
-    if (enabledEl) enabledEl.checked = currentHeroBoxData.enabled || false;
-    if (iconEl) iconEl.value = currentHeroBoxData.icon || '';
-    if (titleEl) titleEl.value = currentHeroBoxData.title || '';
-    if (descEl) descEl.value = currentHeroBoxData.description || '';
-    if (btnTextEl) btnTextEl.value = currentHeroBoxData.buttonText || '';
-    if (btnLinkEl) btnLinkEl.value = currentHeroBoxData.buttonLink || '';
+    if (enabledEl)   enabledEl.checked = currentHeroBoxData.enabled || false;
+    if (iconEl)      iconEl.value      = currentHeroBoxData.icon || '';
+    if (titleEl)     titleEl.value     = currentHeroBoxData.title || '';
+    if (descEl)      descEl.value      = currentHeroBoxData.description || '';
+    if (btnTextEl)   btnTextEl.value   = currentHeroBoxData.buttonText || '';
+    if (btnLinkEl)   btnLinkEl.value   = currentHeroBoxData.buttonLink || '';
     if (startDateEl) startDateEl.value = currentHeroBoxData.startDate || '';
-    if (endDateEl) endDateEl.value = currentHeroBoxData.endDate || '';
-    if (priorityEl) priorityEl.value = currentHeroBoxData.priority || 1;
-    if (targetEl) targetEl.value = currentHeroBoxData.targetAudience || 'all';
-    if (activeEl) activeEl.checked = currentHeroBoxData.isActive !== false;
+    if (endDateEl)   endDateEl.value   = currentHeroBoxData.endDate || '';
+    if (priorityEl)  priorityEl.value  = currentHeroBoxData.priority || 1;
+    if (targetEl)    targetEl.value    = currentHeroBoxData.targetAudience || 'all';
+    if (activeEl)    activeEl.checked  = currentHeroBoxData.isActive !== false;
 
     updatePreview();
 
@@ -449,20 +450,20 @@ async function openHeroBoxEditor() {
 async function saveHeroBox() {
   try {
     const formData = {
-      enabled: document.getElementById('heroBoxEnabled')?.checked || false,
-      icon: document.getElementById('heroBoxIcon')?.value || '',
-      title: document.getElementById('heroBoxTitle')?.value || '',
-      description: document.getElementById('heroBoxDescription')?.value || '',
-      buttonText: document.getElementById('heroBoxButtonText')?.value || '',
-      buttonLink: document.getElementById('heroBoxButtonLink')?.value || '',
-      startDate: document.getElementById('heroBoxStartDate')?.value || '',
-      endDate: document.getElementById('heroBoxEndDate')?.value || '',
-      priority: parseInt(document.getElementById('heroBoxPriority')?.value) || 1,
-      targetAudience: document.getElementById('heroBoxTargetAudience')?.value || 'all',
-      isActive: document.getElementById('heroBoxIsActive')?.checked !== false
+      enabled:       document.getElementById('heroBoxEnabled')?.checked || false,
+      icon:          document.getElementById('heroBoxIcon')?.value || '',
+      title:         document.getElementById('heroBoxTitle')?.value || '',
+      description:   document.getElementById('heroBoxDescription')?.value || '',
+      buttonText:    document.getElementById('heroBoxButtonText')?.value || '',
+      buttonLink:    document.getElementById('heroBoxButtonLink')?.value || '',
+      startDate:     document.getElementById('heroBoxStartDate')?.value || '',
+      endDate:       document.getElementById('heroBoxEndDate')?.value || '',
+      priority:      parseInt(document.getElementById('heroBoxPriority')?.value) || 1,
+      targetAudience:document.getElementById('heroBoxTargetAudience')?.value || 'all',
+      isActive:      document.getElementById('heroBoxIsActive')?.checked !== false
     };
 
-    if (!formData.title.trim()) return alert('A cím megadása kötelező!');
+    if (!formData.title.trim())       return alert('A cím megadása kötelező!');
     if (!formData.description.trim()) return alert('A leírás megadása kötelező!');
 
     const response = await fetch('/admin/api/hero-box', {
