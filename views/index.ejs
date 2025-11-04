@@ -1,9 +1,6 @@
-<% /* i18n fallback: ha nincs t(), ne essen szét a render */ %>
-<% const T = (typeof t === 'function') ? t : (k => k); %>
-
 <%- include('partials/head', {
-  title: T('home.title'),
-  description: T('home.description')
+  title: 'Feldiserhof – Hotel & Restaurant',
+  description: 'Hotel, Restaurant & Café Feldis – feine Küche, regionale Zutaten, kleine Wellness-Oase.'
 }) %>
 
 <%- include('partials/navbar') %>
@@ -35,34 +32,44 @@
     menuData: (typeof menuData !== 'undefined')
       ? menuData
       : ((typeof menu !== 'undefined') ? menu : null),
-    menuTitle: T('menu.title'),
-    menuSubtitle: T('menu.subtitle'),
-    menuIntro: T('menu.intro')
+    menuTitle: 'Speisekarte',
+    menuSubtitle: 'Entdecken Sie unsere Küche',
+    menuIntro: 'Frisch, saisonal, regional – täglich für Sie.'
   }) %>
 
   <!-- WELLNESS -->
   <%- include('partials/wellness', {
     wellnessFeatures: [
-      { icon: 'fas fa-fire',    name: T('wellness.features.sauna') },
-      { icon: 'fas fa-sun',     name: T('wellness.features.infrared') },
-      { icon: 'fas fa-tint',    name: T('wellness.features.cold') },
-      { icon: 'fas fa-rain',    name: T('wellness.features.rain') }
+      { icon: 'fas fa-fire',    name: 'Finnische Sauna' },
+      { icon: 'fas fa-sun',     name: 'Infrarotkabine' },
+      { icon: 'fas fa-tint',    name: 'Kalter Bottich' },
+      { icon: 'fas fa-rain',    name: 'Duschen' }
     ],
     includedServices: [
-      T('wellness.services.water'),
-      T('wellness.services.fruits'),
-      T('wellness.services.towels')
+      'Aromatisiertes Wasser & Wellness-Tee',
+      'Frische und getrocknete Früchte',
+      'Frottee- und Saunatuch'
     ],
     pricingOptions: [
-      { title: T('wellness.pricing.sauna.title'), meta: T('wellness.pricing.sauna.meta'), sub: T('wellness.pricing.sauna.sub'), highlighted: false },
-      { title: T('wellness.pricing.spa.title'),   meta: T('wellness.pricing.spa.meta'),   sub: T('wellness.pricing.spa.sub'),   highlighted: true  }
+      {
+        title: 'Sauna',
+        meta: '2 Std · Fr. 45.00',
+        sub: 'pro Person',
+        highlighted: false
+      },
+      {
+        title: 'Privat-Spa',
+        meta: '3 Std · 2 Pers · Fr. 240.00',
+        sub: 'inkl. Snacks & Prosecco',
+        highlighted: true
+      }
     ],
-    note:   T('wellness.note'),
-    ctaText: T('wellness.cta'),
+    note: 'Nur nach Voranmeldung.',
+    ctaText: 'Jetzt anfragen',
     ctaLink: '#contact',
     galleryImages: [
-      { src: '/img/jpg1.jpg', alt: T('wellness.images.sauna'),    size: 'large', width: 1280, height: 720 },
-      { src: '/img/jpg2.jpg', alt: T('wellness.images.infrared'), size: 'small', width: 640,  height: 360 }
+      { src: '/img/jpg1.jpg', alt: 'Finnische Sauna – Holzfass', size: 'large', width: 1280, height: 720 },
+      { src: '/img/jpg2.jpg', alt: 'Infrarotkabine',             size: 'small', width: 640,  height: 360 }
     ]
   }) %>
 
@@ -94,5 +101,4 @@
 <!-- Scripts -->
 <script defer src="/js/hero-rotator.js"></script>
 <script defer src="/js/secret-admin.js"></script>
-<!-- RENDELT NÉV: a menu.js helyett ez fut -->
 <script defer src="/js/menu-portfolio-book.js?v=<%= Date.now() %>"></script>
