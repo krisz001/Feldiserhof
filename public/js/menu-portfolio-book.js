@@ -173,10 +173,12 @@
     console.log(
       '[menu-book] Dinamikusan generált lapok száma (JSON+height):',
       pages.length,
-      '| mód:', window.innerWidth <= 768 ? 'mobil' : 'desktop'
+      '| mód:',
+      window.innerWidth <= 768 ? 'mobil' : 'desktop'
     );
 
-    renumberPages(book); // folyamatos lapszámozás (mobilon csak front)
+    renumberPages(book);      // folyamatos lapszámozás (mobilon csak front)
+    setupMobileArrows(book);  // mobilon balra nyíl a fronton is
   }
 
   // Egy oldal (front vagy back) feltöltése annyi tétellel, amennyi kifér PIXEL ALAPON
@@ -333,6 +335,50 @@
           backNum.textContent = num++;
           backNum.setAttribute('aria-label', `Oldalszám: ${backNum.textContent}`);
         }
+      }
+    });
+  }
+
+  // Mobil-specifikus: balra nyíl a FRONT oldalon is
+  function setupMobileArrows(book) {
+    const isMobile = window.innerWidth <= 768;
+    if (!isMobile) return;
+
+    const pages = Array.from(book.querySelectorAll('.book-page.page-right'));
+
+    pages.forEach((sheet) => {
+      const front = sheet.querySelector('.page-front');
+      const back = sheet.querySelector('.page-back');
+      if (!front) return;
+
+      // ha már van prev gomb a fronton, nem csinálunk semmit
+      let prevOnFront = front.querySelector('.nextprev-btn[data-role="prev"]');
+      if (!prevOnFront) {
+        // sablon a back oldal prev gombjából, vagy a front next gombjából
+        let templatePrev =
+          (back && back.querySelector('.nextprev-btn[data-role="prev"]')) ||
+          front.querySelector('.nextprev-btn[data-role="next"]');
+
+        if (templatePrev) {
+          prevOnFront = templatePrev.cloneNode(true);
+          prevOnFront.setAttribute('data-role', 'prev');
+          prevOnFront.classList.add('back'); // bal oldali pozíció (CSS-ből)
+
+          // ikon csere bal nyílra
+          const icon = prevOnFront.querySelector('i');
+          if (icon) {
+            icon.classList.remove('bx-chevron-right');
+            icon.classList.add('bx-chevron-left');
+          }
+
+          front.appendChild(prevOnFront);
+        }
+      }
+
+      // a back oldal prev gombja mobilon nem kell
+      if (back) {
+        const backPrev = back.querySelector('.nextprev-btn[data-role="prev"]');
+        if (backPrev) backPrev.style.display = 'none';
       }
     });
   }
@@ -512,46 +558,3 @@
     refreshUI();
   }
 })();
-  // Mobil-specifikus: balra nyíl a FRONT oldalon is
-  function setupMobileArrows(book) {
-    const isMobile = window.innerWidth <= 768;
-    if (!isMobile) return;
-
-    const pages = Array.from(book.querySelectorAll('.book-page.page-right'));
-
-    pages.forEach((sheet) => {
-      const front = sheet.querySelector('.page-front');
-      const back = sheet.querySelector('.page-back');
-      if (!front) return;
-
-      // ha már van prev gomb a fronton, nem csinálunk semmit
-      let prevOnFront = front.querySelector('.nextprev-btn[data-role="prev"]');
-      if (!prevOnFront) {
-        // sablon a back oldal prev gombjából
-        let templatePrev =
-          (back && back.querySelector('.nextprev-btn[data-role="prev"]')) ||
-          front.querySelector('.nextprev-btn[data-role="next"]');
-
-        if (templatePrev) {
-          prevOnFront = templatePrev.cloneNode(true);
-          prevOnFront.setAttribute('data-role', 'prev');
-          prevOnFront.classList.add('back'); // bal oldali pozíció (CSS-ből)
-
-          // ikon csere bal nyílra, ha boxicons-t használsz
-          const icon = prevOnFront.querySelector('i');
-          if (icon) {
-            icon.classList.remove('bx-chevron-right');
-            icon.classList.add('bx-chevron-left');
-          }
-
-          front.appendChild(prevOnFront);
-        }
-      }
-
-      // a back oldal prev gombja mobilon nem kell
-      if (back) {
-        const backPrev = back.querySelector('.nextprev-btn[data-role="prev"]');
-        if (backPrev) backPrev.style.display = 'none';
-      }
-    });
-  }
