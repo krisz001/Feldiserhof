@@ -6,27 +6,39 @@
   const subtitleTxt = (typeof menuSubtitle !== 'undefined') ? menuSubtitle : 'Entdecken Sie unsere Küche';
   const introTxt    = (typeof menuIntro    !== 'undefined') ? menuIntro    : 'Frisch, saisonal, regional – täglich für Sie.';
 
-  // ===== Front és back külön =====
-  const ITEMS_PER_SIDE = 4; // egy OLDALON max 4 elem
-  const sheets = [];        // egy "sheet" = front + back
+  // ===== Lapozási beállítások =====
+  const DEFAULT_ITEMS_PER_SIDE = 4;          // normál eset: 4 tétel / oldal
+  const FIRST_FRONT_ITEMS_FOR_MITTAG = 3;    // Mittags Speisekarte első front oldal: 3 tétel
+
+  const sheets = []; // egy "sheet" = front + back
 
   categories.forEach((cat, catIndex) => {
     const items = Array.isArray(cat.items) ? cat.items : [];
     const baseName = cat.name || `Kategorie ${catIndex + 1}`;
     let pageNoInCat = 1;
+    let i = 0;
 
-    for (let i = 0; i < items.length; i += ITEMS_PER_SIDE * 2) {
-      // FRONT
-      const frontItems = items.slice(i, i + ITEMS_PER_SIDE);
+    while (i < items.length) {
+      // --- FRONT ---
+      const isMittag = baseName === 'Mittags Speisekarte';
+      const frontLimit = (isMittag && pageNoInCat === 1)
+        ? FIRST_FRONT_ITEMS_FOR_MITTAG
+        : DEFAULT_ITEMS_PER_SIDE;
+
+      const frontItems = items.slice(i, i + frontLimit);
       const frontTitle = pageNoInCat === 1 ? baseName : `${baseName} (${pageNoInCat})`;
+      i += frontItems.length;
 
-      // BACK
-      const backItems = items.slice(i + ITEMS_PER_SIDE, i + ITEMS_PER_SIDE * 2);
+      // --- BACK ---
+      const backItems = items.slice(i, i + DEFAULT_ITEMS_PER_SIDE);
       const backTitle = backItems.length > 0 ? `${baseName} (${pageNoInCat + 1})` : null;
+      i += backItems.length;
 
       sheets.push({
         front: { title: frontTitle, items: frontItems },
-        back : backItems.length ? { title: backTitle, items: backItems } : null
+        back : backItems.length
+          ? { title: backTitle, items: backItems }
+          : null
       });
 
       pageNoInCat += backItems.length ? 2 : 1;
@@ -92,7 +104,7 @@
                const frontNo = pageCounter;
                const backNo  = sheet.back ? pageCounter + 1 : null;
           %>
-            <div class="book-page page-right" data-sheet="1" id="<%= sheetId %>">
+            <div class="book-page page-right" data-sheet="<%= sheetIndex + 1 %>" id="<%= sheetId %>">
               <!-- FRONT -->
               <div class="page-front">
                 <h1 class="title"><%= sheet.front.title %></h1>
@@ -200,8 +212,17 @@
     box-shadow: 0 20px 60px rgba(0,0,0,.25);
     backdrop-filter: blur(4px);
   }
-  .book-lock-overlay .blo-card h3{ margin:0 0 8px; font-weight:700; font-size: clamp(1.1rem,2.2vw,1.5rem); color:#2b2b2b; }
-  .book-lock-overlay .blo-card p { margin:0; font-size: clamp(.95rem,2vw,1.05rem); color:#444; }
+  .book-lock-overlay .blo-card h3{
+    margin:0 0 8px;
+    font-weight:700;
+    font-size: clamp(1.1rem,2.2vw,1.5rem);
+    color:#2b2b2b;
+  }
+  .book-lock-overlay .blo-card p {
+    margin:0;
+    font-size: clamp(.95rem,2vw,1.05rem);
+    color:#444;
+  }
 
   @media (prefers-color-scheme: dark){
     .book-lock-overlay .blo-card{ background: rgba(26,26,26,.92); color:#eee; }
