@@ -17,9 +17,9 @@
     if (root.dataset.inited === '1') return;
     root.dataset.inited = '1';
 
-    // ---- Feature flag / lock wrapper felderítése (ÚJ)
+    // ---- Feature flag / lock wrapper felderítése
     const guard = root.querySelector('#menuBookGuard') || root.querySelector('.book-guard');
-    // forrás sorrend: DOM data-enabled → window.FEATURES → fallback true
+    // forrás sorrend: DOM data-enabled → window.FEATURES → fallback true/false
     const enabled =
       (guard && String(guard.dataset.enabled) === 'true') ||
       !!(window.FEATURES && window.FEATURES.menuBookEnabled) ||
@@ -27,14 +27,15 @@
 
     // ---- Lokális referenciák
     const book = root.querySelector('.book');
-    const sheets = Array.from(root.querySelectorAll('.book .page-right[data-sheet="1"]'));
+    // 🔧 JAVÍTVA: ne csak data-sheet="1", hanem minden jobboldali lap
+    const sheets = Array.from(root.querySelectorAll('.book .page-right'));
     const btnPrev = root.querySelector('.book-btn.prev'); // opcionális
     const btnNext = root.querySelector('.book-btn.next'); // opcionális
     const dotsWrap = root.querySelector('.book-dots');
 
     if (!book || sheets.length === 0) return;
 
-    // ---- Ha tiltva: vizuális lock állapot biztosítása (ÚJ)
+    // ---- Ha tiltva: vizuális lock állapot biztosítása
     if (!enabled) {
       guard?.classList.add('book--locked');
       book.classList.add('book--locked');
@@ -69,7 +70,7 @@
     const setDisabled = (el, disabled) => {
       if (el) el.disabled = !!disabled;
     };
-    const isLocked = () => !enabled; // egyszerűsített guard (ÚJ)
+    const isLocked = () => !enabled;
 
     // Alap rétegsorrend
     function baseZ(i, turned) {
@@ -125,7 +126,7 @@
     }
 
     function updateBookView(oldIndex, newIndex) {
-      if (isAnimating || isLocked()) return; // (ÚJ) lock esetén nincs anim
+      if (isAnimating || isLocked()) return;
       isAnimating = true;
 
       const movingIdx = newIndex > oldIndex ? oldIndex : newIndex;
@@ -171,7 +172,7 @@
       run();
     }
 
-    // Finom visszajelzés, ha zárt (ÚJ)
+    // Finom visszajelzés, ha zárt
     function lockedNudge() {
       guard?.classList.add('shake');
       book.classList.add('shake');
@@ -226,7 +227,7 @@
     root.addEventListener(
       'touchstart',
       (e) => {
-        if (isLocked()) return; // tiltva
+        if (isLocked()) return;
         if (!e.changedTouches || !e.changedTouches[0]) return;
         sx = e.changedTouches[0].screenX;
         sy = e.changedTouches[0].screenY;
@@ -240,8 +241,8 @@
         if (isAnimating || isLocked() || !e.changedTouches || !e.changedTouches[0]) return;
         const ex = e.changedTouches[0].screenX;
         const ey = e.changedTouches[0].screenY;
-        const dx = ex - sx,
-          dy = ey - sy;
+        const dx = ex - sx;
+        const dy = ey - sy;
         if (Math.abs(dy) < 30) {
           if (dx < -50) next();
           if (dx > 50) prev();
@@ -274,40 +275,4 @@
 
     console.log('Feldiserhof Menü – valódi lapok száma:', sheets.length, '| enabled:', enabled);
   }
-})();
-
-// ============================================================
-// public/js/menu.js (részlet) – KIEGÉSZÍTVE: több szelektor + guard támogatás
-// ============================================================
-(function () {
-  const features = window.FEATURES || {};
-  // előnyben részesítjük a DOM-on átadott állapotot (menuBookGuard data-enabled)
-  const guard = document.querySelector('#menuBookGuard') || document.querySelector('.book-guard');
-  const bookEl = document.getElementById('menuBook') || guard || document.querySelector('.book');
-  const enabled = (guard && String(guard.dataset.enabled) === 'true') || !!features.menuBookEnabled;
-
-  // vizuális állapot (ha SSR-ből nem jött már)
-  if (!enabled) bookEl?.classList.add('book--locked');
-  else bookEl?.classList.remove('book--locked');
-
-  // Példa: a nyitást végző gomb/gesture:
-  const openBtn = document.querySelector('[data-action="open-book"]');
-
-  function openBook() {
-    if (!enabled) {
-      // finom jelzés
-      bookEl?.classList.add('shake');
-      setTimeout(() => bookEl?.classList.remove('shake'), 400);
-      return; // tiltva
-    }
-    // --- IDE jön az eddigi nyitó animációd hívása ---
-    // openFlipAnimation();
-  }
-
-  openBtn?.addEventListener('click', (e) => {
-    e.preventDefault();
-    openBook();
-  });
-
-  // Ha gesztusra nyitod (pl. swipe), ott is ugyanígy: ha !enabled => return
 })();
