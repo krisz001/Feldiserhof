@@ -183,7 +183,7 @@ body {
   transform: rotateY(-180deg);
 }
 
-/* Oldal front/back felület (itt mér a JS) */
+/* Oldal front/back felület */
 .menu-portfolio .page-front,
 .menu-portfolio .page-back {
   position: absolute;
@@ -194,7 +194,7 @@ body {
   backface-visibility: hidden;
   z-index: 2;
   box-shadow: none;
-  /* nincs belső scroll, a tartalom hosszát a line-clamp korlátozza */
+  /* nincs belső scroll, a tartalom természetesen folyik */
   overflow: visible;
 }
 
@@ -300,12 +300,10 @@ body {
   color: var(--muted);
   margin-top: 0.29rem;
   font-size: 0.95rem;
-  line-height: 1.4;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 4; /* WebKit / Blink */
-  line-clamp: 4;         /* standard */
-  overflow: hidden;
+  line-height: 1.5;
+  display: block;
+  white-space: pre-line;  /* \n → valódi sortörés */
+  overflow: visible;      /* NEM vágjuk le, teljes szöveg látszik */
 }
 
 .menu-portfolio .mi-tags {
@@ -551,17 +549,13 @@ body {
   animation: book-shake 0.4s both;
 }
 
-/* ===== TABLET (iPad) – rövidebb leírás, 1 oszlop ===== */
+/* ===== TABLET (iPad) – 1 oszlop ===== */
 @media (max-width: 1024px) {
   .menu-portfolio .menu-items-grid {
     grid-template-columns: 1fr;
     gap: 0.8rem;
   }
-
-  .menu-portfolio .mi-desc {
-    -webkit-line-clamp: 3;
-    line-clamp: 3;
-  }
+  /* NINCS clamp tablet nézetben sem, teljes szöveg látszik */
 }
 
 /* ----- MOBIL NÉZET ----- */
@@ -606,8 +600,7 @@ body {
 
   .menu-portfolio .mi-desc {
     font-size: 0.9rem;
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
+    /* NINCS line-clamp mobilon sem, teljes szöveg */
   }
 
   .menu-portfolio .number-page {
