@@ -141,39 +141,45 @@
 
   // Egy oldal (front vagy back) feltöltése annyi tétellel, amennyi kifér
   function fillSide(sideEl, items, startIndex, baseName, pageNoInCat, globalPageNo) {
-    const titleEl = sideEl.querySelector('.title');
-    const gridEl = sideEl.querySelector('.menu-items-grid');
-    const numEl = sideEl.querySelector('.number-page');
-    const btnEl = sideEl.querySelector('.nextprev-btn');
+  const titleEl = sideEl.querySelector('.title');
+  const gridEl = sideEl.querySelector('.menu-items-grid');
+  const numEl = sideEl.querySelector('.number-page');
 
-    gridEl.innerHTML = '';
+  gridEl.innerHTML = '';
 
-    // Cím (első oldal: "Mittags Speisekarte", utána "(2)", "(3)" stb.)
-    titleEl.textContent = pageNoInCat === 1 ? baseName : `${baseName} (${pageNoInCat})`;
-    numEl.textContent = globalPageNo;
+  // Cím: első oldal sima, utána (2), (3) stb.
+  titleEl.textContent = pageNoInCat === 1 ? baseName : `${baseName} (${pageNoInCat})`;
+  numEl.textContent = globalPageNo;
 
-    // rendelkezésre álló magasság kiszámolása
-    const totalH = sideEl.clientHeight || sideEl.offsetHeight || 0;
-    const headerH = titleEl.offsetHeight || 0;
-    const footerH = (numEl.offsetHeight || 0) + (btnEl ? btnEl.offsetHeight : 0) + 16;
-    const maxGridH = Math.max(totalH - headerH - footerH, 50);
+  // --- PLATFORMFÜGGŐ LIMIT ---
+  let maxItemsPerSide;
+  const w = window.innerWidth || document.documentElement.clientWidth || 0;
 
-    let i = startIndex;
-    while (i < items.length) {
-      const item = items[i];
-      const art = renderMenuItem(item);
-      gridEl.appendChild(art);
-
-      if (gridEl.scrollHeight > maxGridH) {
-        // túlcsordult → visszavesszük az utolsót, és befejezzük az oldalt
-        gridEl.removeChild(art);
-        break;
-      }
-      i++;
-    }
-
-    return i; // új index (meddig jutottunk)
+  if (w >= 1200) {
+    // nagy desktop
+    maxItemsPerSide = 4;
+  } else if (w >= 768) {
+    // tablet
+    maxItemsPerSide = 3;
+  } else {
+    // mobil
+    maxItemsPerSide = 2;
   }
+
+  let i = startIndex;
+  let count = 0;
+
+  while (i < items.length && count < maxItemsPerSide) {
+    const item = items[i];
+    const art = renderMenuItem(item);
+    gridEl.appendChild(art);
+    i++;
+    count++;
+  }
+
+  return i; // következő induló index
+}
+
 
   // Menü tétel DOM létrehozása (ugyanaz a markup, mint az EJS-ben)
   function renderMenuItem(item) {
