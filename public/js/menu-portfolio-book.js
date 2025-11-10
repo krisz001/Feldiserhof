@@ -1,6 +1,7 @@
 // ============================================================
 // feldiserhof-menu-book.js
 // Menü JSON -> dinamikus, magasság alapú lapozás + fejlett flipbook
+// Desktop: dupla oldal (front+back), mobil: 1 oldal / lap
 // ============================================================
 
 (function () {
@@ -61,6 +62,7 @@
     if (!book) return;
 
     const SAFE_MARGIN = 8; // pár px mozgástér az oldal alján
+    const isMobile = window.innerWidth <= 768;
 
     // Sablon jobboldali laphoz – EJS markupból KÖTELEZŐEN legyen egy
     const templateOriginal = book.querySelector('.book-page.page-right');
@@ -78,7 +80,7 @@
     template.querySelectorAll('.title').forEach((el) => (el.textContent = ''));
     template.querySelectorAll('.number-page').forEach((el) => (el.textContent = ''));
 
-    // az eredeti EJS-lapot töröljük, erre már nincs szükség
+    // az eredeti EJS-lapokat töröljük
     book.querySelectorAll('.book-page.page-right').forEach((p) => p.remove());
 
     const pages = [];
@@ -101,7 +103,7 @@
         const frontEl = pageEl.querySelector('.page-front');
         const backEl = pageEl.querySelector('.page-back');
 
-        // FRONT – addig pakoljuk, amíg kifér
+        // FRONT – mindig használjuk
         const frontResult = fillSideByHeight(
           frontEl,
           items,
@@ -114,9 +116,10 @@
         const usedFront = frontResult.used;
         idx = frontResult.nextIndex;
 
-        // BACK – ha maradt még tétel
         let usedBack = false;
-        if (idx < items.length) {
+
+        if (!isMobile && idx < items.length) {
+          // DESKTOP: használjuk a back oldalt is
           const backResult = fillSideByHeight(
             backEl,
             items,
@@ -129,10 +132,11 @@
           usedBack = backResult.used;
           idx = backResult.nextIndex;
         } else {
+          // MOBIL: a back oldal mindig üres marad
           clearSide(backEl);
         }
 
-        // HA EGYIK OLDALRA SEM FÉRT FEL TÉTEL -> üres lap lenne, ezért töröljük
+        // ha egyik oldalra sem fért fel tétel -> töröljük az üres lapot
         if (!usedFront && !usedBack) {
           pageEl.remove();
           break;
@@ -140,14 +144,21 @@
 
         pages.push(pageEl);
 
-        if (usedBack) {
-          globalPageNo += 2;
-          pageNoInCat += 2;
-        } else if (usedFront) {
-          globalPageNo += 1;
-          pageNoInCat += 1;
+        if (!isMobile) {
+          // desktop: front+back -> 2-vel lépünk
+          if (usedBack) {
+            globalPageNo += 2;
+            pageNoInCat += 2;
+          } else if (usedFront) {
+            globalPageNo += 1;
+            pageNoInCat += 1;
+          }
         } else {
-          break;
+          // mobil: csak front számít
+          if (usedFront) {
+            globalPageNo += 1;
+            pageNoInCat += 1;
+          }
         }
       }
     });
@@ -161,10 +172,11 @@
 
     console.log(
       '[menu-book] Dinamikusan generált lapok száma (JSON+height):',
-      pages.length
+      pages.length,
+      '| mód:', window.innerWidth <= 768 ? 'mobil' : 'desktop'
     );
 
-    renumberPages(book); // folyamatos lapszámozás
+    renumberPages(book); // folyamatos lapszámozás (mobilon csak front)
   }
 
   // Egy oldal (front vagy back) feltöltése annyi tétellel, amennyi kifér PIXEL ALAPON
@@ -193,7 +205,7 @@
         pageNoInCat === 1 ? baseName : `${baseName} (${pageNoInCat})`;
     }
     if (numEl) {
-      numEl.textContent = globalPageNo;
+      numEl.textContent = globalPageNo; // úgyis felülírja a renumberPages
     }
 
     // hasznos alsó határ
@@ -291,20 +303,36 @@
     return article;
   }
 
-  // Folyamatos lapszámozás + ARIA
+  // Folyamatos lapszámozás
+  // Desktop: front+back = 1,2,3,4...
+  // Mobil: csak a front kap számot (1,2,3...), a back üres marad
   function renumberPages(book) {
     const pages = Array.from(book.querySelectorAll('.book-page.page-right'));
+    const isMobile = window.innerWidth <= 768;
     let num = 1;
+
     pages.forEach((sheet) => {
       const frontNum = sheet.querySelector('.page-front .number-page');
       const backNum = sheet.querySelector('.page-back .number-page');
-      if (frontNum) {
-        frontNum.textContent = num++;
-        frontNum.setAttribute('aria-label', `Oldalszám: ${frontNum.textContent}`);
-      }
-      if (backNum) {
-        backNum.textContent = num++;
-        backNum.setAttribute('aria-label', `Oldalszám: ${backNum.textContent}`);
+
+      if (isMobile) {
+        if (frontNum) {
+          frontNum.textContent = num++;
+          frontNum.setAttribute('aria-label', `Oldalszám: ${frontNum.textContent}`);
+        }
+        if (backNum) {
+          backNum.textContent = '';
+          backNum.removeAttribute('aria-label');
+        }
+      } else {
+        if (frontNum) {
+          frontNum.textContent = num++;
+          frontNum.setAttribute('aria-label', `Oldalszám: ${frontNum.textContent}`);
+        }
+        if (backNum) {
+          backNum.textContent = num++;
+          backNum.setAttribute('aria-label', `Oldalszám: ${backNum.textContent}`);
+        }
       }
     });
   }
