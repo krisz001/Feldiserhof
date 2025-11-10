@@ -602,6 +602,26 @@ body {
   }
 }
 
+/* ===== TABLET FIX (iPad) ===== */
+@media (max-width: 1024px) and (min-width: 769px) {
+  .menu-portfolio .menu-items-grid {
+    grid-template-columns: 1fr; /* egy oszlop */
+    gap: 1rem;
+  }
+
+  .menu-portfolio .book {
+    min-height: auto; /* igazodjon a tartalomhoz */
+    overflow: hidden; /* ne lógjon ki */
+  }
+
+  .menu-portfolio .page-front,
+  .menu-portfolio .page-back {
+    overflow-y: auto;  /* görgethető, ha sok elem van */
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 3rem; /* hely az oldalszámnak */
+  }
+}
+
 /* ----- Sötét mód ----- */
 @media (prefers-color-scheme: dark) {
   .menu-portfolio {
