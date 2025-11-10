@@ -649,3 +649,16 @@ body {
     border-color: #bfa76f;
   }
 }
+/* --- plusz hely az oldalszámnak + nyílnak --- */
+.menu-portfolio .page-front .menu-items-grid,
+.menu-portfolio .page-back .menu-items-grid {
+  padding-bottom: 3.5rem;   /* desktop / tablet */
+}
+
+/* mobilon kicsit több hely, mert kisebb a lap */
+@media (max-width: 768px) {
+  .menu-portfolio .page-front .menu-items-grid,
+  .menu-portfolio .page-back .menu-items-grid {
+    padding-bottom: 4.2rem;
+  }
+}
