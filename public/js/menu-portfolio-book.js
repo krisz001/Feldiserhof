@@ -25,15 +25,15 @@
 
     const menu = getMenuDataFromDom();
     if (menu && Array.isArray(menu.categories) && menu.categories.length) {
-      buildDynamicPagesByHeight(root, menu);   // JSON -> oldalak magasság alapján
+      buildDynamicPagesByHeight(root, menu); // JSON -> oldalak magasság alapján
     } else {
       console.warn(
         '[menu-book] Nincs érvényes menuData (categories). ' +
-        'Ellenőrizd a #menuDataScript JSON-t vagy a window.menuData változót.'
+          'Ellenőrizd a #menuDataScript JSON-t vagy a window.menuData változót.'
       );
     }
 
-    // flipbook init (akkor is, ha valamiért nem volt menuData és csak statikus markup van)
+    // flipbook init (akkor is, ha csak statikus markup maradt)
     initMenuBook(root);
   });
 
@@ -62,36 +62,23 @@
 
     const SAFE_MARGIN = 8; // pár px mozgástér az oldal alján
 
-    // sablon jobboldali laphoz
-    let template = book.querySelector('.book-page.page-right');
-
-    if (template) {
-      // kitakarítjuk, hogy üres sablon legyen
-      template.querySelectorAll('.menu-items-grid').forEach((el) => (el.innerHTML = ''));
-      template.querySelectorAll('.title').forEach((el) => (el.textContent = ''));
-      template.querySelectorAll('.number-page').forEach((el) => (el.textContent = ''));
-      template.remove(); // levesszük a DOM-ról, de a referenciát megtartjuk
-    } else {
-      // ha nincs markup, egy alap sablont készítünk
-      template = document.createElement('div');
-      template.className = 'book-page page-right';
-      template.innerHTML = `
-        <div class="page-front">
-          <h1 class="title"></h1>
-          <div class="menu-items-grid"></div>
-          <span class="number-page"></span>
-          <span class="nextprev-btn" data-role="next"><i class="bx bx-chevron-right"></i></span>
-        </div>
-        <div class="page-back">
-          <h1 class="title"></h1>
-          <div class="menu-items-grid"></div>
-          <span class="number-page"></span>
-          <span class="nextprev-btn back" data-role="prev"><i class="bx bx-chevron-left"></i></span>
-        </div>
-      `;
+    // Sablon jobboldali laphoz – EJS markupból KÖTELEZŐEN legyen egy
+    const templateOriginal = book.querySelector('.book-page.page-right');
+    if (!templateOriginal) {
+      console.error(
+        '[menu-book] Nem található .book-page.page-right sablon. ' +
+          'Legalább egy lapot ki kell renderelni EJS-ben.'
+      );
+      return;
     }
 
-    // korábbi jobboldali lapok törlése
+    // Klónozható, megtisztított sablon
+    const template = templateOriginal.cloneNode(true);
+    template.querySelectorAll('.menu-items-grid').forEach((el) => (el.innerHTML = ''));
+    template.querySelectorAll('.title').forEach((el) => (el.textContent = ''));
+    template.querySelectorAll('.number-page').forEach((el) => (el.textContent = ''));
+
+    // az eredeti EJS-lapot töröljük, erre már nincs szükség
     book.querySelectorAll('.book-page.page-right').forEach((p) => p.remove());
 
     const pages = [];
@@ -145,6 +132,12 @@
           clearSide(backEl);
         }
 
+        // HA EGYIK OLDALRA SEM FÉRT FEL TÉTEL -> üres lap lenne, ezért töröljük
+        if (!usedFront && !usedBack) {
+          pageEl.remove();
+          break;
+        }
+
         pages.push(pageEl);
 
         if (usedBack) {
@@ -154,7 +147,7 @@
           globalPageNo += 1;
           pageNoInCat += 1;
         } else {
-          break; // elvileg nem fordulhat elő
+          break;
         }
       }
     });
