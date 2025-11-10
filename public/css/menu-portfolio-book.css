@@ -194,11 +194,8 @@ body {
   backface-visibility: hidden;
   z-index: 2;
   box-shadow: none;
-
-  /* === JAVÍTÁS: belső görgetés, hogy mobilon ne lógjon ki semmi === */
-  overflow-y: auto;
-  overflow-x: hidden;
-  -webkit-overflow-scrolling: touch;
+  /* nincs belső scroll, a tartalom hosszát a line-clamp korlátozza */
+  overflow: visible;
 }
 
 .menu-portfolio .page-front {
@@ -233,7 +230,7 @@ body {
   margin-bottom: 1.12em;
 }
 
-/* ===== GRID (nem vágunk le semmit CSS-ből) ===== */
+/* ===== GRID ===== */
 .menu-portfolio .menu-items-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -305,9 +302,9 @@ body {
   font-size: 0.95rem;
   line-height: 1.4;
   display: -webkit-box;
-  -webkit-line-clamp: 4;   /* WebKit / Blink (Chrome, Safari, Edge) */
-  line-clamp: 4;           /* standard property – kompatibilitás miatt */
   -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4; /* WebKit / Blink */
+  line-clamp: 4;         /* standard */
   overflow: hidden;
 }
 
@@ -344,7 +341,7 @@ body {
   letter-spacing: 0.01em;
 }
 
-/* ----- Oldalszám + lapozó gombok mindig felül ----- */
+/* ----- Oldalszám + lapozó gombok ----- */
 .menu-portfolio .number-page {
   font-size: 1.04rem;
   color: var(--accent-ink);
@@ -554,16 +551,38 @@ body {
   animation: book-shake 0.4s both;
 }
 
+/* ===== TABLET (iPad) – rövidebb leírás, 1 oszlop ===== */
+@media (max-width: 1024px) {
+  .menu-portfolio .menu-items-grid {
+    grid-template-columns: 1fr;
+    gap: 0.8rem;
+  }
+
+  .menu-portfolio .mi-desc {
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+  }
+}
+
 /* ----- MOBIL NÉZET ----- */
 @media (max-width: 768px) {
   .menu-portfolio .book {
     min-height: 28rem;
-    /* fontos: a tartalom a lapon belül maradjon, a belső rész görget */
     overflow: hidden;
   }
 
   .menu-portfolio .book-page {
     width: 100%;
+  }
+
+  /* bal oldal és gerinc elrejtése mobilon */
+  .menu-portfolio .page-left {
+    display: none;
+  }
+
+  .menu-portfolio .book::before,
+  .menu-portfolio .book::after {
+    display: none;
   }
 
   .menu-portfolio .page-front,
@@ -586,7 +605,9 @@ body {
   }
 
   .menu-portfolio .mi-desc {
-    font-size: 0.89rem;
+    font-size: 0.9rem;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
   }
 
   .menu-portfolio .number-page {
@@ -599,26 +620,6 @@ body {
     font-size: 1.15rem;
     bottom: 0.56rem;
     right: 0.51rem;
-  }
-}
-
-/* ===== TABLET FIX (iPad) ===== */
-@media (max-width: 1024px) and (min-width: 769px) {
-  .menu-portfolio .menu-items-grid {
-    grid-template-columns: 1fr; /* egy oszlop */
-    gap: 1rem;
-  }
-
-  .menu-portfolio .book {
-    min-height: auto; /* igazodjon a tartalomhoz */
-    overflow: hidden; /* ne lógjon ki */
-  }
-
-  .menu-portfolio .page-front,
-  .menu-portfolio .page-back {
-    overflow-y: auto;  /* görgethető, ha sok elem van */
-    -webkit-overflow-scrolling: touch;
-    padding-bottom: 3rem; /* hely az oldalszámnak */
   }
 }
 
