@@ -1,41 +1,261 @@
 // ============================================================
 // feldiserhof-menu-book.js
-// Profi, idempotens könyv-lapozó – csak az EJS-ben generált oldalakat kezeli.
-// KIEGÉSZÍTVE: adminból tiltható "menuBookEnabled" guarddal
+// Dinamikus, magasság-alapú lapozás + flipbook navigáció
 // ============================================================
 
 (function () {
   'use strict';
 
-  document.addEventListener('DOMContentLoaded', initMenuBook);
-
-  function initMenuBook() {
+  document.addEventListener('DOMContentLoaded', function () {
     const root = document.querySelector('.menu-portfolio');
     if (!root) return;
 
-    // ---- Idempotens guard
+    // Idempotens guard – ne inicializáljuk kétszer
     if (root.dataset.inited === '1') return;
     root.dataset.inited = '1';
 
-    // ---- Feature flag / lock wrapper felderítése
+    const menu = getMenuDataFromDom();
+    if (menu && Array.isArray(menu.categories)) {
+      buildDynamicPages(root, menu);
+    }
+
+    initMenuBookFlip(root);
+  });
+
+  // ---- Menü JSON kiolvasása a DOM-ból ----
+  function getMenuDataFromDom() {
+    const script = document.getElementById('menuDataScript');
+    if (script && script.textContent.trim()) {
+      try {
+        return JSON.parse(script.textContent);
+      } catch (e) {
+        console.error('Menu JSON parse hiba:', e);
+      }
+    }
+    if (window.menuData) return window.menuData;
+    return null;
+  }
+
+  // ============================================================
+  // 1) Dinamikus oldalgenerálás – magasság alapján
+  // ============================================================
+  function buildDynamicPages(root, menu) {
+    const book = root.querySelector('.book');
+    if (!book) return;
+
+    // Veszünk egy sablont a jobboldali lapról
+    let template = book.querySelector('.book-page.page-right');
+
+    if (template) {
+      // kitakarítjuk, hogy üres sablon legyen
+      template.querySelectorAll('.menu-items-grid').forEach((el) => (el.innerHTML = ''));
+      template.querySelectorAll('.title').forEach((el) => (el.textContent = ''));
+      template.querySelectorAll('.number-page').forEach((el) => (el.textContent = ''));
+      template.remove(); // levesszük a DOM-ról, de a referenciát megtartjuk
+    } else {
+      // ha valamiért nincs, készítünk egy alap sablont
+      template = document.createElement('div');
+      template.className = 'book-page page-right';
+      template.innerHTML = `
+        <div class="page-front">
+          <h1 class="title"></h1>
+          <div class="menu-items-grid"></div>
+          <span class="number-page"></span>
+          <span class="nextprev-btn" data-role="next"><i class="bx bx-chevron-right"></i></span>
+        </div>
+        <div class="page-back">
+          <h1 class="title"></h1>
+          <div class="menu-items-grid"></div>
+          <span class="number-page"></span>
+          <span class="nextprev-btn back" data-role="prev"><i class="bx bx-chevron-left"></i></span>
+        </div>
+      `;
+    }
+
+    // Minden korábbi jobboldali lap törlése
+    book.querySelectorAll('.book-page.page-right').forEach((p) => p.remove());
+
+    const pages = [];
+    let globalPageNo = 1;
+
+    const categories = Array.isArray(menu.categories) ? menu.categories : [];
+
+    categories.forEach((cat, catIndex) => {
+      const items = Array.isArray(cat.items) ? cat.items : [];
+      if (!items.length) return;
+
+      const baseName = cat.name || `Kategorie ${catIndex + 1}`;
+      let pageNoInCat = 1;
+      let idx = 0;
+
+      // Amíg van tétel az adott kategóriában
+      while (idx < items.length) {
+        const pageEl = template.cloneNode(true);
+        book.appendChild(pageEl); // DOM-ban kell lennie, hogy mérni tudjunk
+
+        const frontEl = pageEl.querySelector('.page-front');
+        const backEl = pageEl.querySelector('.page-back');
+
+        const frontIdxBefore = idx;
+        idx = fillSide(frontEl, items, idx, baseName, pageNoInCat, globalPageNo);
+        const usedFront = idx > frontIdxBefore;
+
+        let usedBack = false;
+        if (idx < items.length) {
+          const backIdxBefore = idx;
+          idx = fillSide(backEl, items, idx, baseName, pageNoInCat + 1, globalPageNo + 1);
+          usedBack = idx > backIdxBefore;
+        } else {
+          // ha nincs több tétel, a back oldal lehet köszönőoldal vagy üres
+          const backTitle = backEl.querySelector('.title');
+          const backGrid = backEl.querySelector('.menu-items-grid');
+          backGrid.innerHTML = '';
+          backTitle.textContent = '';
+          backEl.querySelector('.number-page').textContent = '';
+        }
+
+        pages.push(pageEl);
+
+        if (usedBack) {
+          globalPageNo += 2;
+          pageNoInCat += 2;
+        } else if (usedFront) {
+          globalPageNo += 1;
+          pageNoInCat += 1;
+        } else {
+          // biztonsági break (elvileg nem fordulhat elő)
+          break;
+        }
+      }
+    });
+
+    // data-sheet + id beállítása a lapokra
+    pages.forEach((pageEl, index) => {
+      const sheetIndex = index + 1;
+      pageEl.dataset.sheet = String(sheetIndex);
+      pageEl.id = `turn-${sheetIndex}`;
+    });
+
+    return pages;
+  }
+
+  // Egy oldal (front vagy back) feltöltése annyi tétellel, amennyi kifér
+  function fillSide(sideEl, items, startIndex, baseName, pageNoInCat, globalPageNo) {
+    const titleEl = sideEl.querySelector('.title');
+    const gridEl = sideEl.querySelector('.menu-items-grid');
+    const numEl = sideEl.querySelector('.number-page');
+    const btnEl = sideEl.querySelector('.nextprev-btn');
+
+    gridEl.innerHTML = '';
+
+    // Cím (első oldal: "Mittags Speisekarte", utána "(2)", "(3)" stb.)
+    titleEl.textContent = pageNoInCat === 1 ? baseName : `${baseName} (${pageNoInCat})`;
+    numEl.textContent = globalPageNo;
+
+    // rendelkezésre álló magasság kiszámolása
+    const totalH = sideEl.clientHeight || sideEl.offsetHeight || 0;
+    const headerH = titleEl.offsetHeight || 0;
+    const footerH = (numEl.offsetHeight || 0) + (btnEl ? btnEl.offsetHeight : 0) + 16;
+    const maxGridH = Math.max(totalH - headerH - footerH, 50);
+
+    let i = startIndex;
+    while (i < items.length) {
+      const item = items[i];
+      const art = renderMenuItem(item);
+      gridEl.appendChild(art);
+
+      if (gridEl.scrollHeight > maxGridH) {
+        // túlcsordult → visszavesszük az utolsót, és befejezzük az oldalt
+        gridEl.removeChild(art);
+        break;
+      }
+      i++;
+    }
+
+    return i; // új index (meddig jutottunk)
+  }
+
+  // Menü tétel DOM létrehozása (ugyanaz a markup, mint az EJS-ben)
+  function renderMenuItem(item) {
+    const article = document.createElement('article');
+    article.className = 'menu-item';
+
+    const head = document.createElement('div');
+    head.className = 'mi-head';
+
+    const nameEl = document.createElement('h4');
+    nameEl.className = 'mi-name';
+    nameEl.textContent = item.name || '';
+    head.appendChild(nameEl);
+
+    if (item.price != null && item.price !== '') {
+      const priceEl = document.createElement('div');
+      priceEl.className = 'mi-price';
+      if (typeof item.price === 'number') {
+        priceEl.textContent = item.price.toFixed(2) + ' fr';
+      } else {
+        priceEl.textContent = String(item.price);
+      }
+      head.appendChild(priceEl);
+    }
+
+    article.appendChild(head);
+
+    if (item.desc) {
+      const descEl = document.createElement('p');
+      descEl.className = 'mi-desc';
+      descEl.textContent = item.desc;
+      article.appendChild(descEl);
+    }
+
+    if (Array.isArray(item.tags) && item.tags.length) {
+      const ul = document.createElement('ul');
+      ul.className = 'mi-tags';
+      item.tags.forEach((tag) => {
+        const li = document.createElement('li');
+        li.textContent = tag;
+        ul.appendChild(li);
+      });
+      article.appendChild(ul);
+    }
+
+    if (Array.isArray(item.allergens) && item.allergens.length) {
+      const ul = document.createElement('ul');
+      ul.className = 'mi-tags allergens';
+      item.allergens.forEach((a) => {
+        const li = document.createElement('li');
+        li.className = 'allergen';
+        li.textContent = a;
+        ul.appendChild(li);
+      });
+      article.appendChild(ul);
+    }
+
+    return article;
+  }
+
+  // ============================================================
+  // 2) Flipbook logika (lapozás, pöttyök, lock stb.)
+  // ============================================================
+  function initMenuBookFlip(root) {
+    const book = root.querySelector('.book');
+    if (!book) return;
+
     const guard = root.querySelector('#menuBookGuard') || root.querySelector('.book-guard');
-    // forrás sorrend: DOM data-enabled → window.FEATURES → fallback true/false
+
     const enabled =
       (guard && String(guard.dataset.enabled) === 'true') ||
       !!(window.FEATURES && window.FEATURES.menuBookEnabled) ||
-      false; // ha nincs info, inkább legyen zárt (biztonságosabb)
+      true; // ha nincs info, inkább legyen nyitott
 
-    // ---- Lokális referenciák
-    const book = root.querySelector('.book');
-    // 🔧 JAVÍTVA: ne csak data-sheet="1", hanem minden jobboldali lap
     const sheets = Array.from(root.querySelectorAll('.book .page-right'));
-    const btnPrev = root.querySelector('.book-btn.prev'); // opcionális
-    const btnNext = root.querySelector('.book-btn.next'); // opcionális
+    const btnPrev = root.querySelector('.book-btn.prev');
+    const btnNext = root.querySelector('.book-btn.next');
     const dotsWrap = root.querySelector('.book-dots');
 
-    if (!book || sheets.length === 0) return;
+    if (!sheets.length) return;
 
-    // ---- Ha tiltva: vizuális lock állapot biztosítása
+    // Lock vizuális állapot
     if (!enabled) {
       guard?.classList.add('book--locked');
       book.classList.add('book--locked');
@@ -44,15 +264,14 @@
       book.classList.remove('book--locked');
     }
 
-    // ---- Állapot
-    let pageIndex = 0; // melyik sheet a „választóvonal”
+    let pageIndex = 0;
     let isAnimating = false;
-    const ANIM_MS = 600; // igazítsd a CSS transitionhöz
+    const ANIM_MS = 600;
 
-    // Indulás: csak az első legyen „jobbra”, a többin turn class
+    // Alapállapot: csak az első nincs "turn" alatt
     sheets.forEach((el, i) => el.classList.toggle('turn', i > 0));
 
-    // ---- Pöttyök
+    // Pöttyök
     let dots = [];
     if (dotsWrap) {
       dotsWrap.innerHTML = '';
@@ -65,14 +284,12 @@
       });
     }
 
-    // ---- Helper-ek
     const clampIndex = (i) => Math.max(0, Math.min(sheets.length - 1, i));
     const setDisabled = (el, disabled) => {
       if (el) el.disabled = !!disabled;
     };
     const isLocked = () => !enabled;
 
-    // Alap rétegsorrend
     function baseZ(i, turned) {
       return turned ? i + 1 : sheets.length * 2 - i;
     }
@@ -86,18 +303,15 @@
         el.style.zIndex = String(baseZ(i, turned));
       });
 
-      // Külső prev/next
       setDisabled(btnPrev, isLocked() || pageIndex === 0);
       setDisabled(btnNext, isLocked() || pageIndex === sheets.length - 1);
 
-      // Pöttyök
       dots.forEach((d, i) => {
         d.classList.toggle('active', i === pageIndex);
         if (isLocked()) d.classList.add('disabled');
         else d.classList.remove('disabled');
       });
 
-      // Belső nyilak tiltása a széleken + lock eset
       root.querySelectorAll('.nextprev-btn').forEach((b) => {
         b.classList.remove('is-disabled');
         if (isLocked()) b.classList.add('is-disabled');
@@ -112,12 +326,11 @@
       }
     }
 
-    // Az épp forduló lapot ideiglenesen legfelülre tesszük
     function boostForAnimation(idx) {
       const el = sheets[idx];
       if (!el) return;
       el.dataset.boost = '1';
-      el.style.zIndex = String(sheets.length * 5); // biztosan a legtetején
+      el.style.zIndex = String(sheets.length * 5);
       setTimeout(() => {
         delete el.dataset.boost;
         const turned = idx < pageIndex;
@@ -172,7 +385,6 @@
       run();
     }
 
-    // Finom visszajelzés, ha zárt
     function lockedNudge() {
       guard?.classList.add('shake');
       book.classList.add('shake');
@@ -182,7 +394,7 @@
       }, 400);
     }
 
-    // ---- Delegált kattintás a belső nyilakra
+    // Belső nyilak
     root.addEventListener('click', (e) => {
       const btn = e.target.closest('.nextprev-btn');
       if (!btn || !root.contains(btn)) return;
@@ -192,19 +404,21 @@
       if (role === 'prev') prev();
     });
 
-    // ---- Külső prev/next
+    // Külső prev/next
     if (btnPrev)
       btnPrev.addEventListener('click', (e) => {
+        e.preventDefault();
         if (isLocked()) return lockedNudge();
         prev();
       });
     if (btnNext)
       btnNext.addEventListener('click', (e) => {
+        e.preventDefault();
         if (isLocked()) return lockedNudge();
         next();
       });
 
-    // ---- Billentyűk
+    // Billentyűk
     document.addEventListener('keydown', (e) => {
       if (isAnimating || isLocked()) return;
       if (e.key === 'ArrowLeft') prev();
@@ -221,7 +435,7 @@
       }
     });
 
-    // ---- Touch-swipe
+    // Touch-swipe
     let sx = 0,
       sy = 0;
     root.addEventListener(
@@ -251,7 +465,7 @@
       { passive: true },
     );
 
-    // ---- Magasság igazítás (desktop)
+    // Magasság igazítás (desktop)
     function adjustBookHeight() {
       if (!book) return;
       if (window.innerWidth > 768) {
@@ -269,10 +483,9 @@
     window.addEventListener('load', adjustBookHeight, { once: true });
     window.addEventListener('resize', adjustBookHeight);
 
-    // ---- Első render
     refreshUI();
     adjustBookHeight();
 
-    console.log('Feldiserhof Menü – valódi lapok száma:', sheets.length, '| enabled:', enabled);
+    console.log('Feldiserhof Menü – dinamikus lapok száma:', sheets.length, '| enabled:', enabled);
   }
 })();
