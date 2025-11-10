@@ -10,11 +10,27 @@
     const root = document.querySelector('.menu-portfolio');
     if (!root) return;
 
+    // ne inicializáljuk kétszer
     if (root.dataset.inited === '1') return;
     root.dataset.inited = '1';
 
     const book = root.querySelector('.book');
     if (!book) return;
+
+    // van-e egyáltalán menü elem?
+    const firstGrid = book.querySelector('.menu-items-grid');
+    const hasItems = firstGrid && firstGrid.children.length > 0;
+
+    if (!hasItems) {
+      // Nagyon fontos jelzés: itt derül ki, ha a JSON / EJS nem töltött be semmit.
+      console.warn(
+        '[feldiserhof-menu-book] Nincs egyetlen menü tétel sem (.menu-items-grid > *). ' +
+        'A könyv logika működik, de nem lesz mit tördelni. Ellenőrizd a menü-adatok betöltését!'
+      );
+      // Ilyenkor legalább a lapozás működjön az üres oldalakra is
+      initMenuBook(root);
+      return;
+    }
 
     // Először: dinamikus tördelés (új lapok létrehozása, ha nem fér ki)
     paginateByHeight(book);
@@ -31,7 +47,6 @@
     const SAFE_MARGIN = 8; // pár px mozgástér
 
     // A lapok jobb oldali "sheet"-jei.
-    // (EJS-ben mindnek data-sheet="1" van, ez maradhat így.)
     let sheets = Array.from(book.querySelectorAll('.book-page.page-right'));
 
     // Végigmegyünk az eredeti sheeteken.
@@ -40,8 +55,8 @@
       const sheet = sheets[s];
 
       // FRONT + BACK külön kezelve
-      splitSideByHeight(book, sheet, '.page-front', SAFE_MARGIN, sheets);
-      splitSideByHeight(book, sheet, '.page-back', SAFE_MARGIN, sheets);
+      splitSideByHeight(book, sheet, '.page-front', SAFE_MARGIN);
+      splitSideByHeight(book, sheet, '.page-back', SAFE_MARGIN);
 
       // frissítjük a sheets listát, mert beszúrhattunk új lapokat is
       sheets = Array.from(book.querySelectorAll('.book-page.page-right'));
@@ -51,7 +66,7 @@
     renumberPages(book);
   }
 
-  function splitSideByHeight(book, sheet, sideSelector, SAFE_MARGIN, allSheetsRef) {
+  function splitSideByHeight(book, sheet, sideSelector, SAFE_MARGIN) {
     const side = sheet.querySelector(sideSelector);
     if (!side) return;
 
@@ -62,7 +77,7 @@
     if (items.length <= 0) return;
 
     // Megnézzük, hol kezd túlcsúszni az utolsó elem
-    const overflowIndex = findOverflowIndex(side, grid, items, SAFE_MARGIN);
+    const overflowIndex = findOverflowIndex(side, items, SAFE_MARGIN);
     if (overflowIndex === null) return; // Minden kifért, nincs dolgunk
 
     // Az overflow elemeket levesszük erről az oldalról
@@ -76,7 +91,9 @@
 
     // Alap cím + már meglévő sorszám kinyerése
     const titleEl = side.querySelector('.title');
-    const { baseTitle, currentIndex } = parseTitle(titleEl ? titleEl.textContent.trim() : '');
+    const { baseTitle, currentIndex } = parseTitle(
+      titleEl ? titleEl.textContent.trim() : ''
+    );
     let nextIndex = currentIndex + 1;
 
     while (remaining.length > 0) {
@@ -88,12 +105,12 @@
       // Új lap címe: "Mittags Speisekarte (2)" stb.
       const newTitleEl = newSide.querySelector('.title');
       if (newTitleEl) {
-        newTitleEl.textContent = nextIndex === 1 ? baseTitle : `${baseTitle} (${nextIndex})`;
+        newTitleEl.textContent =
+          nextIndex === 1 ? baseTitle : `${baseTitle} (${nextIndex})`;
       }
 
       // Feltöltjük az új oldalt annyi elemmel, amennyi belefér
       const result = fillSideUntilFull(newSide, newGrid, remaining, SAFE_MARGIN);
-      const fitted = result.fitted;
       remaining = result.remaining;
 
       // berakjuk a lapot a DOM-ba az aktuális után
@@ -104,7 +121,7 @@
   }
 
   // Megkeresi, hányadik elemnél csúsznak ki a tételek a lap aljáról
-  function findOverflowIndex(side, grid, items, SAFE_MARGIN) {
+  function findOverflowIndex(side, items, SAFE_MARGIN) {
     const sideRect = side.getBoundingClientRect();
     const maxBottom = sideRect.bottom - SAFE_MARGIN;
 
@@ -198,7 +215,7 @@
   }
 
   // ------------------------------------------------------------
-  // 2) A meglévő flip-book init (kicsit rövidített, de a logika ugyanaz)
+  // 2) Flip-book init
   // ------------------------------------------------------------
 
   function initMenuBook(root) {
@@ -212,6 +229,7 @@
     let isAnimating = false;
     const ANIM_MS = 600;
 
+    // Kezdő állapot: az első nincs "turn"-ölve, a többi igen
     sheets.forEach((el, i) => el.classList.toggle('turn', i > 0));
 
     // pöttyök
@@ -237,6 +255,7 @@
       sheets.forEach((el, i) => {
         const turned = i < pageIndex;
         el.classList.toggle('turn', turned);
+
         if (el.dataset.boost === '1') return;
         el.style.zIndex = String(baseZ(i, turned));
       });
