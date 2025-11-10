@@ -33,7 +33,6 @@ body {
   --shadow-page: 0 12px 28px rgba(0, 0, 0, 0.1);
   --radius-book: 18px;
   --radius-page: 12px;
-
   font-family:
     Nunito,
     system-ui,
@@ -228,15 +227,13 @@ body {
   margin-bottom: 1.12em;
 }
 
-/* ===== GRID (nem vágunk le semmit CSS-ből) ===== */
+/* ===== GRID ===== */
 .menu-portfolio .menu-items-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1.1rem 1.15rem;
-  flex: 1 1 auto; /* rugalmas */
-  min-height: 0; /* flex overflow fix */
-
-  /* NINCS max-height, NINCS overflow hidden → a JS intézi a tördelést */
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 /* Tétel */
@@ -301,8 +298,6 @@ body {
   margin-top: 0.29rem;
   font-size: 0.95rem;
   line-height: 1.4;
-
-  /* Biztonság kedvéért clamp, hogy ne nőjön végtelenre */
   display: -webkit-box;
   -webkit-line-clamp: 4;
   -webkit-box-orient: vertical;
@@ -342,7 +337,7 @@ body {
   letter-spacing: 0.01em;
 }
 
-/* ----- Oldalszám + lapozó gombok mindig felül ----- */
+/* Oldalszám + lapozó gombok */
 .menu-portfolio .number-page {
   font-size: 1.04rem;
   color: var(--accent-ink);
@@ -388,7 +383,7 @@ body {
   transform: scale(1.08);
 }
 
-/* ----- PÖTTY NAVIGÁCIÓ ----- */
+/* Pötty navigáció */
 .menu-portfolio .book-dots {
   display: flex;
   gap: 0.5rem;
@@ -414,7 +409,7 @@ body {
   transform: scale(1.15);
 }
 
-/* ----- Profil oldal ----- */
+/* Profil oldal */
 .menu-portfolio .profile-page {
   display: flex;
   flex-direction: column;
@@ -460,7 +455,7 @@ body {
   display: flex;
 }
 
-/* ====== LOCKED ÁLLAPOT – teljes takarás és üzenet ====== */
+/* LOCKED állapot üzenet overlay */
 .menu-portfolio .wrapper {
   position: relative;
 }
@@ -472,7 +467,6 @@ body {
   user-select: none !important;
 }
 
-/* Középre igazított üzenet overlay */
 .book-lock-overlay {
   position: absolute;
   inset: 0;
@@ -481,7 +475,7 @@ body {
   justify-content: center;
   padding: 24px;
   background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.28));
-  z-index: 999; /* a könyv fölé */
+  z-index: 999;
 }
 
 .book-lock-overlay .blo-card {
@@ -514,82 +508,64 @@ body {
     background: rgba(26, 26, 26, 0.92);
     color: #eee;
   }
-
   .book-lock-overlay .blo-card h3 {
     color: #fff;
   }
-
   .book-lock-overlay .blo-card p {
     color: #ddd;
   }
 }
 
-/* Finom „shake” visszajelzés, ha tiltva próbál lapozni */
 @keyframes book-shake {
-  10%,
-  90% {
-    transform: translateX(-1px);
-  }
-
-  20%,
-  80% {
-    transform: translateX(2px);
-  }
-
-  30%,
-  50%,
-  70% {
-    transform: translateX(-4px);
-  }
-
-  40%,
-  60% {
-    transform: translateX(4px);
-  }
+  10%, 90% { transform: translateX(-1px); }
+  20%, 80% { transform: translateX(2px); }
+  30%, 50%, 70% { transform: translateX(-4px); }
+  40%, 60% { transform: translateX(4px); }
 }
 
 .menu-portfolio .book.shake {
   animation: book-shake 0.4s both;
 }
 
-/* ----- MOBIL NÉZET ----- */
+/* ----- MOBIL NÉZET (JAVÍTVA, csak 1 elem/sor, teljes szélesség) ----- */
 @media (max-width: 768px) {
   .menu-portfolio .book {
-    min-height: 28rem;
+    min-height: 22rem;
     overflow: visible;
   }
-
   .menu-portfolio .book-page {
     width: 100%;
   }
-
+  .menu-portfolio .menu-items-grid {
+    display: block;
+    grid-template-columns: none;
+    gap: 0;
+  }
+  .menu-portfolio .menu-item {
+    width: 100%;
+    margin: 0 0 1.08rem;
+    padding: 0.62rem 0 0.85rem;
+    box-sizing: border-box;
+  }
   .menu-portfolio .page-front,
   .menu-portfolio .page-back {
-    padding: 1rem 1.19rem 3.4rem;
+    padding: 0.89rem 0.97rem 3rem;
   }
-
-  .menu-portfolio .menu-items-grid {
-    grid-template-columns: 1fr;
-    gap: 0.74rem;
-  }
-
   .menu-portfolio .title {
     font-size: 1.36rem;
     margin: 0.24rem 0 0.61rem;
   }
-
   .menu-portfolio .mi-name {
     font-size: 1.01rem;
   }
-
   .menu-portfolio .mi-desc {
-    font-size: 0.89rem;
+    font-size: 0.94rem;
+    line-height: 1.45;
+    -webkit-line-clamp: 5;
   }
-
   .menu-portfolio .number-page {
     font-size: 0.87rem;
   }
-
   .menu-portfolio .nextprev-btn {
     width: 1.73rem;
     height: 1.73rem;
@@ -610,22 +586,18 @@ body {
     --shadow-outer: 0 22px 50px rgba(0, 0, 0, 0.26);
     --shadow-page: 0 12px 28px rgba(0, 0, 0, 0.18);
   }
-
   .menu-portfolio .book {
     background: radial-gradient(120% 120% at 50% -10%, #35322c 0%, #292823 80%);
   }
-
   .menu-portfolio .page-front,
   .menu-portfolio .page-back {
     background: linear-gradient(180deg, var(--paper-1), var(--paper-2));
     background-size: 100% 100%;
     border: 2px solid #362d19;
   }
-
   .menu-portfolio .profile-page {
     background: linear-gradient(180deg, #332f22 50%, #292823 100%);
   }
-
   .menu-portfolio .nextprev-btn {
     background: rgba(56, 47, 33, 0.83);
     color: #ecdcb0;
