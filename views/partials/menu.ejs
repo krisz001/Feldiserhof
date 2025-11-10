@@ -1,10 +1,34 @@
 <%
   const categories = Array.isArray(menuData?.categories) ? menuData.categories : [];
 
-  // Címsorok – vagy az include-ból kapott értékeket használjuk, vagy alap DE szöveget
+  // Címsorok – include-ból kapott értékek vagy default DE szöveg
   const titleTxt    = (typeof menuTitle    !== 'undefined') ? menuTitle    : 'Speisekarte';
   const subtitleTxt = (typeof menuSubtitle !== 'undefined') ? menuSubtitle : 'Entdecken Sie unsere Küche';
   const introTxt    = (typeof menuIntro    !== 'undefined') ? menuIntro    : 'Frisch, saisonal, regional – täglich für Sie.';
+
+  // ===== Logikai oldalak (minden kategória = 1 oldal) =====
+  const pages = [];
+
+  categories.forEach((cat, catIndex) => {
+    const items = Array.isArray(cat.items) ? cat.items : [];
+    const title = cat.name || `Kategorie ${catIndex + 1}`;
+
+    pages.push({
+      title,
+      items
+    });
+  });
+
+  // ===== Oldalpárok (sheet-ek) – front/back =====
+  const sheets = [];
+  for (let i = 0; i < pages.length; i += 2) {
+    const front = pages[i];
+    const back  = pages[i + 1] || null;
+    sheets.push({ front, back });
+  }
+
+  // Folyamatos lapszámozás (front/back is számozva)
+  let pageCounter = 1;
 %>
 
 <section id="menu" class="menu-section">
@@ -42,32 +66,138 @@
           </div>
         </div>
 
-        <!-- Jobb oldal SABLON – JS dinamikusan tölti fel (fallback tartalommal) -->
-        <div class="book-page page-right" data-sheet="1" id="turn-1">
-          <div class="page-front">
-            <h1 class="title"><%= titleTxt %></h1>
-            <div class="menu-items-grid">
-              <% if (!categories || !categories.length) { %>
+        <% if (sheets.length === 0) { %>
+          <!-- Üres állapot: 1 jobb oldal -->
+          <div class="book-page page-right" data-sheet="1" id="turn-1">
+            <div class="page-front">
+              <h1 class="title"><%= titleTxt %></h1>
+              <div class="menu-items-grid">
                 <article class="menu-item">
                   <p>Derzeit sind keine Menüdaten vorhanden.</p>
                 </article>
-              <% } %>
+              </div>
+              <span class="number-page"><%= pageCounter %></span>
+              <span class="nextprev-btn" data-role="next">
+                <i class="bx bx-chevron-right"></i>
+              </span>
             </div>
-            <span class="number-page">1</span>
-            <span class="nextprev-btn" data-role="next">
-              <i class="bx bx-chevron-right"></i>
-            </span>
+            <div class="page-back">
+              <h1 class="title"></h1>
+              <div class="menu-items-grid"></div>
+              <span class="number-page"><%= pageCounter + 1 %></span>
+              <span class="nextprev-btn back" data-role="prev">
+                <i class="bx bx-chevron-left"></i>
+              </span>
+            </div>
           </div>
+        <% } else { %>
+          <% sheets.forEach((sheet, sheetIndex) => { 
+               const sheetId = `turn-${sheetIndex + 1}`;
+               const frontNo = pageCounter++;
+               const backNo  = sheet.back ? pageCounter++ : null;
+          %>
+            <div class="book-page page-right" data-sheet="1" id="<%= sheetId %>">
+              <!-- FRONT – kategória vagy logikai oldal -->
+              <div class="page-front">
+                <h1 class="title"><%= sheet.front.title %></h1>
+                <div class="menu-items-grid">
+                  <% sheet.front.items.forEach(item => { %>
+                    <article class="menu-item">
+                      <div class="mi-head">
+                        <h4 class="mi-name"><%- item.name || '' %></h4>
+                        <% if (item.price != null && item.price !== '') { %>
+                          <div class="mi-price">
+                            <%= typeof item.price === 'number'
+                                  ? item.price.toFixed(2) + ' fr'
+                                  : String(item.price) %>
+                          </div>
+                        <% } %>
+                      </div>
 
-          <div class="page-back">
-            <h1 class="title"></h1>
-            <div class="menu-items-grid"></div>
-            <span class="number-page"></span>
-            <span class="nextprev-btn back" data-role="prev">
-              <i class="bx bx-chevron-left"></i>
-            </span>
-          </div>
-        </div>
+                      <% if (item.desc) { %>
+                        <p class="mi-desc"><%- item.desc %></p>
+                      <% } %>
+
+                      <% if (item.tags && item.tags.length) { %>
+                        <ul class="mi-tags">
+                          <% item.tags.forEach(tag => { %>
+                            <li><%- tag %></li>
+                          <% }) %>
+                        </ul>
+                      <% } %>
+
+                      <% if (item.allergens && item.allergens.length) { %>
+                        <ul class="mi-tags allergens">
+                          <% item.allergens.forEach(a => { %>
+                            <li class="allergen"><%- a %></li>
+                          <% }) %>
+                        </ul>
+                      <% } %>
+                    </article>
+                  <% }) %>
+                </div>
+
+                <span class="number-page"><%= frontNo %></span>
+                <span class="nextprev-btn" data-role="next">
+                  <i class="bx bx-chevron-right"></i>
+                </span>
+              </div>
+
+              <!-- BACK – következő kategória vagy „Danke”-oldal -->
+              <div class="page-back">
+                <% if (sheet.back) { %>
+                  <h1 class="title"><%= sheet.back.title %></h1>
+                  <div class="menu-items-grid">
+                    <% sheet.back.items.forEach(item => { %>
+                      <article class="menu-item">
+                        <div class="mi-head">
+                          <h4 class="mi-name"><%- item.name || '' %></h4>
+                          <% if (item.price != null && item.price !== '') { %>
+                            <div class="mi-price">
+                              <%= typeof item.price === 'number'
+                                    ? item.price.toFixed(2) + ' fr'
+                                    : String(item.price) %>
+                            </div>
+                          <% } %>
+                        </div>
+
+                        <% if (item.desc) { %>
+                          <p class="mi-desc"><%- item.desc %></p>
+                        <% } %>
+
+                        <% if (item.tags && item.tags.length) { %>
+                          <ul class="mi-tags">
+                            <% item.tags.forEach(tag => { %>
+                              <li><%- tag %></li>
+                            <% }) %>
+                          </ul>
+                        <% } %>
+
+                        <% if (item.allergens && item.allergens.length) { %>
+                          <ul class="mi-tags allergens">
+                            <% item.allergens.forEach(a => { %>
+                              <li class="allergen"><%- a %></li>
+                            <% }) %>
+                          </ul>
+                        <% } %>
+                      </article>
+                    <% }) %>
+                  </div>
+                <% } else { %>
+                  <div class="profile-page">
+                    <h1 class="title">Vielen Dank!</h1>
+                    <p>Wir wünschen einen guten Appetit</p>
+                  </div>
+                <% } %>
+
+                <span class="number-page"><%= backNo ?? '' %></span>
+                <span class="nextprev-btn back" data-role="prev">
+                  <i class="bx bx-chevron-left"></i>
+                </span>
+              </div>
+            </div>
+          <% }); %>
+        <% } %>
       </div>
     </div>
 
@@ -76,12 +206,6 @@
 
   <link rel="stylesheet" href="/css/menu-portfolio-book.css">
   <link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css">
-
-  <!-- Menü adat beágyazása a DOM-ba a dinamikus lapozáshoz -->
-  <script id="menuDataScript" type="application/json">
-    <%- JSON.stringify(menuData || {}) %>
-  </script>
-  <!-- Dinamikus, magasság-alapú oldalgenerálás + lapozás -->
   <script src="/js/feldiserhof-menu-book.js" defer></script>
 </section>
 
@@ -128,7 +252,6 @@
     .book-lock-overlay .blo-card p { color:#ddd; }
   }
 
-  /* finom "shake", ha tiltott állapotban próbál lapozni (ha használod) */
   @keyframes book-shake{
     10%,90%{transform:translateX(-1px)}
     20%,80%{transform:translateX(2px)}
