@@ -698,8 +698,9 @@ app.use((req, res) => {
 // ============================================================
 // Start
 // ============================================================
-app.listen(PORT, () => {
-  console.log(`✅ Feldiserhof szerver fut: http://localhost:${PORT}`);
+const HOST = '127.0.0.1'; // csak belső elérés
+app.listen(PORT, HOST, () => {
+  console.log(`✅ Feldiserhof szerver fut: http://${HOST}:${PORT}`);
   console.log(`🌐 Nyelvi támogatás: ${SUPPORTED_LANGS.join(', ')}`);
   console.log(`🔐 Admin: /admin`);
   console.log(`📝 Menü szerkesztő: /admin/menu`);
