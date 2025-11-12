@@ -1,5 +1,5 @@
 // ============================================================
-// Feldiserhof – Express.js szerver (admin-ready + i18n + Wellness + Rooms + Opening Hours)
+// Feldiserhof – Express.js szerver (admin-ready + custom i18n + Wellness + Rooms + Opening Hours)
 // + Feature Flag: "menuBookEnabled" (könyv nyithatóság adminból)
 // ============================================================
 import express from 'express';
@@ -14,10 +14,7 @@ import csrf from 'csurf';
 import rateLimit from 'express-rate-limit';
 import cookieParser from 'cookie-parser';
 
-// i18n
-import i18next from 'i18next';
-import Backend from 'i18next-fs-backend';
-import i18nextMiddleware from 'i18next-http-middleware';
+// ❌ i18next eltávolítva – helyette egyszerű, saját i18n
 
 dotenv.config();
 
@@ -37,13 +34,57 @@ console.log('📦 NODE_ENV:', process.env.NODE_ENV || '(nincs megadva)');
 console.log('===============================================');
 
 // ============================================================
-// Nyelvi fájlok gyors ellenőrzése
+// Nyelvi fájlok gyors ellenőrzése + betöltés (custom i18n)
 // ============================================================
+const SUPPORTED_LANGS = ['hu', 'de'];
+const FALLBACK_LANG = 'hu';
+const LOCALES_DIR = path.join(__dirname, 'locales');
+const TRANSLATIONS = Object.create(null);
+
+function safeReadJSON(p) {
+  try {
+    return JSON.parse(fs.readFileSync(p, 'utf8'));
+  } catch (e) {
+    return {};
+  }
+}
+
+function deepGet(obj, dotted, fallback = undefined) {
+  if (!obj) return fallback;
+  const parts = String(dotted).split('.');
+  let cur = obj;
+  for (const k of parts) {
+    if (cur && Object.prototype.hasOwnProperty.call(cur, k)) cur = cur[k];
+    else return fallback;
+  }
+  return cur;
+}
+
+function interpolate(str, vars = {}) {
+  if (typeof str !== 'string') return str;
+  return str.replace(/{{\s*(\w+)\s*}}/g, (_, k) => (k in vars ? String(vars[k]) : ''));
+}
+
+function makeT(lang) {
+  const ln = SUPPORTED_LANGS.includes(lang) ? lang : FALLBACK_LANG;
+  return (key, vars = {}) => {
+    const fromPrimary = deepGet(TRANSLATIONS[ln], key);
+    const fromFallback = deepGet(TRANSLATIONS[FALLBACK_LANG], key);
+    const value = fromPrimary ?? fromFallback ?? key;
+    return interpolate(value, vars);
+  };
+}
+
 const huPath = path.join(__dirname, 'locales', 'hu', 'translation.json');
 const dePath = path.join(__dirname, 'locales', 'de', 'translation.json');
 console.log('🔍 Nyelvi fájlok:');
 console.log('   HU:', fs.existsSync(huPath) ? 'OK' : 'HIÁNYZIK', '→', huPath);
 console.log('   DE:', fs.existsSync(dePath) ? 'OK' : 'HIÁNYZIK', '→', dePath);
+
+for (const lng of SUPPORTED_LANGS) {
+  const p = path.join(LOCALES_DIR, lng, 'translation.json');
+  TRANSLATIONS[lng] = fs.existsSync(p) ? safeReadJSON(p) : {};
+}
 
 // ============================================================
 // Feature flags – perzisztens tárolás
@@ -76,36 +117,9 @@ function writeSettings(s) {
 let SETTINGS = readSettings();
 
 // ============================================================
-// i18next init (cookie detektálás)
+// ❌ i18next init helyett: egyszerű nyelvkezelés cookie alapján
 // ============================================================
-await i18next
-  .use(Backend)
-  .use(i18nextMiddleware.LanguageDetector)
-  .init(
-    {
-      fallbackLng: 'hu',
-      preload: ['hu', 'de'],
-      backend: { loadPath: path.join(__dirname, 'locales', '{{lng}}', 'translation.json') },
-      detection: { order: ['cookie'], caches: ['cookie'], lookupCookie: 'i18next' },
-      debug: !isProd,
-      initImmediate: false,
-      interpolation: { escapeValue: false },
-    },
-    (err, t) => {
-      if (err) console.error('❌ i18next init hiba:', err);
-      else console.log('✅ i18next OK | minta kulcs:', t('home.title', { lng: 'hu' }));
-    },
-  );
-
-// i18n middleware – API/auth kivételek
-app.use(
-  i18nextMiddleware.handle(i18next, {
-    ignoreRoutes: (req) =>
-      req.url.startsWith('/api') ||
-      req.url.startsWith('/admin/login') ||
-      req.url.startsWith('/admin/logout'),
-  }),
-);
+// Nyelv cookie: ugyanaz a kulcs marad a kompatibilitásért ("i18next")
 
 // ============================================================
 // EJS beállítások + view-helpek
@@ -188,7 +202,7 @@ app.use(
     setHeaders(res, filePath) {
       if (/\.avif$/i.test(filePath)) res.type('image/avif');
       else if (/\.webp$/i.test(filePath)) res.type('image/webp');
-      else if (/\.(jpe?g)$/i.test(filePath)) res.type('image/jpeg');
+      else if (/(\.jpe?g)$/i.test(filePath)) res.type('image/jpeg');
       else if (/\.png$/i.test(filePath)) res.type('image/png');
       else if (/\.gif$/i.test(filePath)) res.type('image/gif');
       else if (/\.svg$/i.test(filePath)) res.type('image/svg+xml');
@@ -291,11 +305,19 @@ const loadHeroBox = () => {
 };
 
 // ============================================================
-// i18n locals + flags + egyszerű kérés-log
+// Custom i18n locals + flags + egyszerű kérés-log
 // ============================================================
 app.use((req, res, next) => {
-  res.locals.t = req.t;
-  res.locals.i18n = req.i18n;
+  // Cookie alapján nyelv (i18next kulcs kompatibilitás miatt megmarad)
+  const cookieLang = req.cookies?.i18next;
+  const lang = SUPPORTED_LANGS.includes(cookieLang) ? cookieLang : FALLBACK_LANG;
+
+  // t() függvény elérhető a kérésekhez és a view-khoz
+  const t = makeT(lang);
+  req.language = lang;
+  req.t = t;
+  res.locals.t = t;
+  res.locals.i18n = { language: lang, languages: SUPPORTED_LANGS };
   res.locals.flags = { menuBookEnabled: !!SETTINGS.menuBookEnabled };
 
   if (process.env.LOG_REQUESTS === '1') {
@@ -304,7 +326,7 @@ app.use((req, res, next) => {
       req.method,
       req.url,
       '| lang:',
-      req.language,
+      lang,
       '| admin:',
       !!req.session?.isAdmin,
       '| menuBookEnabled:',
@@ -319,7 +341,7 @@ app.use((req, res, next) => {
 // ============================================================
 app.post('/change-language', (req, res) => {
   const { lang } = req.body || {};
-  if (['hu', 'de'].includes(lang)) {
+  if (SUPPORTED_LANGS.includes(lang)) {
     setLangCookie(res, lang);
     return res.json({ success: true });
   }
@@ -329,7 +351,7 @@ app.post('/change-language', (req, res) => {
 app.get('/set-language/:lang', (req, res) => {
   const { lang } = req.params;
   const { admin } = req.query;
-  if (!['hu', 'de'].includes(lang)) return res.status(400).send('Érvénytelen nyelv');
+  if (!SUPPORTED_LANGS.includes(lang)) return res.status(400).send('Érvénytelen nyelv');
 
   const wasAdmin = !!req.session.isAdmin;
   setLangCookie(res, lang);
@@ -376,8 +398,8 @@ app.get('/', (req, res) => {
   res.render(
     'index',
     {
-      title: res.locals.t('home.title'),
-      description: res.locals.t('home.description'),
+      title: req.t('home.title'),
+      description: req.t('home.description'),
       menu: menuData,
       hours: openingHours,
       heroBox: heroBoxData,
@@ -422,8 +444,8 @@ app.get('/gallery', (req, res) => {
   res.render(
     'gallery',
     {
-      title: res.locals.t('gallery.title'),
-      description: res.locals.t('gallery.description'),
+      title: req.t('gallery.title'),
+      description: req.t('gallery.description'),
     },
     (err, html) => {
       if (err) {
@@ -669,7 +691,8 @@ app.use((err, req, res, _next) => {
 
 // 404
 app.use((req, res) => {
-  res.status(404).send(req.t('errors.404'));
+  const msg = res.locals?.t ? res.locals.t('errors.404') : 'Not found';
+  res.status(404).send(msg);
 });
 
 // ============================================================
@@ -677,7 +700,7 @@ app.use((req, res) => {
 // ============================================================
 app.listen(PORT, () => {
   console.log(`✅ Feldiserhof szerver fut: http://localhost:${PORT}`);
-  console.log(`🌐 Nyelvi támogatás: hu, de`);
+  console.log(`🌐 Nyelvi támogatás: ${SUPPORTED_LANGS.join(', ')}`);
   console.log(`🔐 Admin: /admin`);
   console.log(`📝 Menü szerkesztő: /admin/menu`);
   console.log(`🕐 Nyitvatartás szerkesztő: /admin/opening-hours`);
