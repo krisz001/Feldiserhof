@@ -230,6 +230,11 @@
   box-shadow: 0 7px 23px 0 rgba(220, 187, 62, 0.11) !important;
 }
 
+.hero-box-theme-gold { --glass-border: #ffd454; --glass-shadow: 0 14px 36px rgba(188,150,80,0.13),0 3px 9px rgba(80,80,90,0.08);}
+.hero-box-theme-green { --glass-border: #77c665; --glass-shadow: 0 14px 36px rgba(80,180,70,0.13),0 3px 9px rgba(40,120,40,0.08);}
+.hero-box-theme-blue { --glass-border: #7bd4e8; --glass-shadow: 0 14px 36px rgba(60,170,230,0.11),0 3px 9px rgba(40,100,180,0.08);}
+
+
 /* Reszponzív finomítások */
 @media (max-width: 768px) {
   .hero-badge .card,

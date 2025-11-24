@@ -1,12 +1,10 @@
 // public/js/admin-dashboard.js
 
-// Kis helper (ha később kellene)
 const $ = (sel) => document.querySelector(sel);
 
 // =============== CSRF TOKEN KEZELÉS ===============
 
 let csrfToken = '';
-
 async function initCsrfToken() {
   try {
     const resp = await fetch('/api/csrf-token', {
@@ -18,7 +16,7 @@ async function initCsrfToken() {
     const data = await resp.json();
     csrfToken = data.token || '';
 
-    // Rejtett _csrf mezők kitöltése (logout formnál is jó)
+    // Rejtett _csrf mezők kitöltése
     document.querySelectorAll('input[name="_csrf"]').forEach(i => {
       i.value = csrfToken;
     });
@@ -26,19 +24,13 @@ async function initCsrfToken() {
     console.error('❌ CSRF token lekérési hiba:', err);
   }
 }
-
 async function getCsrfToken() {
-  if (!csrfToken) {
-    await initCsrfToken();
-  }
+  if (!csrfToken) await initCsrfToken();
   return csrfToken;
 }
-
-// Azonnali CSRF init
 initCsrfToken().catch(() => {});
 
-// =============== LOGOUT FORM (JAVÍTVA) ===============
-
+// =============== LOGOUT FORM ===============
 document.addEventListener('DOMContentLoaded', () => {
   const logoutForm = document.getElementById('logoutForm');
   if (logoutForm) {
@@ -56,11 +48,10 @@ document.addEventListener('DOMContentLoaded', () => {
           },
           body
         });
-
         if (r.ok) {
           window.location.href = '/';
         } else {
-          // ha valami gáz van, essen vissza a normál form submit-re
+          // fallback normál submit
           logoutForm.submit();
         }
       } catch (err) {
@@ -72,7 +63,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // =============== FEATURE FLAG BADGE ===============
-
 document.addEventListener('DOMContentLoaded', async () => {
   const badge = document.getElementById('flagBadge');
   if (!badge) return;
@@ -92,8 +82,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 // =============== HERO BOX KEZELÉS ===============
 
 let currentHeroBoxData = {};
+let heroBoxQuill = null;
+let heroBoxSaving = false; // LOCK: csak egyszerre egy mentés
 
-// egyszerű HTML escape a preview-hoz, hogy lehessen sortörés, de ne legyen XSS
 function escapeHtml(str) {
   return str
     .replace(/&/g, '&amp;')
@@ -111,7 +102,6 @@ function updatePreview() {
 
   const icon      = document.getElementById('heroBoxIcon')?.value || '🏔️';
   const title     = document.getElementById('heroBoxTitle')?.value || 'Aktuelles Angebot';
-  const desc      = document.getElementById('heroBoxDescription')?.value || 'Genießen Sie unseren speziellen Bergblick mit 3-Gänge-Menü';
   const highlight = document.getElementById('heroBoxHighlightText')?.value || '';
   const btnText   = document.getElementById('heroBoxButtonText')?.value || 'Mehr erfahren';
   const endDate   = document.getElementById('heroBoxEndDate')?.value || '';
@@ -124,14 +114,27 @@ function updatePreview() {
   if (titleEl) titleEl.textContent = title;
 
   if (descEl) {
-    // sortörések támogatása a textarea-ból
-    const lines = [];
-    if (desc.trim())      lines.push(desc);
-    if (highlight.trim()) lines.push(highlight);
-    const html = lines
-      .map(line => escapeHtml(line))
-      .join('<br>');
-    descEl.innerHTML = html;
+    let baseHtml = '';
+    const hiddenDescEl = document.getElementById('heroBoxDescription');
+    // Quill-ből vagy hidden inputból
+    if (heroBoxQuill) {
+      baseHtml = heroBoxQuill.root.innerHTML;
+    } else if (hiddenDescEl && hiddenDescEl.value) {
+      baseHtml = hiddenDescEl.value;
+    } else {
+      baseHtml = '<p>Genießen Sie unseren speziellen Bergblick mit 3-Gänge-Menü</p>';
+    }
+    // Kiemelt sorok
+    let highlightsHtml = '';
+    if (highlight.trim()) {
+      const lines = highlight.split('\n').map(l => l.trim()).filter(Boolean);
+      if (lines.length > 0) {
+        highlightsHtml =
+          '<br>' +
+          lines.map(line => '<br>' + escapeHtml(line)).join('');
+      }
+    }
+    descEl.innerHTML = baseHtml + highlightsHtml;
   }
 
   if (btnEl) btnEl.textContent = btnText;
@@ -146,14 +149,11 @@ function updatePreview() {
     }
   }
 
-  // Preview kártya kinézetéhez opcionális class-ek (később CSS-ben lehet rájuk építeni)
   if (cardEl) {
     const styleClasses = ['hero-preview-style-glass', 'hero-preview-style-simple', 'hero-preview-style-bordered'];
     const themeClasses = ['hero-preview-theme-gold', 'hero-preview-theme-green', 'hero-preview-theme-blue'];
     const alignClasses = ['hero-preview-align-center', 'hero-preview-align-left'];
-
     cardEl.classList.remove(...styleClasses, ...themeClasses, ...alignClasses);
-
     cardEl.classList.add(
       `hero-preview-style-${style}`,
       `hero-preview-theme-${theme}`,
@@ -162,50 +162,85 @@ function updatePreview() {
   }
 }
 
-// Input listenerek az előnézethez
 document.addEventListener('DOMContentLoaded', () => {
   const previewFields = [
     'heroBoxIcon',
     'heroBoxTitle',
-    'heroBoxDescription',
     'heroBoxHighlightText',
     'heroBoxBottomLabel',
     'heroBoxButtonText',
     'heroBoxEndDate'
   ];
-
   previewFields.forEach(id => {
     const el = document.getElementById(id);
-    if (el) {
-      el.addEventListener('input', updatePreview);
-    }
+    if (el) el.addEventListener('input', updatePreview);
   });
-
-  // select mezők change-re frissítsék a preview-t
   ['heroBoxStyle', 'heroBoxTheme', 'heroBoxAlign'].forEach(id => {
     const el = document.getElementById(id);
-    if (el) {
-      el.addEventListener('change', updatePreview);
-    }
+    if (el) el.addEventListener('change', updatePreview);
   });
+  // Quill init
+  const quillContainer = document.getElementById('heroBoxDescriptionEditor');
+  if (quillContainer && window.Quill) {
+    heroBoxQuill = new Quill('#heroBoxDescriptionEditor', {
+      theme: 'snow',
+      placeholder: 'Genießen Sie unseren speziellen Bergblick mit 3-Gänge-Menü',
+      modules: {
+        toolbar: [
+          ['bold', 'italic', 'underline'],
+          [{ list: 'ordered' }, { list: 'bullet' }],
+          ['link'],
+          ['clean']
+        ]
+      }
+    });
+    heroBoxQuill.on('text-change', () => {
+      const hiddenDescEl = document.getElementById('heroBoxDescription');
+      if (hiddenDescEl) hiddenDescEl.value = heroBoxQuill.root.innerHTML;
+      updatePreview();
+    });
+  }
+  // accessibility: modal focus amikor megnyílik
+  const modalEl = document.getElementById('heroBoxModal');
+  if (modalEl) {
+    modalEl.addEventListener('shown.bs.modal', () => {
+      const firstInput = modalEl.querySelector('input, textarea, select');
+      if (firstInput) firstInput.focus();
+    });
+  }
 });
 
 // Hero Box editor megnyitása
 async function openHeroBoxEditor() {
   try {
+    // Form reset először, hogy üresről is indulhasson
+    currentHeroBoxData = {};
+    [
+      'heroBoxEnabled','heroBoxIcon','heroBoxTitle','heroBoxDescription',
+      'heroBoxHighlightText','heroBoxBottomLabel','heroBoxButtonText','heroBoxButtonLink',
+      'heroBoxStartDate','heroBoxEndDate','heroBoxPriority','heroBoxTargetAudience',
+      'heroBoxStyle','heroBoxTheme','heroBoxAlign','heroBoxIsActive'
+    ].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        if (el.type === 'checkbox') el.checked = false;
+        else if (el.tagName === 'SELECT') el.value = el.options[0]?.value || '';
+        else el.value = '';
+      }
+    });
+
+    // szerverről betöltés
     const response = await fetch('/admin/api/hero-box', {
       credentials: 'same-origin',
       headers: { 'CSRF-Token': await getCsrfToken() }
     });
-
     if (!response.ok) throw new Error('Failed to load hero box data');
-
     currentHeroBoxData = await response.json();
 
     const enabledEl    = document.getElementById('heroBoxEnabled');
     const iconEl       = document.getElementById('heroBoxIcon');
     const titleEl      = document.getElementById('heroBoxTitle');
-    const descEl       = document.getElementById('heroBoxDescription');
+    const hiddenDescEl = document.getElementById('heroBoxDescription');
     const highlightEl  = document.getElementById('heroBoxHighlightText');
     const bottomEl     = document.getElementById('heroBoxBottomLabel');
     const btnTextEl    = document.getElementById('heroBoxButtonText');
@@ -222,7 +257,13 @@ async function openHeroBoxEditor() {
     if (enabledEl)   enabledEl.checked = currentHeroBoxData.enabled || false;
     if (iconEl)      iconEl.value      = currentHeroBoxData.icon || '';
     if (titleEl)     titleEl.value     = currentHeroBoxData.title || '';
-    if (descEl)      descEl.value      = currentHeroBoxData.description || '';
+    const descriptionHtmlFromServer = currentHeroBoxData.description || '';
+    if (heroBoxQuill) {
+      heroBoxQuill.root.innerHTML = descriptionHtmlFromServer || '';
+    }
+    if (hiddenDescEl) {
+      hiddenDescEl.value = descriptionHtmlFromServer || '';
+    }
     if (highlightEl) highlightEl.value = currentHeroBoxData.highlightText || '';
     if (bottomEl)    bottomEl.value    = currentHeroBoxData.bottomLabel || '';
     if (btnTextEl)   btnTextEl.value   = currentHeroBoxData.buttonText || '';
@@ -250,6 +291,18 @@ async function openHeroBoxEditor() {
 // Hero Box mentése
 async function saveHeroBox() {
   try {
+    if (heroBoxSaving) return; // védelem: egyszerre csak 1 mentés
+    heroBoxSaving = true;
+    const saveBtn = document.querySelector('#heroBoxModal .btn-primary');
+    if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = "Mentés folyamatban..."; }
+
+    if (heroBoxQuill) {
+      const hiddenDescEl = document.getElementById('heroBoxDescription');
+      if (hiddenDescEl) {
+        hiddenDescEl.value = heroBoxQuill.root.innerHTML;
+      }
+    }
+
     const formData = {
       enabled:        document.getElementById('heroBoxEnabled')?.checked || false,
       icon:           document.getElementById('heroBoxIcon')?.value || '',
@@ -269,8 +322,8 @@ async function saveHeroBox() {
       isActive:       document.getElementById('heroBoxIsActive')?.checked !== false
     };
 
-    if (!formData.title.trim())       return alert('A cím megadása kötelező!');
-    if (!formData.description.trim()) return alert('A leírás megadása kötelező!');
+    if (!formData.title.trim()) throw new Error('A cím megadása kötelező!');
+    if (!formData.description.trim()) throw new Error('A leírás megadása kötelező!');
 
     const response = await fetch('/admin/api/hero-box', {
       method: 'POST',
@@ -283,7 +336,6 @@ async function saveHeroBox() {
     });
 
     if (!response.ok) throw new Error('Failed to save hero box data');
-
     const result = await response.json();
     if (result.ok) {
       const modalEl = document.getElementById('heroBoxModal');
@@ -295,7 +347,11 @@ async function saveHeroBox() {
     }
   } catch (e) {
     console.error('Hiba a hero box mentésekor:', e);
-    alert('Hiba a hero box mentésekor.');
+    alert(`Hiba a hero box mentésekor: ${e.message || e}`);
+  } finally {
+    heroBoxSaving = false;
+    const saveBtn = document.querySelector('#heroBoxModal .btn-primary');
+    if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = "Mentés"; }
   }
 }
 

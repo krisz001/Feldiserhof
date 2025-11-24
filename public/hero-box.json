@@ -1,6 +1,6 @@
 {
   "enabled": true,
-  "icon": "",
+  "icon": "🎄",
   "title": "Betriebsferien vom 3.11.25-25.11.25",
   "description": "Event\n",
   "highlightText": "7. Dezember Adventsfenster\n26. Dezember Steffaliball 2025\n31. Dezember Silvester Dinner",
@@ -11,8 +11,8 @@
   "endDate": "2026-01-01",
   "priority": 1,
   "targetAudience": "all",
-  "style": "simple",
-  "theme": "gold",
+  "style": "glass",
+  "theme": "blue",
   "align": "center",
   "isActive": true
 }
