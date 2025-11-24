@@ -4,13 +4,18 @@ const heroBoxData = typeof heroBox !== 'undefined' && heroBox ? heroBox : {
   icon: "🏔️",
   title: "Aktuelles Angebot",
   description: "Genießen Sie unseren speziellen Bergblick mit 3-Gänge-Menü",
+  highlightText: "",
+  bottomLabel: "",
   buttonText: "Mehr erfahren",
   buttonLink: "#offers",
   startDate: new Date().toISOString().split('T')[0],
   endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
   priority: 1,
   isActive: true,
-  targetAudience: "all"
+  targetAudience: "all",
+  style: "glass",
+  theme: "gold",
+  align: "center"
 };
 %>
 
@@ -65,9 +70,14 @@ const heroBoxData = typeof heroBox !== 'undefined' && heroBox ? heroBox : {
     <!-- Jobb oldali tartalom - DINAMIKUS HERO BOX -->
     <% if (heroBoxData && heroBoxData.enabled && heroBoxData.isActive) { %>
       <div class="col-lg-6 text-center">
-        <div class="hero-badge content-fade-in" style="animation-delay: 800ms">
-          <div class="card bg-dark bg-opacity-50 border-light border-opacity-25 rounded-3 p-4">
+        <div
+          class="hero-badge content-fade-in hero-box-style-<%= heroBoxData.style || 'glass' %> hero-box-theme-<%= heroBoxData.theme || 'gold' %> hero-box-align-<%= heroBoxData.align || 'center' %>"
+          style="animation-delay: 800ms"
+        >
+          <!-- Itt most a glass-stílusú .card-ot használjuk -->
+          <div class="card">
             <div class="card-body position-relative">
+
               <% if (heroBoxData.targetAudience && heroBoxData.targetAudience !== 'all') { %>
                 <span class="hero-target-badge">
                   <%= heroBoxData.targetAudience === 'restaurant' ? '🍽️ Restaurant' : '' %>
@@ -75,27 +85,57 @@ const heroBoxData = typeof heroBox !== 'undefined' && heroBox ? heroBox : {
                   <%= heroBoxData.targetAudience === 'hotel'      ? '🛏️ Hotel'      : '' %>
                 </span>
               <% } %>
-              
-              <div class="text-warning mb-2" style="font-size: 2rem">
+
+              <!-- Ikon -->
+              <div class="mb-2" style="font-size: 2rem">
                 <%= heroBoxData.icon %>
               </div>
-              <h5 class="text-white mb-3">
+
+              <!-- Cím -->
+              <h5 class="mb-3 <%= heroBoxData.align === 'left' ? 'text-start' : 'text-center' %>">
                 <%= heroBoxData.title %>
               </h5>
-              <p class="text-white-50 small mb-3">
-                <%= heroBoxData.description %>
+
+              <!-- Fő leírás – sortörések megtartása (egymás alatti lista) -->
+              <p class="hero-box-description mb-3">
+                <%- (heroBoxData.description || '')
+                      .split('\n')
+                      .map(l => l.trim())
+                      .filter(Boolean)
+                      .join('<br>') %>
               </p>
-              <a href="<%= heroBoxData.buttonLink %>" class="btn btn-outline-warning btn-sm">
-                <%= heroBoxData.buttonText %>
-              </a>
-              
-              <% if (heroBoxData.startDate && heroBoxData.endDate) { %>
+
+              <!-- Kiemelt sor (középső világos sáv) – szintén támogat sortörést -->
+              <% if (heroBoxData.highlightText && heroBoxData.highlightText.trim()) { %>
+                <div class="inner-ad-line mb-3">
+                  <%- heroBoxData.highlightText
+                        .split('\n')
+                        .map(l => l.trim())
+                        .filter(Boolean)
+                        .join('<br>') %>
+                </div>
+              <% } %>
+
+              <!-- Gomb -->
+              <% if (heroBoxData.buttonText && heroBoxData.buttonText.trim()) { %>
+                <a href="<%= heroBoxData.buttonLink || '#' %>" class="btn hero-btn hero-btn-solid">
+                  <%= heroBoxData.buttonText %>
+                </a>
+              <% } %>
+
+              <!-- Alsó infósáv: bottomLabel, vagy ha nincs, akkor dátum -->
+              <% if (heroBoxData.bottomLabel || heroBoxData.endDate) { %>
                 <div class="mt-3 pt-2 border-top border-light border-opacity-25">
-                  <small class="text-white-50 badge-expiry">
-                    Gültig bis: <%= new Date(heroBoxData.endDate).toLocaleDateString('de-DE') %>
+                  <small class="badge-expiry">
+                    <%= (heroBoxData.bottomLabel && heroBoxData.bottomLabel.trim())
+                      ? heroBoxData.bottomLabel
+                      : (heroBoxData.endDate
+                          ? ('Gültig bis: ' + new Date(heroBoxData.endDate).toLocaleDateString('de-DE'))
+                          : '') %>
                   </small>
                 </div>
               <% } %>
+
             </div>
           </div>
         </div>

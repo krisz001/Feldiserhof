@@ -1,0 +1,208 @@
+<!-- Hero Box Szerkesztő Modal -->
+<div class="modal fade" id="heroBoxModal" tabindex="-1" aria-labelledby="heroBoxModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title" id="heroBoxModalLabel">
+          <i class="fas fa-mountain me-2"></i>Hero Box Szerkesztése
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body">
+        <div class="row">
+
+          <!-- BAL OLDAL: beállítások -->
+          <div class="col-md-6">
+
+            <!-- Enabled kapcsoló -->
+            <div class="mb-3 form-check form-switch">
+              <input type="checkbox" class="form-check-input" id="heroBoxEnabled" checked>
+              <label class="form-check-label" for="heroBoxEnabled">Aktiválva</label>
+            </div>
+
+            <!-- Ikon -->
+            <div class="mb-3">
+              <label for="heroBoxIcon" class="form-label">
+                <i class="fas fa-icons me-1"></i>Ikon (emoji)
+              </label>
+              <input type="text" class="form-control" id="heroBoxIcon" placeholder="🏔️" maxlength="2">
+            </div>
+
+            <!-- CÍM -->
+            <div class="mb-3">
+              <label for="heroBoxTitle" class="form-label">
+                <i class="fas fa-heading me-1"></i>Cím
+              </label>
+              <input type="text" class="form-control" id="heroBoxTitle"
+                     placeholder="Aktuelles Angebot" required>
+            </div>
+
+            <!-- LEÍRÁS (fő szöveg) -->
+            <div class="mb-3">
+              <label for="heroBoxDescription" class="form-label">
+                <i class="fas fa-align-left me-1"></i>Leírás (fő szöveg)
+              </label>
+              <textarea class="form-control" id="heroBoxDescription" rows="3"
+                        placeholder="Genießen Sie unseren speziellen Bergblick mit 3-Gänge-Menü"
+                        required></textarea>
+            </div>
+
+            <!-- KIEMELT SOROK (középső világos sáv, soronként egy esemény) -->
+            <div class="mb-3">
+              <label for="heroBoxHighlightText" class="form-label">
+                <i class="fas fa-highlighter me-1"></i>Kiemelt sorok (középső világos sáv, soronként egy esemény)
+              </label>
+              <textarea class="form-control" id="heroBoxHighlightText" rows="3"
+                        placeholder="7. Dezember Adventsfenster&#10;26. Dezember Steffaliball 2025&#10;31. Dezember Silvester Dinner"></textarea>
+              <small class="text-muted">
+                Minden új sor külön sorban fog megjelenni.
+              </small>
+            </div>
+
+            <!-- ALSÓ INFÓ (Gültig bis...) -->
+            <div class="mb-3">
+              <label for="heroBoxBottomLabel" class="form-label">
+                <i class="fas fa-info-circle me-1"></i>Alsó infósáv (pl. Gültig bis...)
+              </label>
+              <input type="text" class="form-control" id="heroBoxBottomLabel"
+                     placeholder="Gültig bis: 1.1.2026">
+            </div>
+
+            <!-- Gomb szöveg -->
+            <div class="mb-3">
+              <label for="heroBoxButtonText" class="form-label">
+                <i class="fas fa-mouse-pointer me-1"></i>Gomb szöveg
+              </label>
+              <input type="text" class="form-control" id="heroBoxButtonText"
+                     placeholder="Jetzt buchen">
+            </div>
+
+            <!-- Gomb link -->
+            <div class="mb-3">
+              <label for="heroBoxButtonLink" class="form-label">
+                <i class="fas fa-link me-1"></i>Gomb link
+              </label>
+              <input type="text" class="form-control" id="heroBoxButtonLink"
+                     placeholder="#contact">
+            </div>
+
+            <!-- DÁTUMOK (aktív időszak) -->
+            <div class="mb-3">
+              <label for="heroBoxStartDate" class="form-label">
+                <i class="fas fa-calendar-check me-1"></i>Kezdő dátum
+              </label>
+              <input type="date" class="form-control" id="heroBoxStartDate">
+            </div>
+
+            <div class="mb-3">
+              <label for="heroBoxEndDate" class="form-label">
+                <i class="fas fa-calendar-times me-1"></i>Befejező dátum
+              </label>
+              <input type="date" class="form-control" id="heroBoxEndDate">
+            </div>
+
+            <!-- PRIORITÁS -->
+            <div class="mb-3">
+              <label for="heroBoxPriority" class="form-label">
+                <i class="fas fa-sort-numeric-up me-1"></i>Prioritás
+              </label>
+              <input type="number" class="form-control" id="heroBoxPriority" value="1" min="1">
+            </div>
+
+            <!-- CÉLKÖZÖNSÉG -->
+            <div class="mb-3">
+              <label for="heroBoxTargetAudience" class="form-label">
+                <i class="fas fa-users me-1"></i>Célközönség
+              </label>
+              <select class="form-select" id="heroBoxTargetAudience">
+                <option value="all">Mindenki</option>
+                <option value="restaurant">Étterem</option>
+                <option value="hotel">Hotel</option>
+                <option value="wellness">Wellness</option>
+              </select>
+            </div>
+
+            <!-- DESIGN BEÁLLÍTÁSOK -->
+            <hr class="my-3">
+
+            <h6 class="fw-bold small text-muted mb-2">
+              <i class="fas fa-palette me-1"></i>Design beállítások
+            </h6>
+
+            <!-- Kártya stílus -->
+            <div class="mb-3">
+              <label for="heroBoxStyle" class="form-label">Kártya stílus</label>
+              <select class="form-select" id="heroBoxStyle">
+                <option value="glass">Glass (jelenlegi)</option>
+                <option value="simple">Egyszerű matt</option>
+                <option value="bordered">Finom keretes</option>
+              </select>
+            </div>
+
+            <!-- Szín téma -->
+            <div class="mb-3">
+              <label for="heroBoxTheme" class="form-label">Szín téma</label>
+              <select class="form-select" id="heroBoxTheme">
+                <option value="gold">Arany (alap)</option>
+                <option value="green">Zöld / természet</option>
+                <option value="blue">Kék / tél</option>
+              </select>
+            </div>
+
+            <!-- Szöveg igazítás -->
+            <div class="mb-3">
+              <label for="heroBoxAlign" class="form-label">Szöveg igazítás</label>
+              <select class="form-select" id="heroBoxAlign">
+                <option value="center">Középre igazítva</option>
+                <option value="left">Balra igazítva</option>
+              </select>
+            </div>
+
+            <!-- Aktív állapot -->
+            <div class="mb-3 form-check form-switch">
+              <input type="checkbox" class="form-check-input" id="heroBoxIsActive" checked>
+              <label class="form-check-label" for="heroBoxIsActive">Aktív állapot</label>
+            </div>
+
+          </div>
+
+          <!-- JOBB OLDAL: élő előnézet -->
+          <div class="col-md-6">
+            <h6 class="mb-3"><i class="fas fa-eye me-1"></i>Előnézet</h6>
+            <div id="heroBoxPreview" class="p-4 bg-light rounded border hero-preview-style-glass hero-preview-theme-gold hero-preview-align-center">
+              <div class="d-flex align-items-start">
+                <span id="previewIcon" class="fs-1 me-3">🏔️</span>
+                <div class="flex-grow-1">
+                  <h5 id="previewTitle" class="mb-2">Aktuelles Angebot</h5>
+                  <p id="previewDescription" class="mb-3">
+                    Genießen Sie unseren speziellen Bergblick mit 3-Gänge-Menü
+                    <br>7. Dezember Adventsfenster
+                    <br>26. Dezember Steffaliball 2025
+                    <br>31. Dezember Silvester Dinner
+                  </p>
+                  <a href="#" id="previewButton" class="btn btn-primary btn-sm">Mehr erfahren</a>
+                  <div class="mt-2">
+                    <small id="previewDates" class="text-muted">Gültig bis: 25.11.2025</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div> <!-- /.row -->
+      </div> <!-- /.modal-body -->
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          <i class="fas fa-times me-1"></i>Mégse
+        </button>
+        <button type="button" class="btn btn-primary" onclick="saveHeroBox()">
+          <i class="fas fa-save me-1"></i>Mentés
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>

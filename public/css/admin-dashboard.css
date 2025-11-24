@@ -1,0 +1,116 @@
+/* ===========================
+   Általános admin kiegészítések
+   =========================== */
+
+.dropdown-item.active {
+  background-color: #e9ecef;
+}
+
+/* Kis zászló ikonok a nyelvválasztóhoz (ha később visszarakod) */
+.flag-icon {
+  width: 20px;
+  height: 15px;
+  display: inline-block;
+  background-size: cover;
+  border-radius: 2px;
+}
+
+.flag-icon-hu {
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2"><path fill="%23CE2939" d="M0 0h3v0.6667H0z"/><path fill="%23FFFFFF" d="M0 0.6667h3v0.6666H0z"/><path fill="%2300903B" d="M0 1.3333h3V2H0z"/></svg>');
+}
+
+.flag-icon-de {
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2"><path fill="%23000000" d="M0 0h3v0.6667H0z"/><path fill="%23DD0000" d="M0 0.6667h3v0.6666H0z"/><path fill="%23FFCE00" d="M0 1.3333h3V2H0z"/></svg>');
+}
+
+/* ===========================
+   Hero Box – előnézeti kártya
+   =========================== */
+
+/* Alap kártya megjelenés a preview-hoz */
+#heroBoxPreview {
+  border-left: 4px solid #ffc107;
+  background: #fffef7;
+  border-radius: 18px;
+  padding: 1.75rem 1.5rem;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+/* Ikon + szöveg igazítás */
+#heroBoxPreview .fs-1 {
+  line-height: 1;
+}
+
+#heroBoxPreview h5 {
+  font-weight: 700;
+  color: #c08e34;
+}
+
+/* Dátum / alsó infó */
+#heroBoxPreview small {
+  font-weight: 500;
+}
+
+/* ===========================
+   Hero Box – preview stílusok
+   (JS ezekre a class-ekre épít)
+   =========================== */
+
+/* Stílus variánsok */
+
+.hero-preview-style-glass {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(6px) saturate(1.05);
+  -webkit-backdrop-filter: blur(6px) saturate(1.05);
+  border: 1px solid rgba(255, 212, 84, 0.35);
+}
+
+.hero-preview-style-simple {
+  background: #fffdf5;
+  border: 1px solid #f0e2c4;
+  box-shadow: none;
+}
+
+.hero-preview-style-bordered {
+  background: #fffdf7;
+  border: 2px solid #f3d48c;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
+}
+
+/* Szín témák */
+
+.hero-preview-theme-gold {
+  border-left-color: #ffc107;
+}
+
+.hero-preview-theme-green {
+  border-left-color: #7cb342;
+}
+
+.hero-preview-theme-blue {
+  border-left-color: #42a5f5;
+}
+
+/* Szöveg igazítás */
+
+.hero-preview-align-center h5,
+.hero-preview-align-center p,
+.hero-preview-align-center small {
+  text-align: center;
+}
+
+.hero-preview-align-left h5,
+.hero-preview-align-left p,
+.hero-preview-align-left small {
+  text-align: left;
+}
+
+/* Kicsi responsív finomhangolás */
+
+@media (max-width: 576px) {
+  #heroBoxPreview {
+    padding: 1.25rem 1rem;
+    border-radius: 14px;
+  }
+}
