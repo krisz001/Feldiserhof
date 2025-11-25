@@ -671,41 +671,154 @@ app.get('/js/menu.js', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'js', 'menu-portfolio-book.js'));
 });
 
-// ======================================================================
-// 🍽️ PDF alapú Menü Könyv – Upload + Konvertálás + Törlés API
-// ======================================================================
+// ===== PDF alapú menü könyv modul (upload + konverzió) =====
 import multer from 'multer';
 import { exec } from 'child_process';
 
-// PDF mappa
-const MENU_BOOK_DIR = path.join(__dirname, 'public', 'menu-book');
-const MENU_BOOK_JSON = path.join(__dirname, 'data', 'menu-pdf.json');
+const uploadDir = path.join(__dirname, 'uploads', 'pdf');
+const menuPdfDir = path.join(__dirname, 'public', 'menu-pdf');
 
-// biztosítsuk a könyvtárakat
-if (!fs.existsSync(MENU_BOOK_DIR)) fs.mkdirSync(MENU_BOOK_DIR, { recursive: true });
-if (!fs.existsSync(path.dirname(MENU_BOOK_JSON))) fs.mkdirSync(path.dirname(MENU_BOOK_JSON), { recursive: true });
+// mappák biztosítása
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+if (!fs.existsSync(menuPdfDir)) {
+  fs.mkdirSync(menuPdfDir, { recursive: true });
+}
 
-// JSON betöltés / mentés
-function readPdfJson() {
-  try {
-    if (!fs.existsSync(MENU_BOOK_JSON)) {
-      const initData = { pages: [] };
-      fs.writeFileSync(MENU_BOOK_JSON, JSON.stringify(initData, null, 2));
-      return initData;
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname) || '.pdf';
+    cb(null, 'menu.pdf'); // mindig ugyanaz a név – 1 aktuális menü
+  },
+});
+
+const upload = multer({
+  storage,
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype !== 'application/pdf') {
+      return cb(new Error('Nur PDF-Dateien sind erlaubt.'));
     }
-    return JSON.parse(fs.readFileSync(MENU_BOOK_JSON, 'utf8'));
-  } catch (e) {
-    console.error('❌ menu-pdf.json betöltési hiba:', e);
-    return { pages: [] };
-  }
+    cb(null, true);
+  },
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10 MB
+  },
+});
+
+// PDF → PNG konverzió segédfüggvény
+function convertPdfToPng(pdfPath, outDir) {
+  return new Promise((resolve, reject) => {
+    // régi képek törlése
+    fs.readdirSync(outDir)
+      .filter((f) => /^page-\d+\.png$/i.test(f))
+      .forEach((f) => fs.unlinkSync(path.join(outDir, f)));
+
+    // pdfinfo-val oldalszám
+    exec(`pdfinfo "${pdfPath}"`, (err, stdout) => {
+      if (err) {
+        return reject(err);
+      }
+
+      const match = stdout.match(/Pages:\s+(\d+)/i);
+      const pageCount = match ? parseInt(match[1], 10) : 0;
+      if (!pageCount || Number.isNaN(pageCount)) {
+        return reject(new Error('Konnte Seitenzahl nicht bestimmen.'));
+      }
+
+      // pdftoppm: svg helyett png, 150 DPI
+      const cmd = `pdftoppm -png -r 150 "${pdfPath}" "${path.join(outDir, 'page')}"`;
+      exec(cmd, (err2) => {
+        if (err2) return reject(err2);
+
+        const files = [];
+        for (let i = 1; i <= pageCount; i++) {
+          const fileName = `page-${i}.png`;
+          const src = path.join(outDir, `page-${i}.png`);
+          // pdftoppm alapértelmezett kimenet: page-1.png, page-2.png, ...
+          if (fs.existsSync(src)) {
+            files.push(`/menu-pdf/${fileName}`);
+            // ha kell átnevezés, itt intézhetjük – most a név már jó
+          }
+        }
+
+        resolve(files);
+      });
+    });
+  });
 }
-function writePdfJson(data) {
+
+// 🆕 PDF feltöltés – FONTOS: upload.single ELŐTT csináljuk a CSRF-et?
+// IGEN, multipart miatt a CSRF-nek a multer UTÁN kell jönnie, hogy legyen req.body._csrf!
+app.post(
+  '/admin/menu-pdf',
+  requireAdmin,
+  upload.single('menuPdf'),   // 🟢 1. multer parse-olja a multipart formot
+  csrfFromHeader,             // 🟢 2. ekkor már látja req.body._csrf-t
+  async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ ok: false, msg: 'Keine Datei empfangen.' });
+      }
+
+      const pdfPath = req.file.path;
+
+      const pages = await convertPdfToPng(pdfPath, menuPdfDir);
+      if (!pages.length) {
+        return res.status(500).json({ ok: false, msg: 'Keine Seiten erzeugt.' });
+      }
+
+      console.log('✅ Menü PDF konvertiert, Seiten:', pages.length);
+      return res.json({ ok: true, pages });
+    } catch (err) {
+      console.error('❌ Menü PDF feldolgozási hiba:', err);
+      return res.status(500).json({ ok: false, msg: 'PDF Verarbeitung fehlgeschlagen.' });
+    }
+  },
+);
+
+// 🆕 PDF törlése
+app.post('/admin/menu-pdf/delete', requireAdmin, csrfFromHeader, (req, res) => {
   try {
-    fs.writeFileSync(MENU_BOOK_JSON, JSON.stringify(data, null, 2), 'utf8');
-  } catch (e) {
-    console.error('❌ menu-pdf.json mentési hiba:', e);
+    if (fs.existsSync(menuPdfDir)) {
+      fs.readdirSync(menuPdfDir)
+        .filter((f) => /^page-\d+\.png$/i.test(f))
+        .forEach((f) => fs.unlinkSync(path.join(menuPdfDir, f)));
+    }
+    console.log('🗑 Menü PDF Seiten gelöscht.');
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('❌ Fehler beim Löschen der Menü-PDF-Seiten:', err);
+    res.status(500).json({ ok: false, msg: 'Löschen fehlgeschlagen.' });
   }
-}
+});
+
+// 🆕 Publikus API: PDF oldalak listája
+app.get('/api/menu-pdf', (req, res) => {
+  try {
+    if (!fs.existsSync(menuPdfDir)) {
+      return res.json({ pages: [] });
+    }
+    const files = fs
+      .readdirSync(menuPdfDir)
+      .filter((f) => /^page-\d+\.png$/i.test(f))
+      .sort((a, b) => {
+        const na = parseInt(a.match(/page-(\d+)\.png/i)[1], 10);
+        const nb = parseInt(b.match(/page-(\d+)\.png/i)[1], 10);
+        return na - nb;
+      })
+      .map((f) => `/menu-pdf/${f}`);
+
+    res.json({ pages: files });
+  } catch (err) {
+    console.error('❌ Fehler beim Lesen der Menü-PDF-Seiten:', err);
+    res.status(500).json({ pages: [] });
+  }
+});
+
 
 // ======================================================================
 // Multer – PDF feltöltés
