@@ -818,32 +818,6 @@ app.get('/api/menu-pdf', (req, res) => {
     res.status(500).json({ pages: [] });
   }
 });
-
-
-// ======================================================================
-// Multer – PDF feltöltés
-// ======================================================================
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, MENU_BOOK_DIR);
-  },
-  filename: (req, file, cb) => {
-    const safe = Date.now() + '-' + file.originalname.replace(/\s+/g, '_');
-    cb(null, safe);
-  }
-});
-
-const upload = multer({
-  storage,
-  fileFilter: (req, file, cb) => {
-    if (!/\.pdf$/i.test(file.originalname)) {
-      return cb(new Error('Only PDF files allowed!'));
-    }
-    cb(null, true);
-  },
-  limits: { fileSize: 10 * 1024 * 1024 } // 10MB
-});
-
 // ======================================================================
 // 🟩 ADMIN: PDF Feltöltés → Konvertálás PNG oldalakra
 // ======================================================================
