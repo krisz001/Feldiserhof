@@ -671,6 +671,151 @@ app.get('/js/menu.js', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'js', 'menu-portfolio-book.js'));
 });
 
+// ======================================================================
+// 🍽️ PDF alapú Menü Könyv – Upload + Konvertálás + Törlés API
+// ======================================================================
+import multer from 'multer';
+import { exec } from 'child_process';
+
+// PDF mappa
+const MENU_BOOK_DIR = path.join(__dirname, 'public', 'menu-book');
+const MENU_BOOK_JSON = path.join(__dirname, 'data', 'menu-pdf.json');
+
+// biztosítsuk a könyvtárakat
+if (!fs.existsSync(MENU_BOOK_DIR)) fs.mkdirSync(MENU_BOOK_DIR, { recursive: true });
+if (!fs.existsSync(path.dirname(MENU_BOOK_JSON))) fs.mkdirSync(path.dirname(MENU_BOOK_JSON), { recursive: true });
+
+// JSON betöltés / mentés
+function readPdfJson() {
+  try {
+    if (!fs.existsSync(MENU_BOOK_JSON)) {
+      const initData = { pages: [] };
+      fs.writeFileSync(MENU_BOOK_JSON, JSON.stringify(initData, null, 2));
+      return initData;
+    }
+    return JSON.parse(fs.readFileSync(MENU_BOOK_JSON, 'utf8'));
+  } catch (e) {
+    console.error('❌ menu-pdf.json betöltési hiba:', e);
+    return { pages: [] };
+  }
+}
+function writePdfJson(data) {
+  try {
+    fs.writeFileSync(MENU_BOOK_JSON, JSON.stringify(data, null, 2), 'utf8');
+  } catch (e) {
+    console.error('❌ menu-pdf.json mentési hiba:', e);
+  }
+}
+
+// ======================================================================
+// Multer – PDF feltöltés
+// ======================================================================
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, MENU_BOOK_DIR);
+  },
+  filename: (req, file, cb) => {
+    const safe = Date.now() + '-' + file.originalname.replace(/\s+/g, '_');
+    cb(null, safe);
+  }
+});
+
+const upload = multer({
+  storage,
+  fileFilter: (req, file, cb) => {
+    if (!/\.pdf$/i.test(file.originalname)) {
+      return cb(new Error('Only PDF files allowed!'));
+    }
+    cb(null, true);
+  },
+  limits: { fileSize: 10 * 1024 * 1024 } // 10MB
+});
+
+// ======================================================================
+// 🟩 ADMIN: PDF Feltöltés → Konvertálás PNG oldalakra
+// ======================================================================
+app.post('/admin/api/menu-book/upload', requireAdmin, csrfFromHeader, upload.single('pdf'), (req, res) => {
+  if (!req.file) return res.status(400).json({ ok: false, msg: 'No PDF uploaded' });
+
+  const pdfPath = req.file.path;
+  const baseName = path.basename(pdfPath, '.pdf');
+  const outputPattern = path.join(MENU_BOOK_DIR, baseName + '-page');
+
+  // Konvertálás pdftoppm-mel: PDF → PNG oldalak
+  const cmd = `pdftoppm -png "${pdfPath}" "${outputPattern}"`;
+
+  exec(cmd, (err) => {
+    if (err) {
+      console.error('❌ pdftoppm hiba:', err);
+      return res.status(500).json({ ok: false, msg: 'PDF konvertálás sikertelen' });
+    }
+
+    // generált PNG-k összegyűjtése
+    const files = fs.readdirSync(MENU_BOOK_DIR)
+      .filter(f => f.startsWith(baseName + '-page') && f.endsWith('.png'))
+      .sort((a, b) => {
+        // oldalszám szerinti rendezés
+        const getNum = (x) => parseInt(x.replace(/\D+/g, ''), 10);
+        return getNum(a) - getNum(b);
+      });
+
+    if (files.length === 0) {
+      return res.status(500).json({ ok: false, msg: 'No output images generated' });
+    }
+
+    // JSON frissítés
+    const data = readPdfJson();
+    data.pages = files.map(f => `/menu-book/${f}`);
+    writePdfJson(data);
+
+    console.log(`📄 PDF feldolgozva, oldalak:`, files.length);
+
+    res.json({ ok: true, pages: data.pages });
+  });
+});
+
+// ======================================================================
+// 🟦 ADMIN: PDF Könyv oldalainak lekérése
+// ======================================================================
+app.get('/admin/api/menu-book/pages', requireAdmin, (req, res) => {
+  const data = readPdfJson();
+  res.json({ ok: true, pages: data.pages });
+});
+
+// ======================================================================
+// 🟥 ADMIN: PDF Könyv törlése
+// ======================================================================
+app.post('/admin/api/menu-book/delete', requireAdmin, csrfFromHeader, (req, res) => {
+  const data = readPdfJson();
+
+  // PNG-k törlése
+  data.pages.forEach(p => {
+    const localPath = path.join(__dirname, 'public', p);
+    if (fs.existsSync(localPath)) fs.unlinkSync(localPath);
+  });
+
+  // PDF fájlok törlése (csak biztonság kedvéért)
+  const pdfFiles = fs.readdirSync(MENU_BOOK_DIR).filter(f => f.endsWith('.pdf'));
+  pdfFiles.forEach(pdf => {
+    fs.unlinkSync(path.join(MENU_BOOK_DIR, pdf));
+  });
+
+  data.pages = [];
+  writePdfJson(data);
+
+  console.log('🗑 Menü PDF + PNG oldalak törölve');
+
+  res.json({ ok: true });
+});
+
+// ======================================================================
+// PUBLIKUS API – PDF könyv jelenik meg a vendégeknek
+// ======================================================================
+app.get('/api/menu-book', (req, res) => {
+  const data = readPdfJson();
+  res.json({ ok: true, pages: data.pages });
+});
+
 // ============================================================
 // Hibakezelés
 // ============================================================

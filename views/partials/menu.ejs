@@ -10,6 +10,11 @@
 
   // flags safe
   const safeFlags = (typeof flags !== 'undefined' && flags) ? flags : {};
+
+  // ---- PDF pages fallback (5. LÉPÉS RÉSZE) ----
+  const pdfPages = (typeof menuPdfPages !== 'undefined' && Array.isArray(menuPdfPages))
+    ? menuPdfPages
+    : [];
 %>
 
 <section id="menu" class="menu-section">
@@ -47,7 +52,7 @@
           </div>
         </div>
 
-        <!-- Jobb oldal SABLON – JS dinamikusan tölti fel (fallback tartalommal) -->
+        <!-- Jobb oldal SABLON – JS dinamikusan tölti fel -->
         <div class="book-page page-right" data-sheet="1" id="turn-1" data-template="page">
           <div class="page-front">
             <h1 class="title"><%= titleTxt %></h1>
@@ -82,22 +87,46 @@
   <link rel="stylesheet" href="/css/menu-portfolio-book.css">
   <link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css">
 
-  <!-- Menü adat beágyazása a DOM-ba a dinamikus lapozáshoz -->
+  <!-- Menü adat beágyazása -->
   <script id="menuDataScript" type="application/json">
     <%- JSON
         .stringify(rawMenu)
-        // biztos, ami biztos: ne tördje el a </script>
         .replace(/<\/(script)/gi, '<\\/$1')
     %>
   </script>
 
-  <!-- Dinamikus, magasság-alapú oldalgenerálás + lapozás -->
+  <!-- 🔥 5. LÉPÉS: PDF oldalak átadása a JS-nek -->
+  <script id="pdfMenuPagesScript" type="application/json">
+    <%- JSON
+        .stringify(pdfPages)
+        .replace(/<\/(script)/gi, '<\\/$1')
+    %>
+  </script>
+
+  <!-- Dinamikus, magasság-alapú oldalgenerálás + PDF mód -->
   <script src="/js/feldiserhof-menu-book.js" defer></script>
+
+  <!-- 🔥 5. LÉPÉS: Aktiváló JS PDF módhoz -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const pdfPagesEl = document.getElementById('pdfMenuPagesScript');
+      if (!pdfPagesEl) return;
+
+      let pdfPages = [];
+      try { pdfPages = JSON.parse(pdfPagesEl.textContent.trim()); }
+      catch(e){}
+
+      // Ha van PDF, aktiváljuk a PDF módot
+      if (Array.isArray(pdfPages) && pdfPages.length > 0) {
+        window.menuPdfPages = pdfPages;
+        document.body.dataset.pdfMenuActive = "1";
+      }
+    });
+  </script>
 </section>
 
 <div class="section-separator"></div>
 
-<!-- 🔽 csak ehhez az opcióhoz szükséges minimál stílus -->
 <style>
   .menu-portfolio .wrapper { position: relative; }
   .menu-portfolio.is-locked .cover,
@@ -131,19 +160,4 @@
     font-size: clamp(.95rem,2vw,1.05rem);
     color:#444;
   }
-
-  @media (prefers-color-scheme: dark){
-    .book-lock-overlay .blo-card{ background: rgba(26,26,26,.92); color:#eee; }
-    .book-lock-overlay .blo-card h3{ color:#fff; }
-    .book-lock-overlay .blo-card p { color:#ddd; }
-  }
-
-  /* finom "shake", ha tiltott állapotban próbál lapozni (ha használod) */
-  @keyframes book-shake{
-    10%,90%{transform:translateX(-1px)}
-    20%,80%{transform:translateX(2px)}
-    30%,50%,70%{transform:translateX(-4px)}
-    40%,60%{transform:translateX(4px)}
-  }
-  .menu-portfolio .book.shake{ animation: book-shake .4s both; }
 </style>

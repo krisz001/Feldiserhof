@@ -14,8 +14,6 @@
             <i class="fas fa-utensils me-2"></i>
             <span>Speisekarte bearbeiten</span>
           </h1>
-
-          <!-- Nyelvválasztó eltávolítva – csak Deutsch marad -->
         </div>
 
         <div>
@@ -31,7 +29,7 @@
         </div>
       </div>
 
-      <!-- Gyors műveletek -->
+      <!-- 🔹 Gyors műveletek (JSON alapú menü) -->
       <div class="row mb-4">
         <div class="col-md-4">
           <button class="btn btn-success w-100" onclick="openCategoryModal()">
@@ -50,11 +48,47 @@
         </div>
       </div>
 
-      <!-- Menü szerkesztő -->
+      <!-- 🔹 PDF extra panel (opcionális) -->
+      <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <div>
+            <h5 class="mb-0">
+              <i class="fas fa-file-pdf me-2 text-danger"></i>
+              PDF-Version der Speisekarte (optional)
+            </h5>
+            <small class="text-muted">
+              Die PDF wird serverseitig in Seitenbilder umgewandelt und im Menü-Buch angezeigt.
+            </small>
+          </div>
+          <span class="badge bg-secondary" id="pdfStatusBadge">Keine PDF hochgeladen</span>
+        </div>
+        <div class="card-body">
+          <form id="pdfUploadForm" class="row g-3">
+            <div class="col-md-8">
+              <label for="menuPdf" class="form-label">PDF-Datei wählen</label>
+              <input type="file" class="form-control" id="menuPdf" name="menuPdf" accept="application/pdf" required>
+            </div>
+            <div class="col-md-4 d-flex align-items-end gap-2">
+              <button type="submit" class="btn btn-outline-primary flex-grow-1">
+                <i class="fas fa-upload me-2"></i>PDF hochladen
+              </button>
+              <button type="button" class="btn btn-outline-danger" id="pdfDeleteBtn">
+                <i class="fas fa-trash me-2"></i>PDF entfernen
+              </button>
+            </div>
+            <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+          </form>
+
+          <div id="pdfPreview" class="mt-3">
+            <span class="text-muted small">Noch keine PDF-Version vorhanden.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 🔹 Menü szerkesztő (JSON alapú – marad, ahogy volt) -->
       <div class="card">
         <div class="card-body">
           <div id="menuEditor">
-            <!-- Itt jelenik meg a menü szerkesztő -->
             <div class="text-center text-muted py-5" id="loadingMessage">
               <i class="fas fa-spinner fa-spin me-2"></i>Menü wird geladen...
             </div>
@@ -179,11 +213,27 @@
   background: #6c757d;
   color: white;
 }
+
+/* PDF preview kis thumbnail-ek */
+#pdfPreview .pdf-thumb {
+  width: 70px;
+  height: 100px;
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid rgba(0,0,0,.1);
+  box-shadow: 0 2px 4px rgba(0,0,0,.08);
+}
+#pdfPreview .pdf-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
 </style>
 
 <script>
 let menuData = { title: "", categories: [] };
 let csrfToken = '';
+let pdfPages = [];
 
 // Fordítási stringek – most már fix német szövegek
 const translations = {
@@ -219,7 +269,7 @@ async function getCsrfToken() {
   return csrfToken;
 }
 
-// Menü betöltése
+// Menü betöltése (JSON)
 async function loadMenu() {
   try {
     const response = await fetch('/api/menu', {
@@ -235,6 +285,104 @@ async function loadMenu() {
   }
 }
 
+// PDF státusz betöltése
+async function loadPdfMenuStatus() {
+  try {
+    const response = await fetch('/api/menu-pdf', {
+      headers: { 'CSRF-Token': await getCsrfToken() }
+    });
+    if (!response.ok) throw new Error('Failed to load pdf menu');
+    const data = await response.json();
+    pdfPages = Array.isArray(data.pages) ? data.pages : [];
+    updatePdfStatusUI();
+  } catch (error) {
+    console.error('Fehler beim Laden der PDF-Version:', error);
+  }
+}
+
+function updatePdfStatusUI() {
+  const badge = document.getElementById('pdfStatusBadge');
+  const preview = document.getElementById('pdfPreview');
+  if (!badge || !preview) return;
+
+  if (!pdfPages.length) {
+    badge.textContent = 'Keine PDF hochgeladen';
+    badge.className = 'badge bg-secondary';
+    preview.innerHTML = '<span class="text-muted small">Noch keine PDF-Version vorhanden.</span>';
+  } else {
+    badge.textContent = pdfPages.length + ' Seite(n)';
+    badge.className = 'badge bg-success';
+
+    const thumbs = pdfPages.slice(0, 3).map((url, idx) => `
+      <div class="pdf-thumb">
+        <img src="${url}" alt="Seite ${idx + 1}">
+      </div>
+    `).join('');
+
+    const more = pdfPages.length > 3
+      ? `<div class="small text-muted ms-2">+ ${pdfPages.length - 3} weitere...</div>`
+      : '';
+
+    preview.innerHTML = `
+      <div class="d-flex align-items-center gap-2 flex-wrap">
+        ${thumbs}
+        ${more}
+      </div>
+    `;
+  }
+}
+
+// PDF feltöltés kezelése
+async function handlePdfUpload(event) {
+  event.preventDefault();
+  const fileInput = document.getElementById('menuPdf');
+  if (!fileInput || !fileInput.files.length) {
+    alert('Bitte wählen Sie eine PDF-Datei aus.');
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append('menuPdf', fileInput.files[0]);
+  formData.append('_csrf', await getCsrfToken());
+
+  try {
+    const response = await fetch('/admin/menu-pdf', {
+      method: 'POST',
+      body: formData
+    });
+
+    if (!response.ok) throw new Error('Upload failed');
+
+    await loadPdfMenuStatus();
+    fileInput.value = '';
+  } catch (error) {
+    console.error('Fehler beim PDF-Upload:', error);
+    alert('Fehler beim Hochladen der PDF.');
+  }
+}
+
+// PDF törlése
+async function handlePdfDelete() {
+  if (!confirm('Möchten Sie die aktuelle PDF-Version wirklich entfernen?')) return;
+
+  try {
+    const response = await fetch('/admin/menu-pdf/delete', {
+      method: 'POST',
+      headers: {
+        'CSRF-Token': await getCsrfToken()
+      }
+    });
+
+    if (!response.ok) throw new Error('Delete failed');
+
+    pdfPages = [];
+    updatePdfStatusUI();
+  } catch (error) {
+    console.error('Fehler beim Löschen der PDF:', error);
+    alert('Fehler beim Entfernen der PDF-Version.');
+  }
+}
+
 // HTML escape funkció XSS védelem miatt
 function escapeHtml(text) {
   const map = {
@@ -247,7 +395,7 @@ function escapeHtml(text) {
   return String(text).replace(/[&<>"']/g, m => map[m]);
 }
 
-// Menü renderelése
+// Menü renderelése (JSON)
 function renderMenu() {
   const container = document.getElementById('menuEditor');
   
@@ -355,7 +503,6 @@ function openItemModal(catIndex = null, itemIndex = null) {
   const form = document.getElementById('itemForm');
   const categorySelect = document.getElementById('itemCategory');
   
-  // Kategóriák betöltése a select-be
   categorySelect.innerHTML = `<option value="">${translations.selectCategory}</option>`;
   menuData.categories.forEach((category, index) => {
     categorySelect.innerHTML += `<option value="${index}">${escapeHtml(category.name)}</option>`;
@@ -512,5 +659,15 @@ async function saveMenu() {
 // Inicializálás
 document.addEventListener('DOMContentLoaded', function() {
   loadMenu();
+  loadPdfMenuStatus();
+
+  const pdfForm = document.getElementById('pdfUploadForm');
+  if (pdfForm) {
+    pdfForm.addEventListener('submit', handlePdfUpload);
+  }
+  const pdfDeleteBtn = document.getElementById('pdfDeleteBtn');
+  if (pdfDeleteBtn) {
+    pdfDeleteBtn.addEventListener('click', handlePdfDelete);
+  }
 });
 </script>
