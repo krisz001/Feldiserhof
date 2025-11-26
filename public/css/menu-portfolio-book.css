@@ -347,7 +347,7 @@ body {
 }
 
 /* ----------------------------------------------------------
-   GENERIKUS NAVIGÁCIÓS LOGIKA (bármennyi laphoz)
+   GENERIKUS NAVIGÁCIÓS LOGIKA (bármennyi laphoz) - JAVÍTOTT
    ---------------------------------------------------------- */
 
 /* Közös stílus minden nyílra */
@@ -376,24 +376,28 @@ body {
   transform: scale(1.08);
 }
 
-/* 1. oldal (bal lap) – KÜLÖNC, mert ez a fix bal oldal (ELŐRE gomb) */
-.menu-portfolio .page-left .btn-page1-next {
-  right: 1.21rem;
-  left: auto;
+/* --- GOMB POZÍCIÓK --- */
+
+/* JOBB OLDAL (Page-Front): ELŐRE gomb (›) */
+/* A gomb a jobb alsó sarokban van */
+.menu-portfolio .page-front .nextprev-btn,
+.menu-portfolio .page-right .page-front .btn-next {
+  right: 1.21rem !important;
+  left: auto !important;
 }
 
-/* Minden PÁROS oldal (Front: 2, 4, 6...) – VISSZA gomb */
-/* A JS a .page-right .page-front-ra teszi a .btn-back gombot, „‹” ikonnal */
-.menu-portfolio .page-right .page-front .btn-back {
-  right: 1.21rem;
-  left: auto;
+/* BAL OLDAL (Page-Back): VISSZA gomb (‹) */
+/* A gomb a bal alsó sarokban van (külső szél) */
+.menu-portfolio .page-back .nextprev-btn,
+.menu-portfolio .page-right.turn .page-back .btn-back {
+  left: 1.21rem !important;
+  right: auto !important;
 }
 
-/* Minden PÁRATLAN oldal (Back: 3, 5, 7...) – ELŐRE gomb */
-/* A JS a .page-right.turn .page-back-re teszi a .btn-next gombot, „›” ikonnal */
-.menu-portfolio .page-right.turn .page-back .btn-next {
-  right: 1.21rem;
-  left: auto;
+/* Fix bal oldal (ha van) - Vissza gomb balra */
+.menu-portfolio .page-left .nextprev-btn {
+  left: 1.21rem !important;
+  right: auto !important;
 }
 
 /* ----- Oldalszámok ----- */
@@ -410,20 +414,22 @@ body {
   z-index: 20;
 }
 
-/* Bal lap oldalszám – a gomb mellé balra (belső) */
-.menu-portfolio .page-left .number-page {
-  right: 4.2rem; /* eltolva a gombtól */
-}
+/* --- OLDALSZÁM POZÍCIÓK (Ellentétes oldal a gombokkal) --- */
 
-/* Jobb lap oldalszám – bal oldalon (gerinc felől), hogy ne ütközzön a gombbal */
+/* JOBB OLDAL (Front): Szám a bal oldalon (gerinc felé) */
+.menu-portfolio .page-front .number-page,
 .menu-portfolio .page-right .page-front .number-page {
-  left: 1.21rem;
+  left: 1.21rem !important;
+  right: auto !important;
 }
 
-/* Jobb lap hátulja oldalszám – bal oldalon */
+/* BAL OLDAL (Back): Szám a jobb oldalon (gerinc felé) */
+.menu-portfolio .page-back .number-page,
 .menu-portfolio .page-right.turn .page-back .number-page {
-  left: 1.21rem;
+  right: 1.21rem !important;
+  left: auto !important;
 }
+
 
 /* ----- PÖTTY NAVIGÁCIÓ ----- */
 .menu-portfolio .book-dots {
