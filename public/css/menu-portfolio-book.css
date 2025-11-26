@@ -10,6 +10,8 @@
 /* === Globális háttér egységesítés === */
 body {
   background: radial-gradient(140% 120% at 50% -40%, #fff, #fbeac2 45%, #f5dfb0) !important;
+  margin: 0;
+  overflow-x: hidden;
 }
 
 .menu-portfolio,
@@ -361,7 +363,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  line-height: 1; 
+  line-height: 1;
   transition: all 0.21s cubic-bezier(0.48, 0.13, 0.35, 1);
   cursor: pointer;
   z-index: 20;
@@ -560,16 +562,55 @@ body {
   animation: book-shake 0.4s both;
 }
 
-/* ===== TABLET (iPad) – 1 oszlop ===== */
+/* ===== TABLET (iPad) – 1 oszlop + kisebb padding ===== */
 @media (max-width: 1024px) {
+  .menu-portfolio .wrapper {
+    padding: 1.9rem 1.25rem 2.4rem;
+  }
+
   .menu-portfolio .menu-items-grid {
     grid-template-columns: 1fr;
     gap: 0.8rem;
+    padding-bottom: 3.2rem;
+  }
+
+  .menu-portfolio .title {
+    font-size: 1.9rem;
+    margin-bottom: 0.96rem;
+  }
+
+  .menu-portfolio .mi-name {
+    font-size: 1.03rem;
+  }
+
+  .menu-portfolio .mi-desc {
+    font-size: 0.92rem;
   }
 }
 
 /* ----- MOBIL NÉZET ----- */
 @media (max-width: 768px) {
+  .menu-header {
+    margin-bottom: 2.1rem;
+  }
+
+  .menu-title {
+    font-size: 2rem;
+  }
+
+  .menu-subtitle {
+    font-size: 1.08rem;
+  }
+
+  .menu-intro {
+    font-size: 1.01rem;
+  }
+
+  .menu-portfolio .wrapper {
+    max-width: 100%;
+    padding: 1.6rem 0.9rem 2rem;
+  }
+
   .menu-portfolio .book {
     min-height: 28rem;
     width: 100%;
@@ -595,13 +636,13 @@ body {
 
   .menu-portfolio .page-front,
   .menu-portfolio .page-back {
-    padding: 1rem 1.19rem 4.6rem;
+    padding: 0.85rem 0.9rem 3.4rem;
   }
 
   .menu-portfolio .menu-items-grid {
     grid-template-columns: 1fr;
     gap: 0.74rem;
-    padding-bottom: 4.2rem;
+    padding-bottom: 3.2rem;
   }
 
   .menu-portfolio .title {
@@ -640,6 +681,117 @@ body {
     left: 0.51rem !important;
     right: auto !important;
   }
+
+  .menu-portfolio .profile-page {
+    padding: 1.7rem;
+  }
+
+  .menu-portfolio .profile-page h1 {
+    font-size: 2.2rem;
+  }
+
+  .menu-portfolio .profile-page p {
+    font-size: 1.08rem;
+  }
+
+  .book-lock-overlay {
+    padding: 20px;
+  }
+
+  .book-lock-overlay .blo-card {
+    padding: 24px 20px;
+  }
+}
+
+/* Extra kicsi mobil (pl. 360–400px szélesség) */
+@media (max-width: 480px) {
+  .menu-header {
+    margin-bottom: 1.8rem;
+  }
+
+  .menu-icon {
+    font-size: 2.4rem;
+    margin-bottom: 1rem;
+  }
+
+  .menu-title {
+    font-size: 1.8rem;
+  }
+
+  .menu-divider {
+    width: 60px;
+    height: 3px;
+    margin: 0.7rem auto 0.9rem;
+  }
+
+  .menu-subtitle {
+    font-size: 1.02rem;
+  }
+
+  .menu-intro {
+    font-size: 0.97rem;
+  }
+
+  .menu-portfolio .wrapper {
+    padding: 1.4rem 0.7rem 1.8rem;
+  }
+
+  .menu-portfolio .book {
+    min-height: 22rem;
+  }
+
+  .menu-portfolio .page-front,
+  .menu-portfolio .page-back {
+    padding: 0.78rem 0.78rem 3.1rem;
+  }
+
+  .menu-portfolio .title {
+    font-size: 1.26rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .menu-portfolio .mi-name {
+    font-size: 0.97rem;
+  }
+
+  .menu-portfolio .mi-desc {
+    font-size: 0.86rem;
+  }
+
+  .menu-portfolio .mi-tags li {
+    font-size: 0.78rem;
+    padding: 0.11rem 0.6rem;
+  }
+
+  .menu-portfolio .number-page {
+    font-size: 0.8rem;
+  }
+
+  .menu-portfolio .nextprev-btn {
+    width: 1.55rem;
+    height: 1.55rem;
+    font-size: 1.03rem;
+  }
+
+  .menu-portfolio .profile-page {
+    padding: 1.4rem;
+  }
+
+  .menu-portfolio .profile-page h1 {
+    font-size: 2rem;
+  }
+
+  .menu-portfolio .profile-page p {
+    font-size: 1.02rem;
+  }
+
+  .book-lock-overlay {
+    padding: 18px;
+  }
+
+  .book-lock-overlay .blo-card {
+    padding: 22px 18px;
+  }
 }
 
 /* =========================================================
@@ -671,6 +823,12 @@ body {
 
 .menu-portfolio.has-pdf .nextprev-btn {
   bottom: 0.1rem;
+}
+
+@media (max-width: 768px) {
+  .menu-portfolio.has-pdf .book {
+    min-height: 24rem;
+  }
 }
 
 @media (prefers-color-scheme: dark) {
