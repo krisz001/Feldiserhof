@@ -358,8 +358,10 @@ body {
   height: 2.42rem;
   font-size: 1.57rem;
   color: var(--accent-ink);
-  display: grid;
-  place-items: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1; 
   transition: all 0.21s cubic-bezier(0.48, 0.13, 0.35, 1);
   cursor: pointer;
   z-index: 20;
