@@ -591,7 +591,8 @@
     book.setAttribute('role', 'region');
     book.setAttribute('aria-label', 'Lapozható menükönyv');
 
-    const clampIndex = (i) => Math.max(0, Math.min(sheets.length - 1, i));
+// engedjük a "teljesen átlapozott" állapotot is → sheets.length
+const clampIndex = (i) => Math.max(0, Math.min(sheets.length, i));
 
     function baseZ(i, turned) {
       return turned ? i + 1 : sheets.length * 2 - i;
@@ -604,7 +605,11 @@
         if (el.dataset.boost === '1') return;
         el.style.zIndex = String(baseZ(i, turned));
       });
-      dots.forEach((d, i) => d.classList.toggle('active', i === pageIndex));
+      dots.forEach((d, i) => {
+  const effectiveIndex = Math.min(pageIndex, sheets.length - 1);
+  d.classList.toggle('active', i === effectiveIndex);
+});
+
     }
 
     function boostForAnimation(idx) {
@@ -630,12 +635,14 @@
       }, ANIM_MS);
     }
 
-    function next() {
-      if (pageIndex >= sheets.length - 1 || isAnimating) return;
-      const old = pageIndex;
-      pageIndex = clampIndex(pageIndex + 1);
-      updateBookView(old, pageIndex);
-    }
+  function next() {
+  // most már engedjük, hogy pageIndex == sheets.length is lehessen
+  if (pageIndex >= sheets.length || isAnimating) return;
+  const old = pageIndex;
+  pageIndex = clampIndex(pageIndex + 1);
+  updateBookView(old, pageIndex);
+}
+
 
     function prev() {
       if (pageIndex <= 0 || isAnimating) return;
