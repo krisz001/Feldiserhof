@@ -69,6 +69,9 @@
   // ============================================================
   // PDF MÓD - JAVÍTOTT GOMBOKKAL ÉS KARAKTEREKKEL
   // ============================================================
+    // ============================================================
+  // PDF MÓD - JAVÍTOTT GOMBOKKAL ÉS POZÍCIÓKKAL
+  // ============================================================
   function initPdfMenuBook(bookEl, pdfPages) {
     // 1) TELJES TISZTÍTÁS
     bookEl.innerHTML = '';
@@ -83,8 +86,10 @@
     for (let i = 0; i < pdfPages.length; i += 2) {
       const pageEl = document.createElement('div');
       pageEl.className = 'book-page page-right';
-      pageEl.dataset.sheet = String(Math.floor(i / 2) + 1);
-      pageEl.id = `turn-${Math.floor(i / 2) + 1}`;
+      // Az oldalpár indexe (pl. 1, 2, 3...)
+      const sheetIndex = Math.floor(i / 2) + 1;
+      pageEl.dataset.sheet = String(sheetIndex);
+      pageEl.id = `turn-${sheetIndex}`;
 
       // ===== FRONT OLDAL (BAL PDF KÉP) =====
       const frontEl = document.createElement('div');
@@ -104,13 +109,15 @@
       pageNumberFront.textContent = String(i + 1);
       frontEl.appendChild(pageNumberFront);
 
-      // --- JAVÍTVA: Balra nyíl (prev/back) ---
-      // Front oldalon mindig VISSZA gomb van (páros oldalak)
-      const prevBtn = document.createElement('button'); // button jobb mint span
-      prevBtn.className = 'nextprev-btn btn-back'; // Generikus osztály
-      prevBtn.setAttribute('data-role', 'prev');
-      prevBtn.textContent = '‹'; // Karakter ikon helyett
-      frontEl.appendChild(prevBtn);
+      // --- JAVÍTOTT GOMB (BAL OLDALRA) ---
+      // Csak akkor rakunk VISSZA gombot, ha nem az legelső oldalon vagyunk
+      if (i > 0) {
+        const prevBtn = document.createElement('button');
+        prevBtn.className = 'nextprev-btn btn-back'; 
+        prevBtn.setAttribute('data-role', 'prev');
+        prevBtn.textContent = '‹'; 
+        frontEl.appendChild(prevBtn);
+      }
 
       // ===== BACK OLDAL (JOBB PDF KÉP) =====
       const backEl = document.createElement('div');
@@ -130,13 +137,15 @@
       pageNumberBack.textContent = String(i + 2);
       backEl.appendChild(pageNumberBack);
 
-      // --- JAVÍTVA: Jobbra nyíl (next) ---
-      // Back oldalon mindig ELŐRE gomb van (páratlan oldalak)
-      const nextBtn = document.createElement('button'); // button jobb mint span
-      nextBtn.className = 'nextprev-btn btn-next'; // Generikus osztály
-      nextBtn.setAttribute('data-role', 'next');
-      nextBtn.textContent = '›'; // Karakter ikon helyett
-      backEl.appendChild(nextBtn);
+      // --- JAVÍTOTT GOMB (JOBB OLDALRA) ---
+      // Csak akkor rakunk ELŐRE gombot, ha van még következő oldal
+      if (i + 2 < pdfPages.length) {
+        const nextBtn = document.createElement('button'); 
+        nextBtn.className = 'nextprev-btn btn-next'; 
+        nextBtn.setAttribute('data-role', 'next');
+        nextBtn.textContent = '›'; 
+        backEl.appendChild(nextBtn);
+      }
 
       pageEl.appendChild(frontEl);
       pageEl.appendChild(backEl);
@@ -147,6 +156,7 @@
     // 4) Indítsd el a flipbook logikát
     initMenuBook(bookEl.closest('.menu-portfolio'));
   }
+
 
   // ------------------------------------------------------------
   // Menü JSON kiolvasása (#menuDataScript vagy window.menuData)
