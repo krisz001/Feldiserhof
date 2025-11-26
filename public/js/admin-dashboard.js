@@ -4,6 +4,19 @@ const $ = (sel) => document.querySelector(sel);
 
 // =============== CSRF TOKEN KEZELÉS ===============
 
+const adminCsrf = (function() {
+  let csrfToken = '';
+  async function initCsrfToken() {
+    // ...ugyanaz mint eddig
+  }
+  async function getCsrfToken() {
+    if (!csrfToken) await initCsrfToken();
+    return csrfToken;
+  }
+  initCsrfToken().catch(() => {});
+  return { getCsrfToken };
+})();
+
 async function initCsrfToken() {
   try {
     const resp = await fetch('/api/csrf-token', {
