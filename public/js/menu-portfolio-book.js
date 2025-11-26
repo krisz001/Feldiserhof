@@ -85,9 +85,7 @@
     const isMobile = window.innerWidth <= 768;
 
     if (isMobile) {
-      // =================================================================
-      // MOBIL: MINDEN PDF OLDAL KÜLÖN LAP, CSAK A FRONT-ON MUTATJUK A KÉPET
-      // =================================================================
+      // MOBIL: MINDEN PDF OLDAL KÜLÖN LAP
       for (let i = 0; i < pdfPages.length; i++) {
         const pageEl = document.createElement('div');
         pageEl.className = 'book-page page-right';
@@ -108,13 +106,11 @@
           frontEl.appendChild(img);
         }
 
-        // Oldalszám (középen – a CSS intézi a pozíciót)
         const pageNumber = document.createElement('span');
         pageNumber.className = 'number-page';
         pageNumber.textContent = String(i + 1);
         frontEl.appendChild(pageNumber);
 
-        // VISSZA gomb (ha nem az első oldal)
         if (i > 0) {
           const prevBtn = document.createElement('button');
           prevBtn.className = 'nextprev-btn btn-back';
@@ -124,7 +120,6 @@
           frontEl.appendChild(prevBtn);
         }
 
-        // ELŐRE gomb (ha nem az utolsó oldal)
         if (i + 1 < pdfPages.length) {
           const nextBtn = document.createElement('button');
           nextBtn.className = 'nextprev-btn btn-next';
@@ -134,19 +129,15 @@
           frontEl.appendChild(nextBtn);
         }
 
-        // BACK – mobilon nem használjuk, de kell a flip animáció miatt
         const backEl = document.createElement('div');
         backEl.className = 'page-back';
 
         pageEl.appendChild(frontEl);
         pageEl.appendChild(backEl);
-
         bookEl.appendChild(pageEl);
       }
     } else {
-      // =================================================================
-      // DESKTOP: PÁROSÍTOTT LAPOK (FRONT = i, BACK = i+1)
-      // =================================================================
+      // DESKTOP: PÁROSÍTOTT LAPOK
       for (let i = 0; i < pdfPages.length; i += 2) {
         const pageEl = document.createElement('div');
         pageEl.className = 'book-page page-right';
@@ -172,7 +163,7 @@
         pageNumberFront.textContent = String(i + 1);
         frontEl.appendChild(pageNumberFront);
 
-        // FRONT (JOBB OLDAL) – NEXT gomb, ha van még további oldal
+        // FRONT NEXT gomb
         if (i + 2 < pdfPages.length) {
           const nextBtn = document.createElement('button');
           nextBtn.className = 'nextprev-btn btn-next';
@@ -197,31 +188,30 @@
           pageNumberBack.className = 'number-page';
           pageNumberBack.textContent = String(i + 2);
           backEl.appendChild(pageNumberBack);
-
-          // BACK (BAL OLDAL) – MINDIG PREV GOMB, HA LÉTEZIK EZ AZ OLDAL
-          const prevBtn = document.createElement('button');
-          prevBtn.className = 'nextprev-btn btn-back';
-          prevBtn.setAttribute('type', 'button');
-          prevBtn.setAttribute('data-role', 'prev');
-          prevBtn.textContent = '‹';
-          backEl.appendChild(prevBtn);
         }
+
+        // BACK PREV gomb - mindig kell, ha ez a page-back létezik
+        // (A PDF módban is a logika része, hogy a hátsó oldalra kell a vissza gomb)
+        const prevBtn = document.createElement('button');
+        prevBtn.className = 'nextprev-btn btn-back';
+        prevBtn.setAttribute('type', 'button');
+        prevBtn.setAttribute('data-role', 'prev');
+        prevBtn.textContent = '‹';
+        backEl.appendChild(prevBtn);
 
         pageEl.appendChild(frontEl);
         pageEl.appendChild(backEl);
-
         bookEl.appendChild(pageEl);
       }
     }
 
-    // Flipbook logika indítása
     if (root) {
       initMenuBook(root);
     }
   }
 
   // ------------------------------------------------------------
-  // Menü JSON kiolvasása (#menuDataScript vagy window.menuData)
+  // Menü JSON kiolvasása
   // ------------------------------------------------------------
   function getMenuDataFromDom() {
     const script = document.getElementById('menuDataScript');
@@ -248,10 +238,7 @@
 
     const templateOriginal = book.querySelector('.book-page.page-right');
     if (!templateOriginal) {
-      console.error(
-        '[menu-book] Nem található .book-page.page-right sablon. ' +
-          'Legalább egy lapot ki kell renderelni EJS-ben.'
-      );
+      console.error('[menu-book] Nem található .book-page.page-right sablon.');
       return;
     }
 
@@ -260,8 +247,8 @@
     template.querySelectorAll('.title').forEach((el) => (el.textContent = ''));
     template.querySelectorAll('.number-page').forEach((el) => (el.textContent = ''));
 
-    // === JAVÍTÁS: GOMBOK BEÁLLÍTÁSA HELYESEN ===
-    // Front (Jobb oldal): Tovább (Next)
+    // Gombok beállítása a sablonon (Helyes irányok)
+    // Front (Jobb) -> Next
     const tplFrontBtn = template.querySelector('.page-front .nextprev-btn');
     if (tplFrontBtn) {
       tplFrontBtn.className = 'nextprev-btn btn-next';
@@ -269,15 +256,15 @@
       tplFrontBtn.setAttribute('data-role', 'next');
     }
 
-    // Back (Bal oldal): Vissza (Prev)
+    // Back (Bal) -> Prev
     const tplBackBtn = template.querySelector('.page-back .nextprev-btn');
     if (tplBackBtn) {
       tplBackBtn.className = 'nextprev-btn btn-back';
       tplBackBtn.textContent = '‹';
       tplBackBtn.setAttribute('data-role', 'prev');
     }
-    // === JAVÍTÁS VÉGE ===
 
+    // Töröljük az eredeti statikus lapot
     book.querySelectorAll('.book-page.page-right').forEach((p) => p.remove());
 
     const pages = [];
@@ -300,6 +287,7 @@
         const frontEl = pageEl.querySelector('.page-front');
         const backEl = pageEl.querySelector('.page-back');
 
+        // --- 1. FRONT (Jobb oldal) feltöltése ---
         const frontResult = fillSideByHeight(
           frontEl,
           items,
@@ -314,6 +302,7 @@
 
         let usedBack = false;
 
+        // --- 2. BACK (Bal oldal) feltöltése ---
         if (!isMobile && idx < items.length) {
           const backResult = fillSideByHeight(
             backEl,
@@ -327,9 +316,45 @@
           usedBack = backResult.used;
           idx = backResult.nextIndex;
         } else {
+          // Ha nincs több tartalom vagy mobil, takarítsuk ki a hátoldalt
           clearSide(backEl);
         }
 
+        // --- KORREKCIÓ: VISSZA GOMB KEZELÉSE ---
+        // Ha a hátsó oldal üres (mert elfogyott a tartalom a fronton),
+        // de desktop nézetben vagyunk, akkor is kell a Vissza gomb a bal oldalra (backEl),
+        // különben nem lehet visszalapozni erről a "fél" lapról.
+        if (!isMobile) {
+            const prevBtn = backEl.querySelector('.nextprev-btn[data-role="prev"]');
+            // Csak akkor kell gomb, ha ez NEM a legelső lap legelső visszája (ahol nincs hova menni)
+            // De mivel a pages[] tömbbe pusholjuk, ez az első iterációnál pages.length == 0.
+            // Ha pages.length > 0, akkor van hova visszalapozni.
+            if (pages.length > 0) {
+                if (!prevBtn) {
+                    // Ha véletlenül törlődött volna, hozzuk létre (vagy tegyük láthatóvá)
+                    // A sablonban már benne volt, de a clearSide nem bántja a gombokat, csak a tartalmat.
+                    // Biztosítjuk, hogy ott legyen.
+                    const newPrev = document.createElement('button');
+                    newPrev.className = 'nextprev-btn btn-back';
+                    newPrev.textContent = '‹';
+                    newPrev.setAttribute('data-role', 'prev');
+                    backEl.appendChild(newPrev);
+                } else {
+                    prevBtn.style.display = ''; // Biztos ami biztos
+                }
+            } else {
+                // Ha ez a legeslegelső lap (pages.length === 0), akkor a hátoldalon (ami a bal oldalon lesz lapozás után)
+                // van az 1. oldal "hátlapja". Ide elvileg kell vissza gomb?
+                // Nem, a legelső lapnál a BACK oldal a 2. oldal tartalma lenne.
+                // Ha az első lapozás megtörtént, akkor látjuk a Back oldalt.
+                // A logika: Bal oldalon MINDIG 'prev', Jobb oldalon MINDIG 'next'.
+                
+                // A template-ben alapból benne van a prev gomb a back oldalon.
+                // Hagyjuk békén, a CSS/logika kezeli.
+            }
+        }
+
+        // Ha semmit nem használtunk fel, eldobjuk a lapot
         if (!usedFront && !usedBack) {
           pageEl.remove();
           break;
@@ -337,12 +362,13 @@
 
         pages.push(pageEl);
 
+        // Oldalszámok növelése
         if (!isMobile) {
           if (usedBack) {
             globalPageNo += 2;
             pageNoInCat += 2;
           } else if (usedFront) {
-            globalPageNo += 1;
+            globalPageNo += 1; // Csak egyet növelünk, mert a back üres maradt
             pageNoInCat += 1;
           }
         } else {
@@ -354,17 +380,28 @@
       }
     });
 
+    // Minden lap kap egy ID-t
     pages.forEach((pageEl, index) => {
       const sheetIndex = index + 1;
       pageEl.dataset.sheet = String(sheetIndex);
       pageEl.id = `turn-${sheetIndex}`;
+      
+      // Utolsó simítás a nyilakon:
+      // Az utolsó lap FRONT oldaláról el kell tüntetni a NEXT gombot
+      if (index === pages.length - 1) {
+          const lastNext = pageEl.querySelector('.page-front .nextprev-btn[data-role="next"]');
+          if (lastNext) lastNext.remove();
+      }
+
+      // Az első lap BACK oldaláról elvileg nem kell eltüntetni a PREV gombot,
+      // mert lapozás után az a bal oldalra kerül, és onnan kell tudni visszamenni a "borítóra" (vagy nulladik állapotba).
     });
 
     console.log(
-      '[menu-book] Dinamikusan generált lapok száma (JSON+height):',
+      '[menu-book] Dinamikusan generált lapok száma:',
       pages.length,
       '| mód:',
-      window.innerWidth <= 768 ? 'mobil' : 'desktop'
+      isMobile ? 'mobil' : 'desktop'
     );
 
     renumberPages(book);
@@ -430,6 +467,7 @@
     if (titleEl) titleEl.textContent = '';
     if (gridEl) gridEl.innerHTML = '';
     if (numEl) numEl.textContent = '';
+    // Fontos: A gombokat (nextprev-btn) NE töröljük itt, mert akkor eltűnik a nyíl az üres oldalról!
   }
 
   function renderMenuItem(item) {
@@ -514,8 +552,13 @@
           frontNum.setAttribute('aria-label', `Oldalszám: ${frontNum.textContent}`);
         }
         if (backNum) {
-          backNum.textContent = num++;
-          backNum.setAttribute('aria-label', `Oldalszám: ${backNum.textContent}`);
+          // Ha a back oldal üres (nincs tartalom), akkor nem feltétlenül kell oldalszám,
+          // de a logika szerint "van" ott oldal, csak üres.
+          // Döntés: ha van ott number-page elem, írjuk bele.
+          if (backNum) {
+             backNum.textContent = num++;
+             backNum.setAttribute('aria-label', `Oldalszám: ${backNum.textContent}`);
+          }
         }
       }
     });
