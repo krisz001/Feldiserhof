@@ -662,7 +662,7 @@ body {
 
 /* PDF módban is középre igazított oldalszám */
 .menu-portfolio.has-pdf .number-page {
-  bottom: 0.8rem;
+  bottom: 1rem;
   left: 50%;
   transform: translateX(-50%);
 }
