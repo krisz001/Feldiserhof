@@ -376,10 +376,30 @@ app.get('/set-language/:lang', (req, res) => {
 // ============================================================
 // Oldalak
 // ============================================================
+
+// Segédfüggvény a PDF lapokhoz (legyen a fájl elején vagy helper résznél)
+const menuPdfDir = path.join(__dirname, 'public', 'menu-pdf');
+function getMenuPdfPages() {
+  if (!fs.existsSync(menuPdfDir)) return [];
+  return fs
+    .readdirSync(menuPdfDir)
+    .filter(f => /^page-\d+\.png$/i.test(f))
+    .sort((a, b) => {
+      const na = parseInt(a.match(/page-(\d+)\.png/)[1], 10);
+      const nb = parseInt(b.match(/page-(\d+)\.png/)[1], 10);
+      return na - nb;
+    })
+    .map(f => `/menu-pdf/${f}`);
+}
+
+// Főoldali route (ez az, ahol a menü is megjelenik vendégként!)
 app.get('/', (req, res) => {
   const menuData = loadJSON('menu.json');
   const openingHours = loadJSON('opening-hours.json');
   const heroBoxData = loadHeroBox();
+
+  // ÚJ: PDF oldalképek betöltése
+  const pdfPages = getMenuPdfPages();
 
   if (!menuData || !openingHours) {
     console.error(
@@ -405,52 +425,11 @@ app.get('/', (req, res) => {
       hours: openingHours,
       heroBox: heroBoxData,
       heroImages,
+      menuPdfPages: pdfPages, // ← EZ KELL pluszban!
     },
     (err, html) => {
       if (err) {
         console.error('💥 EJS render hiba az index.ejs-ben:', err);
-        return res.status(500).send('Template render error');
-      }
-      res.send(html);
-    },
-  );
-});
-
-app.get('/zimmer', (req, res) => {
-  const roomsData = loadDataJSON('rooms.json');
-
-  if (!roomsData) {
-    console.error('❌ rooms.json hiányzik (data/rooms.json)');
-    return res.status(500).send('Server error: Szobák adat nem található.');
-  }
-
-  res.render(
-    'rooms',
-    {
-      title: 'Unsere Zimmer im Alpenstil',
-      active: 'zimmer',
-      rooms: roomsData,
-    },
-    (err, html) => {
-      if (err) {
-        console.error('💥 EJS render hiba a rooms.ejs-ben:', err);
-        return res.status(500).send('Template render error');
-      }
-      res.send(html);
-    },
-  );
-});
-
-app.get('/gallery', (req, res) => {
-  res.render(
-    'gallery',
-    {
-      title: req.t('gallery.title'),
-      description: req.t('gallery.description'),
-    },
-    (err, html) => {
-      if (err) {
-        console.error('💥 EJS render hiba a gallery.ejs-ben:', err);
         return res.status(500).send('Template render error');
       }
       res.send(html);
