@@ -639,21 +639,20 @@ async function saveMenu() {
     const pdfData = await pdfResponse.json();
     const pdfPages = Array.isArray(pdfData.pages) ? pdfData.pages : [];
     
-    // 2. PDF oldalak kategóriába fűzése, ha vannak
-    // Megakadályozzuk, hogy a PDF kategória duplán jelenjen meg
-    menuData.categories = menuData.categories.filter(cat => cat.type !== 'pdf');
+    // 2. Ha vannak PDF oldalak, CSAK azok mennek el (nem kategória)
+    // Az /api/menu-book API ezt közvetlenül feldolgozza
     if (pdfPages.length) {
-      menuData.categories.push({
-        name: 'PDF Menü',
-        type: 'pdf',
-        items: pdfPages.map((img, idx) => ({
-          name: `Seite ${idx+1}`,
-          image: img
-        }))
-      });
+      // PDF mode: a menuData-ből kategóriákat kitörlünk, pdfPages lesz a teljes tartalom
+      menuData = {
+        title: 'Speisekarte',
+        pdfMode: true,
+        pdfPages: pdfPages,  // Csak az oldalképek
+        categories: []
+      };
     }
+    // Ha nincs PDF, az eredeti menuData marad (normal mode)
     
-    // 3. Menü mentése szerverre
+    // 3. Mentés szerverre
     const response = await fetch('/api/menu', {
       method: 'POST',
       headers: {
@@ -671,7 +670,6 @@ async function saveMenu() {
     } else {
       alert(translations.errorSaving + (result.msg || 'Unbekannter Fehler'));
     }
-    // Frissítés utáni render
     await loadMenu();
   } catch (error) {
     console.error('Hiba a menü mentésekor:', error);

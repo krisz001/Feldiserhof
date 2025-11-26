@@ -25,10 +25,14 @@
       return;
     }
 
-    // 0) PDF alapú menükönyv előnyben, ha van konfig
+        // 0) PDF alapú menükönyv előnyben, ha van konfig
     let pdfPages = [];
 
-    if (window.FELDISERHOF_PDF_PAGES && Array.isArray(window.FELDISERHOF_PDF_PAGES)) {
+    // IDE jön az új logika
+    // Ha a window.menuData pdfMode, töltsd meg pdfPages-t
+    if (window.menuData?.pdfMode && Array.isArray(window.menuData.pdfPages)) {
+      pdfPages = window.menuData.pdfPages;
+    } else if (window.FELDISERHOF_PDF_PAGES && Array.isArray(window.FELDISERHOF_PDF_PAGES)) {
       pdfPages = window.FELDISERHOF_PDF_PAGES;
     } else if (book.hasAttribute('data-pdf-pages')) {
       const dataAttr = book.getAttribute('data-pdf-pages');
