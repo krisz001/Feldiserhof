@@ -127,7 +127,7 @@
 
   <!-- Aktiváló JS PDF módhoz:
        - ha van beágyazott pdfPages → azt használjuk
-       - ha nincs, a feldiserhof-menu-book.js fallback-ként lehívhatja a /api/menu-book-ot
+       - ha nincs, a menu-portfolio-book.js fallback-ként lehívhatja a /api/menu-book-ot
   -->
   <script>
     document.addEventListener('DOMContentLoaded', () => {
@@ -143,7 +143,7 @@
       }
 
       if (Array.isArray(pdfPages) && pdfPages.length > 0) {
-        // Globális változó a feldiserhof-menu-book.js számára
+        // Globális változó a menu-portfolio-book.js számára
         window.menuPdfPages = pdfPages;
         document.body.dataset.pdfMenuActive = '1';
       }

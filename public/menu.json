@@ -1,4 +1,17 @@
 {
   "title": "Speisekarte",
-  "categories": []
+  "categories": [
+    {
+      "type": "pdf-page",
+      "image": "/menu-pdf/menu-page-1.png"
+    },
+    {
+      "type": "pdf-page",
+      "image": "/menu-pdf/menu-page-2.png"
+    },
+    {
+      "type": "pdf-page",
+      "image": "/menu-pdf/menu-page-3.png"
+    }
+  ]
 }
