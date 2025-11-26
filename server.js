@@ -27,6 +27,9 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const isProd = process.env.NODE_ENV === 'production';
 
+// KÖZPONTI PDF MENÜ KÖNYV KÖNYVTÁR
+const menuPdfDir = path.join(__dirname, 'public', 'menu-pdf');
+
 // ============================================================
 // Konzol header
 // ============================================================
@@ -305,6 +308,25 @@ const loadHeroBox = () => {
   }
 };
 
+// Segédfüggvény a PDF lapokhoz – KÖZPONTI, mindenhol ezt használjuk
+function getMenuPdfPages() {
+  try {
+    if (!fs.existsSync(menuPdfDir)) return [];
+    return fs
+      .readdirSync(menuPdfDir)
+      .filter((f) => /^page-\d+\.png$/i.test(f))
+      .sort((a, b) => {
+        const na = parseInt(a.match(/page-(\d+)\.png/i)[1], 10);
+        const nb = parseInt(b.match(/page-(\d+)\.png/i)[1], 10);
+        return na - nb;
+      })
+      .map((f) => `/menu-pdf/${f}`);
+  } catch (err) {
+    console.error('❌ Menü PDF oldalak olvasási hiba:', err.message);
+    return [];
+  }
+}
+
 // ============================================================
 // Custom i18n locals + flags + egyszerű kérés-log
 // ============================================================
@@ -377,28 +399,13 @@ app.get('/set-language/:lang', (req, res) => {
 // Oldalak
 // ============================================================
 
-// Segédfüggvény a PDF lapokhoz (legyen a fájl elején vagy helper résznél)
-const menuPdfDir = path.join(__dirname, 'public', 'menu-pdf');
-function getMenuPdfPages() {
-  if (!fs.existsSync(menuPdfDir)) return [];
-  return fs
-    .readdirSync(menuPdfDir)
-    .filter(f => /^page-\d+\.png$/i.test(f))
-    .sort((a, b) => {
-      const na = parseInt(a.match(/page-(\d+)\.png/)[1], 10);
-      const nb = parseInt(b.match(/page-(\d+)\.png/)[1], 10);
-      return na - nb;
-    })
-    .map(f => `/menu-pdf/${f}`);
-}
-
 // Főoldali route (ez az, ahol a menü is megjelenik vendégként!)
 app.get('/', (req, res) => {
   const menuData = loadJSON('menu.json');
   const openingHours = loadJSON('opening-hours.json');
   const heroBoxData = loadHeroBox();
 
-  // ÚJ: PDF oldalképek betöltése
+  // PDF oldalképek betöltése (központi helperből)
   const pdfPages = getMenuPdfPages();
 
   if (!menuData || !openingHours) {
@@ -425,7 +432,7 @@ app.get('/', (req, res) => {
       hours: openingHours,
       heroBox: heroBoxData,
       heroImages,
-      menuPdfPages: pdfPages, // ← EZ KELL pluszban!
+      menuPdfPages: pdfPages, // PDF alapú menü könyv oldalak
     },
     (err, html) => {
       if (err) {
@@ -505,7 +512,6 @@ const loginLimiter = rateLimit({
     xForwardedForHeader: false, // ne legyen hiszti, ha valami proxy furcsa
   },
 });
-
 
 // CSRF middleware (session alapú)
 const csrfProtection = csrf({ cookie: false });
@@ -662,7 +668,6 @@ app.get('/js/menu.js', (req, res) => {
 // PDF alapú menü könyv modul (upload + konverzió, egységesítve)
 // ============================================================
 const uploadDir = path.join(__dirname, 'uploads', 'pdf');
-const menuPdfDir = path.join(__dirname, 'public', 'menu-pdf');
 
 // mappák biztosítása
 if (!fs.existsSync(uploadDir)) {
@@ -744,7 +749,7 @@ app.post(
   '/admin/menu-pdf',
   requireAdmin,
   upload.single('menuPdf'), // 1. multer parse-olja a multipart formot
-  csrfFromHeader,           // 2. ekkor már látja req.body._csrf-t
+  csrfFromHeader, // 2. ekkor már látja req.body._csrf-t
   async (req, res) => {
     try {
       if (!req.file) {
@@ -782,23 +787,11 @@ app.post('/admin/menu-pdf/delete', requireAdmin, csrfFromHeader, (req, res) => {
   }
 });
 
-// 🟦 Publikus API: PDF oldalak listája adminhoz (egyszerű forma)
+// 🟦 Publikus API: PDF oldalak listája adminhoz (egységes, helperrel)
 app.get('/api/menu-pdf', (req, res) => {
   try {
-    if (!fs.existsSync(menuPdfDir)) {
-      return res.json({ pages: [] });
-    }
-    const files = fs
-      .readdirSync(menuPdfDir)
-      .filter((f) => /^page-\d+\.png$/i.test(f))
-      .sort((a, b) => {
-        const na = parseInt(a.match(/page-(\d+)\.png/i)[1], 10);
-        const nb = parseInt(b.match(/page-(\d+)\.png/i)[1], 10);
-        return na - nb;
-      })
-      .map((f) => `/menu-pdf/${f}`);
-
-    res.json({ pages: files });
+    const pages = getMenuPdfPages();
+    res.json({ pages });
   } catch (err) {
     console.error('❌ Fehler beim Lesen der Menü-PDF-Seiten:', err);
     res.status(500).json({ pages: [] });
@@ -808,21 +801,8 @@ app.get('/api/menu-pdf', (req, res) => {
 // 🟨 PUBLIKUS API – PDF könyv a vendégeknek (alias a fenti adatra)
 app.get('/api/menu-book', (req, res) => {
   try {
-    if (!fs.existsSync(menuPdfDir)) {
-      return res.json({ ok: true, pages: [] });
-    }
-
-    const files = fs
-      .readdirSync(menuPdfDir)
-      .filter((f) => /^page-\d+\.png$/i.test(f))
-      .sort((a, b) => {
-        const na = parseInt(a.match(/page-(\d+)\.png/i)[1], 10);
-        const nb = parseInt(b.match(/page-(\d+)\.png/i)[1], 10);
-        return na - nb;
-      })
-      .map((f) => `/menu-pdf/${f}`);
-
-    res.json({ ok: true, pages: files });
+    const pages = getMenuPdfPages();
+    res.json({ ok: true, pages });
   } catch (err) {
     console.error('❌ Fehler beim Lesen der Menü-Buch-Seiten:', err);
     res.status(500).json({ ok: false, pages: [] });
