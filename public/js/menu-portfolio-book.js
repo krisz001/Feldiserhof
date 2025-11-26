@@ -260,19 +260,23 @@
     template.querySelectorAll('.title').forEach((el) => (el.textContent = ''));
     template.querySelectorAll('.number-page').forEach((el) => (el.textContent = ''));
 
+    // === JAVÍTÁS: GOMBOK BEÁLLÍTÁSA HELYESEN ===
+    // Front (Jobb oldal): Tovább (Next)
     const tplFrontBtn = template.querySelector('.page-front .nextprev-btn');
     if (tplFrontBtn) {
-      tplFrontBtn.className = 'nextprev-btn btn-back';
-      tplFrontBtn.textContent = '‹';
-      tplFrontBtn.setAttribute('data-role', 'prev');
+      tplFrontBtn.className = 'nextprev-btn btn-next';
+      tplFrontBtn.textContent = '›';
+      tplFrontBtn.setAttribute('data-role', 'next');
     }
 
+    // Back (Bal oldal): Vissza (Prev)
     const tplBackBtn = template.querySelector('.page-back .nextprev-btn');
     if (tplBackBtn) {
-      tplBackBtn.className = 'nextprev-btn btn-next';
-      tplBackBtn.textContent = '›';
-      tplBackBtn.setAttribute('data-role', 'next');
+      tplBackBtn.className = 'nextprev-btn btn-back';
+      tplBackBtn.textContent = '‹';
+      tplBackBtn.setAttribute('data-role', 'prev');
     }
+    // === JAVÍTÁS VÉGE ===
 
     book.querySelectorAll('.book-page.page-right').forEach((p) => p.remove());
 
@@ -591,8 +595,8 @@
     book.setAttribute('role', 'region');
     book.setAttribute('aria-label', 'Lapozható menükönyv');
 
-// engedjük a "teljesen átlapozott" állapotot is → sheets.length
-const clampIndex = (i) => Math.max(0, Math.min(sheets.length, i));
+    // engedjük a "teljesen átlapozott" állapotot is → sheets.length
+    const clampIndex = (i) => Math.max(0, Math.min(sheets.length, i));
 
     function baseZ(i, turned) {
       return turned ? i + 1 : sheets.length * 2 - i;
@@ -606,10 +610,9 @@ const clampIndex = (i) => Math.max(0, Math.min(sheets.length, i));
         el.style.zIndex = String(baseZ(i, turned));
       });
       dots.forEach((d, i) => {
-  const effectiveIndex = Math.min(pageIndex, sheets.length - 1);
-  d.classList.toggle('active', i === effectiveIndex);
-});
-
+        const effectiveIndex = Math.min(pageIndex, sheets.length - 1);
+        d.classList.toggle('active', i === effectiveIndex);
+      });
     }
 
     function boostForAnimation(idx) {
@@ -635,14 +638,12 @@ const clampIndex = (i) => Math.max(0, Math.min(sheets.length, i));
       }, ANIM_MS);
     }
 
-  function next() {
-  // most már engedjük, hogy pageIndex == sheets.length is lehessen
-  if (pageIndex >= sheets.length || isAnimating) return;
-  const old = pageIndex;
-  pageIndex = clampIndex(pageIndex + 1);
-  updateBookView(old, pageIndex);
-}
-
+    function next() {
+      if (pageIndex >= sheets.length || isAnimating) return;
+      const old = pageIndex;
+      pageIndex = clampIndex(pageIndex + 1);
+      updateBookView(old, pageIndex);
+    }
 
     function prev() {
       if (pageIndex <= 0 || isAnimating) return;
