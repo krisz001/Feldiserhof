@@ -136,21 +136,7 @@
       }
     } else {
       // DESKTOP: PÁROSÍTOTT LAPOK
-      // 0. lap (üres) + szükség esetén utolsó üres lap, hogy mindig páros legyen
-      const paddedPages = pdfPages.slice();
-
-      // elöl egy null -> 0. üres "lap", hogy az 1-es jobb oldalra kerüljön
-      paddedPages.unshift(null);
-
-      // ha így páratlan a hossza, tegyünk a végére is egy üres lapot
-      if (paddedPages.length % 2 !== 0) {
-        paddedPages.push(null);
-      }
-
-      // logikai oldalszámozás – csak a VALÓDI PDF oldalakra
-      let logicalPage = 0;
-
-      for (let i = 0; i < paddedPages.length; i += 2) {
+      for (let i = 0; i < pdfPages.length; i += 2) {
         const pageEl = document.createElement('div');
         pageEl.className = 'book-page page-right';
 
@@ -162,23 +148,22 @@
         const frontEl = document.createElement('div');
         frontEl.className = 'page-front';
 
-        const leftSrc = paddedPages[i];
-        if (leftSrc) {
-          logicalPage += 1;
+        if (pdfPages[i]) {
           const imgLeft = document.createElement('img');
-          imgLeft.src = leftSrc;
-          imgLeft.alt = `Speisekarte Seite ${logicalPage}`;
+          imgLeft.src = pdfPages[i];
+          imgLeft.alt = `Speisekarte Seite ${i + 1}`;
           imgLeft.className = 'menu-book-page-img';
           frontEl.appendChild(imgLeft);
-
-          const pageNumberFront = document.createElement('span');
-          pageNumberFront.className = 'number-page';
-          pageNumberFront.textContent = String(logicalPage);
-          frontEl.appendChild(pageNumberFront);
         }
 
-        // NEXT gomb csak akkor, ha van még további "sheet"
-        if (i + 2 < paddedPages.length) {
+        const pageNumberFront = document.createElement('span');
+        pageNumberFront.className = 'number-page';
+        pageNumberFront.textContent = String(i + 1);
+        frontEl.appendChild(pageNumberFront);
+
+        // **ITT A JAVÍTÁS** – eddig: if (i + 2 < pdfPages.length)
+        // Most: ha van UTÁNA még oldal (akár csak a hátoldalon), akkor kell "next" gomb
+        if (i + 1 < pdfPages.length) {
           const nextBtn = document.createElement('button');
           nextBtn.className = 'nextprev-btn btn-next';
           nextBtn.setAttribute('type', 'button');
@@ -191,25 +176,19 @@
         const backEl = document.createElement('div');
         backEl.className = 'page-back';
 
-        const rightSrc = paddedPages[i + 1];
-        if (rightSrc) {
-          logicalPage += 1;
+        if (pdfPages[i + 1]) {
           const imgRight = document.createElement('img');
-          imgRight.src = rightSrc;
-          imgRight.alt = `Speisekarte Seite ${logicalPage}`;
+          imgRight.src = pdfPages[i + 1];
+          imgRight.alt = `Speisekarte Seite ${i + 2}`;
           imgRight.className = 'menu-book-page-img';
           backEl.appendChild(imgRight);
 
           const pageNumberBack = document.createElement('span');
           pageNumberBack.className = 'number-page';
-          pageNumberBack.textContent = String(logicalPage);
+          pageNumberBack.textContent = String(i + 2);
           backEl.appendChild(pageNumberBack);
-        } else {
-          // üres/blank hátlap – kétoldalas nézet megmarad, de nincs tartalom
-          backEl.classList.add('blank-page');
         }
 
-        // Prev gomb mindig lehet a back-en (visszalapozás)
         const prevBtn = document.createElement('button');
         prevBtn.className = 'nextprev-btn btn-back';
         prevBtn.setAttribute('type', 'button');
@@ -333,7 +312,7 @@
           clearSide(backEl);
         }
 
-        // speciális eset: csak fronton van tartalom -> záró üzenet a backre
+        // == SPECIÁLIS ESET: UTOLSÓ LAP, DE CSAK A JOBB OLDAL TELT MEG ==
         if (!isMobile && usedFront && !usedBack) {
           renderThankYouMessage(backEl);
           usedBack = true;
@@ -380,15 +359,18 @@
     setupMobileArrows(book);
   }
 
-  // --- Záróüzenet és "Vissza az elejére" gomb ---
+  // --- ÚJ FÜGGVÉNY: Záróüzenet és "Vissza az elejére" gomb ---
   function renderThankYouMessage(sideEl) {
     if (!sideEl) return;
 
+    // Először takarítsunk, bár elvileg üres
     clearSide(sideEl);
 
+    // Grid container (hogy középre rendezzük a tartalmat)
     const gridEl = sideEl.querySelector('.menu-items-grid');
     if (!gridEl) return;
 
+    // Stílusos konténer az üzenetnek
     const container = document.createElement('div');
     container.className = 'thank-you-container';
     container.style.display = 'flex';
@@ -468,7 +450,8 @@
     gridEl.innerHTML = '';
 
     if (titleEl) {
-      titleEl.textContent = pageNoInCat === 1 ? baseName : `${baseName} (${pageNoInCat})`;
+      titleEl.textContent =
+        pageNoInCat === 1 ? baseName : `${baseName} (${pageNoInCat})`;
     }
     if (numEl) {
       numEl.textContent = globalPageNo;
@@ -744,7 +727,7 @@
 
     // Event Delegation
     root.addEventListener('click', (e) => {
-      // "restart" gomb (Vissza az elejére)
+      // Kezeljük a "restart" gombot (Vissza az elejére)
       const restartTarget = e.target.closest('[data-role="restart"]');
       if (restartTarget) {
         goTo(0);
