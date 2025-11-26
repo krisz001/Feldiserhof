@@ -66,78 +66,65 @@
     initMenuBook(root);
   });
 
-  // ============================================================
-  // PDF alapú menükönyv: minden elem = 1 kép (img src=pdfPages[i])
-  // ============================================================
-  function initPdfMenuBook(bookEl, pdfPages) {
-    // Töröljük a meglévő .book tartalmat (ha EJS tett bele valamit)
-    bookEl.innerHTML = '';
+function initPdfMenuBook(bookEl, pdfPages) {
+  // Töröljük a jelenlegi book tartalmat
+  bookEl.innerHTML = '';
 
-    const container = document.createElement('div');
-    container.className = 'menu-book-pdf-wrapper';
+  // Minden img -> egy flipbook .book-page.page-right elem lesz
+  pdfPages.forEach(function(src, i) {
+    const pageEl = document.createElement('div');
+    pageEl.className = 'book-page page-right';
+    pageEl.dataset.sheet = String(i + 1);
+    pageEl.id = `turn-${i + 1}`;
 
-    const pageContainer = document.createElement('div');
-    pageContainer.className = 'menu-book-pages';
-    container.appendChild(pageContainer);
+    // Page front
+    const frontEl = document.createElement('div');
+    frontEl.className = 'page-front';
 
-    const navContainer = document.createElement('div');
-    navContainer.className = 'menu-book-nav';
+    // Maga a PDF oldalkép
+    const img = document.createElement('img');
+    img.src = src;
+    img.alt = `Speisekarte Seite ${i + 1}`;
+    img.className = 'menu-book-page-img';
 
-    const prevBtn = document.createElement('button');
-    prevBtn.className = 'menu-book-nav-btn prev';
-    prevBtn.type = 'button';
-    prevBtn.innerHTML = '&larr;';
+    frontEl.appendChild(img);
 
+    // Számozás + navigáció
     const pageNumber = document.createElement('span');
-    pageNumber.className = 'menu-book-page-number';
+    pageNumber.className = 'number-page';
+    pageNumber.textContent = String(i + 1);
+    frontEl.appendChild(pageNumber);
 
-    const nextBtn = document.createElement('button');
-    nextBtn.className = 'menu-book-nav-btn next';
-    nextBtn.type = 'button';
-    nextBtn.innerHTML = '&rarr;';
+    const nextBtn = document.createElement('span');
+    nextBtn.className = 'nextprev-btn';
+    nextBtn.setAttribute('data-role', 'next');
+    nextBtn.innerHTML = '<i class="bx bx-chevron-right"></i>';
+    frontEl.appendChild(nextBtn);
 
-    navContainer.appendChild(prevBtn);
-    navContainer.appendChild(pageNumber);
-    navContainer.appendChild(nextBtn);
+    // Back oldal üresen (de kell a szerkezethez)
+    const backEl = document.createElement('div');
+    backEl.className = 'page-back';
 
-    container.appendChild(navContainer);
-    bookEl.appendChild(container);
+    const backPageNumber = document.createElement('span');
+    backPageNumber.className = 'number-page';
+    backEl.appendChild(backPageNumber);
 
-    let currentIndex = 0;
+    const prevBtn = document.createElement('span');
+    prevBtn.className = 'nextprev-btn back';
+    prevBtn.setAttribute('data-role', 'prev');
+    prevBtn.innerHTML = '<i class="bx bx-chevron-left"></i>';
+    backEl.appendChild(prevBtn);
 
-    function renderPage() {
-      pageContainer.innerHTML = '';
+    pageEl.appendChild(frontEl);
+    pageEl.appendChild(backEl);
 
-      const img = document.createElement('img');
-      img.src = pdfPages[currentIndex];
-      img.alt = `Speisekarte Seite ${currentIndex + 1}`;
-      img.className = 'menu-book-page-img';
+    bookEl.appendChild(pageEl);
+  });
 
-      pageContainer.appendChild(img);
+  // Indítsd el a flipbook animációkat, pötty navigációt, stb.
+  initMenuBook(bookEl.closest('.menu-portfolio'));
+}
 
-      pageNumber.textContent = `${currentIndex + 1} / ${pdfPages.length}`;
-
-      prevBtn.disabled = currentIndex === 0;
-      nextBtn.disabled = currentIndex === pdfPages.length - 1;
-    }
-
-    prevBtn.addEventListener('click', function () {
-      if (currentIndex > 0) {
-        currentIndex -= 1;
-        renderPage();
-      }
-    });
-
-    nextBtn.addEventListener('click', function () {
-      if (currentIndex < pdfPages.length - 1) {
-        currentIndex += 1;
-        renderPage();
-      }
-    });
-
-    // első oldal kirakása
-    renderPage();
-  }
 
   // ------------------------------------------------------------
   // Menü JSON kiolvasása (#menuDataScript vagy window.menuData)
