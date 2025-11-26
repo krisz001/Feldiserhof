@@ -1,662 +1,205 @@
-// ============================================================
-//menu-portfolio-book.js
-// 1) PDF alapú egyszerű lapozó (FELDISERHOF_PDF_PAGES vagy data-pdf-pages vagy window.menuPdfPages)
-// 2) Menü JSON -> dinamikus, magasság alapú lapozás + fejlett flipbook
-// Desktop: dupla oldal (front+back), mobil: 1 oldal / lap
-// ============================================================
+<%
+  // ---- Menü adat biztonságos fallback ----
+  const rawMenu = (typeof menuData !== 'undefined' && menuData && typeof menuData === 'object')
+    ? menuData
+    : {};
 
-(function () {
-  'use strict';
+  const categories = Array.isArray(rawMenu.categories) ? rawMenu.categories : [];
 
-  document.addEventListener('DOMContentLoaded', function () {
-    const root = document.querySelector('.menu-portfolio');
-    if (!root) {
-      console.warn('[menu-book] ".menu-portfolio" root elem nem található!');
-      return;
-    }
+  // Címsorok – include-ból, menuData-ból, vagy alapértelmezett DE szöveg
+  const titleTxt    = (typeof menuTitle    !== 'undefined' && menuTitle)    ? menuTitle    : (rawMenu.title || 'Speisekarte');
+  const subtitleTxt = (typeof menuSubtitle !== 'undefined' && menuSubtitle) ? menuSubtitle : 'Entdecken Sie unsere Küche';
+  const introTxt    = (typeof menuIntro    !== 'undefined' && menuIntro)    ? menuIntro    : 'Frisch, saisonal, regional – täglich für Sie.';
 
-    // ne fusson kétszer
-    if (root.dataset.inited === '1') return;
-    root.dataset.inited = '1';
+  // Feature flag-ek (pl. menuBookEnabled)
+  const safeFlags = (typeof flags !== 'undefined' && flags) ? flags : {};
 
-    const book = root.querySelector('.book');
-    if (!book) {
-      console.warn('[menu-book] ".book" elem nem található!');
-      return;
-    }
+  // ---- PDF oldalak fallback ----
+  // Ha a controller átadja: res.render(..., { menuPdfPages: [...] })
+  // akkor innen vesszük. Ha nem, akkor [] és a JS kérdezi le /api/menu-book-ból.
+  const pdfPages = (typeof menuPdfPages !== 'undefined' && Array.isArray(menuPdfPages))
+    ? menuPdfPages
+    : [];
+%>
 
-    // 0) PDF alapú menükönyv előnyben, ha van konfig
-    let pdfPages = [];
+<section id="menu" class="menu-section">
+  <header class="menu-header text-center mb-5">
+    <span class="menu-icon" aria-hidden="true">🍴</span>
+    <h2 class="menu-title"><%= titleTxt %></h2>
+    <div class="menu-divider"></div>
+    <p class="menu-subtitle"><%= subtitleTxt %></p>
+    <p class="menu-intro"><%= introTxt %></p>
+  </header>
 
-    // ÚJ: vegyük figyelembe a window.menuPdfPages-t is (EJS script tölti fel)
-    if (window.menuPdfPages && Array.isArray(window.menuPdfPages)) {
-      pdfPages = window.menuPdfPages;
-    } else if (window.menuData?.pdfMode && Array.isArray(window.menuData.pdfPages)) {
-      pdfPages = window.menuData.pdfPages;
-    } else if (window.FELDISERHOF_PDF_PAGES && Array.isArray(window.FELDISERHOF_PDF_PAGES)) {
-      pdfPages = window.FELDISERHOF_PDF_PAGES;
-    } else if (book.hasAttribute('data-pdf-pages')) {
-      const dataAttr = book.getAttribute('data-pdf-pages');
-      if (dataAttr) {
+  <!-- Könyv wrapper – feature flag + opcionális PDF jelzés -->
+  <div
+    class="menu-portfolio <%= safeFlags.menuBookEnabled ? '' : 'is-locked' %> <%= pdfPages.length ? 'has-pdf' : '' %>"
+    data-menu-book-enabled="<%= safeFlags.menuBookEnabled ? '1' : '0' %>"
+    data-pdf-count="<%= pdfPages.length %>"
+  >
+    <div class="wrapper">
+
+      <!-- 🔒 Ha a menükönyv le van zárva, overlay üzenet -->
+      <% if (!safeFlags.menuBookEnabled) { %>
+        <div class="book-lock-overlay" role="status" aria-live="polite">
+          <div class="blo-card">
+            <h3>Wegen Betriebsferien ist unsere Speisekarte momentan nicht verfügbar.</h3>
+            <p>Wir freuen uns, Sie bald wieder begrüßen zu dürfen.</p>
+          </div>
+        </div>
+      <% } %>
+
+      <!-- Külső "borító" effektek -->
+      <div class="cover cover-left" aria-hidden="true"></div>
+      <div class="cover cover-right" aria-hidden="true"></div>
+
+      <!-- Könyv -->
+      <div
+        class="book"
+        id="menuBook"
+        <% if (pdfPages && pdfPages.length) { %>
+          data-pdf-pages='<%- JSON.stringify(pdfPages).replace(/<\/(script)/gi, "<\\/$1") %>'
+        <% } %>
+      >
+        <!-- Bal nyitó oldal -->
+        <div class="book-page page-left">
+          <div class="profile-page profile-cover">
+            <h1><%= titleTxt %></h1>
+            <p><%= subtitleTxt %></p>
+          </div>
+        </div>
+
+        <!-- Jobb oldal sablon – JS tölti meg tartalommal / PDF képpel (ha nincs PDF, ez sablon a JSON-hoz) -->
+        <div class="book-page page-right" data-sheet="1" id="turn-1" data-template="page">
+          <div class="page-front">
+            <h1 class="title"><%= titleTxt %></h1>
+
+            <!-- Dinamikus menü (JSON-ból) – ha nincs PDF és nincs kategória, ezt látjuk -->
+            <div class="menu-items-grid">
+              <% if (!categories || !categories.length) { %>
+                <article class="menu-item">
+                  <p>Derzeit sind keine Menüdaten vorhanden.</p>
+                </article>
+              <% } %>
+            </div>
+
+            <span class="number-page">1</span>
+
+            <span class="nextprev-btn" data-role="next">
+              <i class="bx bx-chevron-right"></i>
+            </span>
+          </div>
+
+          <div class="page-back">
+            <h1 class="title"></h1>
+            <div class="menu-items-grid"></div>
+
+            <span class="number-page"></span>
+
+            <span class="nextprev-btn back" data-role="prev">
+              <i class="bx bx-chevron-left"></i>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Lapozó "dot"-ok -->
+    <div class="book-dots"></div>
+  </div>
+
+  <!-- Könyv CSS + ikonok -->
+  <link rel="stylesheet" href="/css/menu-portfolio-book.css">
+  <link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css">
+
+  <!-- Menü JSON beágyazása a dinamikus (nem-PDF) módhoz -->
+  <script id="menuDataScript" type="application/json">
+    <%- JSON
+      .stringify(rawMenu)
+      .replace(/<\/(script)/gi, '<\\/$1')
+    %>
+  </script>
+
+  <!-- PDF oldalak beágyazása (ha a controller átadta) -->
+  <script id="pdfMenuPagesScript" type="application/json">
+    <%- JSON
+      .stringify(pdfPages)
+      .replace(/<\/(script)/gi, '<\\/$1')
+    %>
+  </script>
+
+  <!-- Aktiváló JS PDF módhoz:
+       - ha van beágyazott pdfPages → azt használjuk
+       - ha nincs, a menu-portfolio-book.js fallback-ként lehívhatja a /api/menu-book-ot
+  -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const pdfScriptEl = document.getElementById('pdfMenuPagesScript');
+      let pdfPages = [];
+
+      if (pdfScriptEl && pdfScriptEl.textContent.trim()) {
         try {
-          pdfPages = JSON.parse(dataAttr);
+          pdfPages = JSON.parse(pdfScriptEl.textContent.trim());
         } catch (e) {
-          console.error('[menu-book] PDF pages JSON parse error:', e);
+          console.error('PDF pages JSON parse error in menu-book.ejs:', e);
         }
       }
-    }
 
-    if (pdfPages && pdfPages.length > 0) {
-      // PDF alapú nézet – NEM flipbook, hanem egyszerű lapozó képekkel
-      initPdfMenuBook(book, pdfPages);
-      return; // ha PDF van, nem építjük a dinamikus flipbookot
-    }
-
-    // 1) Ha NINCS PDF -> marad a régi JSON + flipbook logika
-    const menu = getMenuDataFromDom();
-    if (menu && Array.isArray(menu.categories) && menu.categories.length) {
-      buildDynamicPagesByHeight(root, menu); // JSON -> oldalak magasság alapján
-    } else {
-      console.warn(
-        '[menu-book] Nincs érvényes menuData (categories). ' +
-          'Ellenőrizd a #menuDataScript JSON-t vagy a window.menuData változót.'
-      );
-    }
-
-    // flipbook init (akkor is, ha csak statikus markup maradt)
-    initMenuBook(root);
-  });
-
-  // ============================================================
-  // PDF alapú menükönyv: minden elem = 1 kép (img src=pdfPages[i])
-  // ============================================================
-  function initPdfMenuBook(bookEl, pdfPages) {
-    // Töröljük a meglévő .book tartalmat (ha EJS tett bele valamit)
-    bookEl.innerHTML = '';
-
-    const container = document.createElement('div');
-    container.className = 'menu-book-pdf-wrapper';
-
-    const pageContainer = document.createElement('div');
-    pageContainer.className = 'menu-book-pages';
-    container.appendChild(pageContainer);
-
-    const navContainer = document.createElement('div');
-    navContainer.className = 'menu-book-nav';
-
-    const prevBtn = document.createElement('button');
-    prevBtn.className = 'menu-book-nav-btn prev';
-    prevBtn.type = 'button';
-    prevBtn.innerHTML = '&larr;';
-
-    const pageNumber = document.createElement('span');
-    pageNumber.className = 'menu-book-page-number';
-
-    const nextBtn = document.createElement('button');
-    nextBtn.className = 'menu-book-nav-btn next';
-    nextBtn.type = 'button';
-    nextBtn.innerHTML = '&rarr;';
-
-    navContainer.appendChild(prevBtn);
-    navContainer.appendChild(pageNumber);
-    navContainer.appendChild(nextBtn);
-
-    container.appendChild(navContainer);
-    bookEl.appendChild(container);
-
-    let currentIndex = 0;
-
-    function renderPage() {
-      pageContainer.innerHTML = '';
-
-      const img = document.createElement('img');
-      img.src = pdfPages[currentIndex];
-      img.alt = `Speisekarte Seite ${currentIndex + 1}`;
-      img.className = 'menu-book-page-img';
-
-      pageContainer.appendChild(img);
-
-      pageNumber.textContent = `${currentIndex + 1} / ${pdfPages.length}`;
-
-      prevBtn.disabled = currentIndex === 0;
-      nextBtn.disabled = currentIndex === pdfPages.length - 1;
-    }
-
-    prevBtn.addEventListener('click', function () {
-      if (currentIndex > 0) {
-        currentIndex -= 1;
-        renderPage();
+      if (Array.isArray(pdfPages) && pdfPages.length > 0) {
+        // Globális változó a menu-portfolio-book.js számára (extra biztosíték)
+        window.menuPdfPages = pdfPages;
+        document.body.dataset.pdfMenuActive = '1';
       }
     });
+  </script>
+</section>
 
-    nextBtn.addEventListener('click', function () {
-      if (currentIndex < pdfPages.length - 1) {
-        currentIndex += 1;
-        renderPage();
-      }
-    });
+<div class="section-separator"></div>
 
-    // első oldal kirakása
-    renderPage();
+<style>
+  .menu-portfolio .wrapper {
+    position: relative;
   }
 
-  // ------------------------------------------------------------
-  // Menü JSON kiolvasása (#menuDataScript vagy window.menuData)
-  // ------------------------------------------------------------
-  function getMenuDataFromDom() {
-    const script = document.getElementById('menuDataScript');
-    if (script && script.textContent.trim()) {
-      try {
-        return JSON.parse(script.textContent);
-      } catch (e) {
-        console.error('[menu-book] Menu JSON parse hiba:', e);
-      }
-    }
-    if (window.menuData) return window.menuData;
-    return null;
+  .menu-portfolio.is-locked .cover,
+  .menu-portfolio.is-locked .book {
+    filter: blur(14px) brightness(0.85) saturate(0.9);
+    pointer-events: none !important;
+    user-select: none !important;
   }
 
-  // ============================================================
-  // 1) Dinamikus oldalgenerálás – MAGASSÁG ALAPJÁN, JSON-ból
-  // ============================================================
-  function buildDynamicPagesByHeight(root, menu) {
-    const book = root.querySelector('.book');
-    if (!book) return;
-
-    const SAFE_MARGIN = 8; // pár px mozgástér az oldal alján
-    const isMobile = window.innerWidth <= 768;
-
-    // Sablon jobboldali laphoz – EJS markupból KÖTELEZŐEN legyen egy
-    const templateOriginal = book.querySelector('.book-page.page-right');
-    if (!templateOriginal) {
-      console.error(
-        '[menu-book] Nem található .book-page.page-right sablon. ' +
-          'Legalább egy lapot ki kell renderelni EJS-ben.'
-      );
-      return;
-    }
-
-    // Klónozható, megtisztított sablon
-    const template = templateOriginal.cloneNode(true);
-    template.querySelectorAll('.menu-items-grid').forEach((el) => (el.innerHTML = ''));
-    template.querySelectorAll('.title').forEach((el) => (el.textContent = ''));
-    template.querySelectorAll('.number-page').forEach((el) => (el.textContent = ''));
-
-    // az eredeti EJS-lapokat töröljük
-    book.querySelectorAll('.book-page.page-right').forEach((p) => p.remove());
-
-    const pages = [];
-    let globalPageNo = 1;
-
-    const categories = Array.isArray(menu.categories) ? menu.categories : [];
-
-    categories.forEach((cat, catIndex) => {
-      const items = Array.isArray(cat.items) ? cat.items : [];
-      if (!items.length) return;
-
-      const baseName = cat.name || `Kategorie ${catIndex + 1}`;
-      let pageNoInCat = 1;
-      let idx = 0;
-
-      while (idx < items.length) {
-        const pageEl = template.cloneNode(true);
-        book.appendChild(pageEl); // DOM-ban kell lennie a méréshez
-
-        const frontEl = pageEl.querySelector('.page-front');
-        const backEl = pageEl.querySelector('.page-back');
-
-        // FRONT – mindig használjuk
-        const frontResult = fillSideByHeight(
-          frontEl,
-          items,
-          idx,
-          baseName,
-          pageNoInCat,
-          globalPageNo,
-          SAFE_MARGIN
-        );
-        const usedFront = frontResult.used;
-        idx = frontResult.nextIndex;
-
-        let usedBack = false;
-
-        if (!isMobile && idx < items.length) {
-          // DESKTOP: használjuk a back oldalt is
-          const backResult = fillSideByHeight(
-            backEl,
-            items,
-            idx,
-            baseName,
-            pageNoInCat + 1,
-            globalPageNo + 1,
-            SAFE_MARGIN
-          );
-          usedBack = backResult.used;
-          idx = backResult.nextIndex;
-        } else {
-          // MOBIL: a back oldal mindig üres marad
-          clearSide(backEl);
-        }
-
-        // ha egyik oldalra sem fért fel tétel -> töröljük az üres lapot
-        if (!usedFront && !usedBack) {
-          pageEl.remove();
-          break;
-        }
-
-        pages.push(pageEl);
-
-        if (!isMobile) {
-          // desktop: front+back -> 2-vel lépünk
-          if (usedBack) {
-            globalPageNo += 2;
-            pageNoInCat += 2;
-          } else if (usedFront) {
-            globalPageNo += 1;
-            pageNoInCat += 1;
-          }
-        } else {
-          // mobil: csak front számít
-          if (usedFront) {
-            globalPageNo += 1;
-            pageNoInCat += 1;
-          }
-        }
-      }
-    });
-
-    // data-sheet + id
-    pages.forEach((pageEl, index) => {
-      const sheetIndex = index + 1;
-      pageEl.dataset.sheet = String(sheetIndex);
-      pageEl.id = `turn-${sheetIndex}`;
-    });
-
-    console.log(
-      '[menu-book] Dinamikusan generált lapok száma (JSON+height):',
-      pages.length,
-      '| mód:',
-      window.innerWidth <= 768 ? 'mobil' : 'desktop'
-    );
-
-    renumberPages(book); // folyamatos lapszámozás (mobilon csak front)
-    setupMobileArrows(book); // mobilon balra nyíl a fronton is
+  .book-lock-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: radial-gradient(ellipse at center, rgba(0,0,0,.18), rgba(0,0,0,.28));
+    z-index: 999;
   }
 
-  // Egy oldal (front vagy back) feltöltése annyi tétellel, amennyi kifér PIXEL ALAPON
-  function fillSideByHeight(
-    sideEl,
-    items,
-    startIndex,
-    baseName,
-    pageNoInCat,
-    globalPageNo,
-    SAFE_MARGIN
-  ) {
-    const titleEl = sideEl.querySelector('.title');
-    const gridEl = sideEl.querySelector('.menu-items-grid');
-    const numEl = sideEl.querySelector('.number-page');
-
-    if (!gridEl) {
-      return { nextIndex: startIndex, used: false };
-    }
-
-    gridEl.innerHTML = '';
-
-    // Cím
-    if (titleEl) {
-      titleEl.textContent =
-        pageNoInCat === 1 ? baseName : `${baseName} (${pageNoInCat})`;
-    }
-    if (numEl) {
-      numEl.textContent = globalPageNo; // úgyis felülírja a renumberPages
-    }
-
-    // hasznos alsó határ
-    const sideRect = sideEl.getBoundingClientRect();
-    const maxBottom = sideRect.bottom - SAFE_MARGIN;
-
-    let i = startIndex;
-    let used = false;
-
-    while (i < items.length) {
-      const item = items[i];
-      const art = renderMenuItem(item);
-      gridEl.appendChild(art);
-
-      const rect = art.getBoundingClientRect();
-      if (rect.bottom > maxBottom) {
-        // már nem fér ki -> visszavesszük
-        gridEl.removeChild(art);
-        break;
-      }
-
-      used = true;
-      i += 1;
-    }
-
-    return { nextIndex: i, used };
+  .book-lock-overlay .blo-card {
+    max-width: 720px;
+    width: 100%;
+    text-align: center;
+    padding: 28px 24px;
+    border-radius: 16px;
+    background: rgba(255,255,255,.9);
+    box-shadow: 0 20px 60px rgba(0,0,0,.25);
+    backdrop-filter: blur(4px);
   }
 
-  function clearSide(sideEl) {
-    if (!sideEl) return;
-    const titleEl = sideEl.querySelector('.title');
-    const gridEl = sideEl.querySelector('.menu-items-grid');
-    const numEl = sideEl.querySelector('.number-page');
-    if (titleEl) titleEl.textContent = '';
-    if (gridEl) gridEl.innerHTML = '';
-    if (numEl) numEl.textContent = '';
+  .book-lock-overlay .blo-card h3 {
+    margin: 0 0 8px;
+    font-weight: 700;
+    font-size: clamp(1.1rem, 2.2vw, 1.5rem);
+    color: #2b2b2b;
   }
 
-  // Menü tétel DOM létrehozása
-  function renderMenuItem(item) {
-    const article = document.createElement('article');
-    article.className = 'menu-item';
-
-    const head = document.createElement('div');
-    head.className = 'mi-head';
-
-    const nameEl = document.createElement('h4');
-    nameEl.className = 'mi-name';
-    nameEl.textContent = item.name || '';
-    head.appendChild(nameEl);
-
-    if (item.price != null && item.price !== '') {
-      const priceEl = document.createElement('div');
-      priceEl.className = 'mi-price';
-      if (typeof item.price === 'number') {
-        priceEl.textContent = item.price.toFixed(2) + ' fr';
-      } else {
-        priceEl.textContent = String(item.price);
-      }
-      head.appendChild(priceEl);
-    }
-
-    article.appendChild(head);
-
-    if (item.desc) {
-      const descEl = document.createElement('p');
-      descEl.className = 'mi-desc';
-      descEl.textContent = item.desc;
-      article.appendChild(descEl);
-    }
-
-    if (Array.isArray(item.tags) && item.tags.length) {
-      const ul = document.createElement('ul');
-      ul.className = 'mi-tags';
-      item.tags.forEach((tag) => {
-        const li = document.createElement('li');
-        li.textContent = tag;
-        ul.appendChild(li);
-      });
-      article.appendChild(ul);
-    }
-
-    if (Array.isArray(item.allergens) && item.allergens.length) {
-      const ul = document.createElement('ul');
-      ul.className = 'mi-tags allergens';
-      item.allergens.forEach((a) => {
-        const li = document.createElement('li');
-        li.className = 'allergen';
-        li.textContent = a;
-        ul.appendChild(li);
-      });
-      article.appendChild(ul);
-    }
-
-    return article;
+  .book-lock-overlay .blo-card p {
+    margin: 0;
+    font-size: clamp(.95rem, 2vw, 1.05rem);
+    color: #444;
   }
-
-  // Folyamatos lapszámozás
-  // Desktop: front+back = 1,2,3,4...
-  // Mobil: csak a front kap számot (1,2,3...), a back üres marad
-  function renumberPages(book) {
-    const pages = Array.from(book.querySelectorAll('.book-page.page-right'));
-    const isMobile = window.innerWidth <= 768;
-    let num = 1;
-
-    pages.forEach((sheet) => {
-      const frontNum = sheet.querySelector('.page-front .number-page');
-      const backNum = sheet.querySelector('.page-back .number-page');
-
-      if (isMobile) {
-        if (frontNum) {
-          frontNum.textContent = num++;
-          frontNum.setAttribute('aria-label', `Oldalszám: ${frontNum.textContent}`);
-        }
-        if (backNum) {
-          backNum.textContent = '';
-          backNum.removeAttribute('aria-label');
-        }
-      } else {
-        if (frontNum) {
-          frontNum.textContent = num++;
-          frontNum.setAttribute('aria-label', `Oldalszám: ${frontNum.textContent}`);
-        }
-        if (backNum) {
-          backNum.textContent = num++;
-          backNum.setAttribute('aria-label', `Oldalszám: ${backNum.textContent}`);
-        }
-      }
-    });
-  }
-
-  // Mobil-specifikus: balra nyíl a FRONT oldalon is
-  function setupMobileArrows(book) {
-    const isMobile = window.innerWidth <= 768;
-    if (!isMobile) return;
-
-    const pages = Array.from(book.querySelectorAll('.book-page.page-right'));
-
-    pages.forEach((sheet) => {
-      const front = sheet.querySelector('.page-front');
-      const back = sheet.querySelector('.page-back');
-      if (!front) return;
-
-      // ha már van prev gomb a fronton, nem csinálunk semmit
-      let prevOnFront = front.querySelector('.nextprev-btn[data-role="prev"]');
-      if (!prevOnFront) {
-        // sablon a back oldal prev gombjából, vagy a front next gombjából
-        let templatePrev =
-          (back && back.querySelector('.nextprev-btn[data-role="prev"]')) ||
-          front.querySelector('.nextprev-btn[data-role="next"]');
-
-        if (templatePrev) {
-          prevOnFront = templatePrev.cloneNode(true);
-          prevOnFront.setAttribute('data-role', 'prev');
-          prevOnFront.classList.add('back'); // bal oldali pozíció (CSS-ből)
-
-          // ikon csere bal nyílra
-          const icon = prevOnFront.querySelector('i');
-          if (icon) {
-            icon.classList.remove('bx-chevron-right');
-            icon.classList.add('bx-chevron-left');
-          }
-
-          front.appendChild(prevOnFront);
-        }
-      }
-
-      // a back oldal prev gombja mobilon nem kell
-      if (back) {
-        const backPrev = back.querySelector('.nextprev-btn[data-role="prev"]');
-        if (backPrev) backPrev.style.display = 'none';
-      }
-    });
-  }
-
-  // ============================================================
-  // 2) Flipbook logika – ARIA + keyboard + touch
-  // ============================================================
-  function initMenuBook(root) {
-    const book = root.querySelector('.book');
-    const sheets = Array.from(root.querySelectorAll('.book .page-right'));
-    const dotsWrap = root.querySelector('.book-dots');
-    if (!book || sheets.length === 0) return;
-
-    let pageIndex = 0;
-    let isAnimating = false;
-    const ANIM_MS = 600;
-
-    // kezdő állapot
-    sheets.forEach((el, i) => el.classList.toggle('turn', i > 0));
-
-    // pöttyök + ARIA
-    let dots = [];
-    if (dotsWrap) {
-      dotsWrap.innerHTML = '';
-      dots = sheets.map((_, i) => {
-        const d = document.createElement('span');
-        d.className = 'dot' + (i === 0 ? ' active' : '');
-        d.setAttribute('role', 'button');
-        d.setAttribute('tabindex', '0');
-        d.setAttribute('aria-label', `Ugrás a ${i + 1}. oldalra`);
-        d.addEventListener('click', () => goTo(i));
-        d.addEventListener('keydown', (evt) => {
-          if (evt.key === 'Enter' || evt.key === ' ') goTo(i);
-        });
-        dotsWrap.appendChild(d);
-        return d;
-      });
-      dotsWrap.setAttribute('role', 'navigation');
-      dotsWrap.setAttribute('aria-label', 'Oldal navigáció');
-    }
-
-    book.setAttribute('role', 'region');
-    book.setAttribute('aria-label', 'Lapozható menükönyv');
-
-    const clampIndex = (i) => Math.max(0, Math.min(sheets.length - 1, i));
-
-    function baseZ(i, turned) {
-      return turned ? i + 1 : sheets.length * 2 - i;
-    }
-
-    function refreshUI() {
-      sheets.forEach((el, i) => {
-        const turned = i < pageIndex;
-        el.classList.toggle('turn', turned);
-        if (el.dataset.boost === '1') return;
-        el.style.zIndex = String(baseZ(i, turned));
-      });
-      dots.forEach((d, i) => d.classList.toggle('active', i === pageIndex));
-    }
-
-    function boostForAnimation(idx) {
-      const el = sheets[idx];
-      if (!el) return;
-      el.dataset.boost = '1';
-      el.style.zIndex = String(sheets.length * 5);
-      setTimeout(() => {
-        delete el.dataset.boost;
-        const turned = idx < pageIndex;
-        el.style.zIndex = String(baseZ(idx, turned));
-      }, ANIM_MS);
-    }
-
-    function updateBookView(oldIndex, newIndex) {
-      if (isAnimating) return;
-      isAnimating = true;
-      const movingIdx = newIndex > oldIndex ? oldIndex : newIndex;
-      boostForAnimation(movingIdx);
-      refreshUI();
-      setTimeout(() => {
-        isAnimating = false;
-      }, ANIM_MS);
-    }
-
-    function next() {
-      if (pageIndex >= sheets.length - 1 || isAnimating) return;
-      const old = pageIndex;
-      pageIndex = clampIndex(pageIndex + 1);
-      updateBookView(old, pageIndex);
-    }
-
-    function prev() {
-      if (pageIndex <= 0 || isAnimating) return;
-      const old = pageIndex;
-      pageIndex = clampIndex(pageIndex - 1);
-      updateBookView(old, pageIndex);
-    }
-
-    function goTo(i) {
-      if (isAnimating) return;
-      const target = clampIndex(i);
-      if (target === pageIndex) return;
-      const step = target > pageIndex ? 1 : -1;
-      const run = () => {
-        if (pageIndex === target) return;
-        const old = pageIndex;
-        pageIndex = clampIndex(pageIndex + step);
-        updateBookView(old, pageIndex);
-        setTimeout(run, ANIM_MS);
-      };
-      run();
-    }
-
-    // belső nyilak
-    root.addEventListener('click', (e) => {
-      const btn = e.target.closest('.nextprev-btn');
-      if (!btn || !root.contains(btn)) return;
-      const role = btn.getAttribute('data-role');
-      if (role === 'next') next();
-      if (role === 'prev') prev();
-    });
-
-    // keyboard – nem aktív inputban
-    document.addEventListener('keydown', (e) => {
-      if (isAnimating) return;
-      const act = document.activeElement;
-      if (
-        act &&
-        (act.tagName === 'INPUT' ||
-          act.tagName === 'TEXTAREA' ||
-          act.isContentEditable)
-      )
-        return;
-      if (e.key === 'ArrowLeft') prev();
-      if (e.key === 'ArrowRight') next();
-    });
-
-    // touch swipe
-    let touchX = 0;
-    let touchY = 0;
-    let moved = false;
-
-    book.addEventListener(
-      'touchstart',
-      (e) => {
-        if (e.touches.length === 1) {
-          touchX = e.touches[0].clientX;
-          touchY = e.touches[0].clientY;
-          moved = false;
-        }
-      },
-      { passive: true }
-    );
-
-    book.addEventListener(
-      'touchmove',
-      () => {
-        moved = true;
-      },
-      { passive: true }
-    );
-
-    book.addEventListener(
-      'touchend',
-      (e) => {
-        if (!moved || e.changedTouches.length !== 1) return;
-        const dx = e.changedTouches[0].clientX - touchX;
-        const dy = Math.abs(e.changedTouches[0].clientY - touchY);
-        if (dy > 50) return; // nem oldalirány
-        if (Math.abs(dx) > 60) {
-          if (dx < 0) next();
-          else prev();
-        }
-      },
-      { passive: true }
-    );
-
-    refreshUI();
-  }
-})();
+</style>
