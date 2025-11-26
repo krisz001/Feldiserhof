@@ -410,7 +410,7 @@ body {
   font-weight: 700;
   box-shadow: 0 1px 7px rgba(226, 180, 115, 0.09);
   position: absolute;
-  bottom: 0.4rem;
+  bottom: 0.1rem;
   left: 50%;
   transform: translateX(-50%);
   z-index: 20;
