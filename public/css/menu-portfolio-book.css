@@ -96,17 +96,17 @@ body {
 /* ----- KERET ----- */
 .menu-portfolio .wrapper {
   position: relative;
-  max-width: 80rem;                  /* nagyobb könyv (korábban 62rem) */
+  max-width: 70rem;                  /* kicsit kisebb könyv (80 → 70rem) */
   margin: 0 auto;
-  padding: 2.2rem 1.5rem 2.8rem;     /* kicsit tágabb körülötte */
+  padding: 2.2rem 1.5rem 2.8rem;
   perspective: 2000px;
 }
 
 /* ----- KÖNYVTEST ----- */
 .menu-portfolio .book {
   position: relative;
-  min-height: 44rem;                 /* magasabb könyv (korábban 32rem) */
-  max-width: 80rem;                  /* a wrapperhez igazítva */
+  min-height: 38rem;                 /* 10–15%-kal alacsonyabb (44 → 38rem) */
+  max-width: 70rem;                  /* a wrapperhez igazítva */
   width: 100%;
   aspect-ratio: 4 / 3;               /* fix oldalarány (pl. 4:3) */
   border-radius: var(--radius-book);
@@ -563,9 +563,9 @@ body {
 /* ----- MOBIL NÉZET ----- */
 @media (max-width: 768px) {
   .menu-portfolio .book {
-    min-height: 28rem;   /* mobilon marad alacsonyabb, hogy jól elférjen */
+    min-height: 28rem;
     width: 100%;
-    aspect-ratio: auto;  /* mobilon engedjük kicsit szabadabban */
+    aspect-ratio: auto;  /* mobilon engedjük szabadabban */
     overflow: hidden;
   }
 
@@ -587,7 +587,7 @@ body {
 
   .menu-portfolio .page-front,
   .menu-portfolio .page-back {
-    padding: 1rem 1.19rem 4.6rem; /* mobilon kicsit több alsó hely */
+    padding: 1rem 1.19rem 4.6rem;
   }
 
   .menu-portfolio .menu-items-grid {
@@ -635,7 +635,7 @@ body {
 /* A PDF-oldal képe kitölti a rendelkezésre álló teret */
 .menu-portfolio.has-pdf .page-front,
 .menu-portfolio.has-pdf .page-back {
-  padding: 0;                 /* ne legyen belső padding, a kép menjen széléig */
+  padding: 0;
 }
 
 /* A képet tartalmazó elem – a JS-ben .menu-book-page-img-ként tesszük be */
