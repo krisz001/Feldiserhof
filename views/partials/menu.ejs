@@ -15,8 +15,6 @@
   const safeFlags = (typeof flags !== 'undefined' && flags) ? flags : {};
 
   // ---- PDF oldalak fallback ----
-  // Ha a controller átadja: res.render(..., { menuPdfPages: [...] })
-  // akkor innen vesszük. Ha nem, akkor [] és a JS kérdezi le /api/menu-book-ból.
   const pdfPages = (typeof menuPdfPages !== 'undefined' && Array.isArray(menuPdfPages))
     ? menuPdfPages
     : [];
@@ -61,20 +59,26 @@
           data-pdf-pages='<%- JSON.stringify(pdfPages).replace(/<\/(script)/gi, "<\\/$1") %>'
         <% } %>
       >
-        <!-- Bal nyitó oldal -->
+        
+        <!-- === 1. OLDAL (BAL LAP) === -->
         <div class="book-page page-left">
           <div class="profile-page profile-cover">
             <h1><%= titleTxt %></h1>
             <p><%= subtitleTxt %></p>
           </div>
+          
+          <!-- JAVÍTVA: Gomb hozzáadva (jobbra nyíl) -->
+          <button class="nextprev-btn btn-page1-next" data-role="next">›</button>
         </div>
 
-        <!-- Jobb oldal sablon – JS tölti meg tartalommal / PDF képpel (ha nincs PDF, ez sablon a JSON-hoz) -->
+        <!-- === JOBB OLDAL SABLON (Front / Back) === -->
         <div class="book-page page-right" data-sheet="1" id="turn-1" data-template="page">
+          
+          <!-- 2. oldal (Front) -->
           <div class="page-front">
             <h1 class="title"><%= titleTxt %></h1>
 
-            <!-- Dinamikus menü (JSON-ból) – ha nincs PDF és nincs kategória, ezt látjuk -->
+            <!-- Dinamikus menü (JSON-ból) -->
             <div class="menu-items-grid">
               <% if (!categories || !categories.length) { %>
                 <article class="menu-item">
@@ -85,20 +89,19 @@
 
             <span class="number-page">1</span>
 
-            <span class="nextprev-btn" data-role="next">
-              <i class="bx bx-chevron-right"></i>
-            </span>
+            <!-- JAVÍTVA: Generikus VISSZA gomb (balra nyíl) -->
+            <button class="nextprev-btn btn-back" data-role="prev">‹</button>
           </div>
 
+          <!-- 3. oldal (Back) -->
           <div class="page-back">
             <h1 class="title"></h1>
             <div class="menu-items-grid"></div>
 
             <span class="number-page"></span>
 
-            <span class="nextprev-btn back" data-role="prev">
-              <i class="bx bx-chevron-left"></i>
-            </span>
+            <!-- JAVÍTVA: Generikus ELŐRE gomb (jobbra nyíl) -->
+            <button class="nextprev-btn btn-next" data-role="next">›</button>
           </div>
         </div>
       </div>
@@ -128,10 +131,7 @@
     %>
   </script>
 
-  <!-- Aktiváló JS PDF módhoz:
-       - ha van beágyazott pdfPages → azt használjuk
-       - ha nincs, a menu-portfolio-book.js fallback-ként lehívhatja a /api/menu-book-ot
-  -->
+  <!-- Aktiváló JS PDF módhoz -->
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const pdfScriptEl = document.getElementById('pdfMenuPagesScript');
@@ -146,7 +146,6 @@
       }
 
       if (Array.isArray(pdfPages) && pdfPages.length > 0) {
-        // Globális változó a menu-portfolio-book.js számára (extra biztosíték)
         window.menuPdfPages = pdfPages;
         document.body.dataset.pdfMenuActive = '1';
       }
