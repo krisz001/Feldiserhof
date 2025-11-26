@@ -346,9 +346,9 @@ body {
   letter-spacing: 0.01em;
 }
 
-/* ----- Oldalszám + lapozó gombok (belső / külső logika) ----- */
+/* ----- Oldalszám + lapozó gombok – egyszerű, oldalankénti logika ----- */
 
-/* Közös alap minden nyílhoz */
+/* Közös stílus minden nyílra */
 .menu-portfolio .nextprev-btn {
   position: absolute;
   bottom: 1.01rem;
@@ -358,37 +358,28 @@ body {
   color: var(--accent-ink);
   display: grid;
   place-items: center;
-  transition: all 0.21s cubic-bezier(0.48, 0.13, 0.35, 1);
   cursor: pointer;
   z-index: 20;
   background: rgba(255, 255, 255, 0.76);
   border-radius: 50%;
   backdrop-filter: blur(6px);
   border: 1.3px solid #ead9b7;
+  transition: all 0.21s cubic-bezier(0.48, 0.13, 0.35, 1);
 }
 
-/* Belső / külső logika – bal lap (page-left) */
-.menu-portfolio .page-left .nextprev-btn.back-outer {
-  left: 1.21rem;     /* külső szélen (bal oldal) */
-}
-.menu-portfolio .page-left .nextprev-btn.next-inner {
-  right: 1.21rem;    /* gerinc felőli (belső) */
+/* 1. oldal – bal lap (page-left), jobb alsó sarok, jobbra mutató nyíl (next) */
+.menu-portfolio .page-left .btn-page1-next {
+  right: 1.21rem;
 }
 
-/* Belső / külső logika – jobb lap (page-right, nem fordított) */
-.menu-portfolio .page-right .page-front .nextprev-btn.back-inner {
-  left: 1.21rem;     /* gerinc felőli (belső) */
-}
-.menu-portfolio .page-right .page-front .nextprev-btn.next-outer {
-  right: 1.21rem;    /* külső szélen (jobb oldal) */
+/* 2. oldal – jobb lap front (page-right .page-front), ugyanott jobb alsó sarok, balra mutató nyíl (back) */
+.menu-portfolio .page-right .page-front .btn-page2-back {
+  right: 1.21rem;
 }
 
-/* Ha a jobb oldal éppen hátlapként látszik (page-back) – tükrözött */
-.menu-portfolio .page-right.turn .page-back .nextprev-btn.back-outer {
-  right: 1.21rem;    /* most ez lesz a külső */
-}
-.menu-portfolio .page-right.turn .page-back .nextprev-btn.next-inner {
-  left: 1.21rem;     /* és ez a belső (gerinc) */
+/* 3. oldal – jobb lap back (page-right.turn .page-back), jobb alsó sarok, jobbra mutató nyíl (next) */
+.menu-portfolio .page-right.turn .page-back .btn-page3-next {
+  right: 1.21rem;
 }
 
 /* Hover maradhat globálisan */
@@ -398,7 +389,7 @@ body {
   transform: scale(1.08);
 }
 
-/* Oldalszám: oldalpár közepéről a gerinc felőli helyre */
+/* Oldalszám: oldalpár gerinc felőli részén */
 .menu-portfolio .number-page {
   font-size: 1.04rem;
   color: var(--accent-ink);
@@ -642,6 +633,7 @@ body {
     font-size: 0.9rem;
   }
 
+  /* mobilon az oldalszám vissza a középre */
   .menu-portfolio .number-page {
     font-size: 0.87rem;
     left: 50%;
@@ -650,6 +642,7 @@ body {
     transform: translateX(-50%);
   }
 
+  /* mobilon minden nyíl jobb alsó sarokban, kicsinyítve */
   .menu-portfolio .nextprev-btn {
     width: 1.73rem;
     height: 1.73rem;
