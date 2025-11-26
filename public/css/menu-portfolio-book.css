@@ -618,14 +618,14 @@ body {
   /* mobilon is középen az oldalszám, csak lejjebb/kisebben */
   .menu-portfolio .number-page {
     font-size: 0.87rem;
-    bottom: 0.56rem;
+    bottom: 0.25rem;
   }
 
   .menu-portfolio .nextprev-btn {
     width: 1.73rem;
     height: 1.73rem;
     font-size: 1.15rem;
-    bottom: 0.56rem;
+    bottom: 0.25rem;
   }
 
   /* MOBIL: külön pozíciók NEXT / PREV számára */
