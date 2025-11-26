@@ -4,7 +4,6 @@ const $ = (sel) => document.querySelector(sel);
 
 // =============== CSRF TOKEN KEZELÉS ===============
 
-let csrfToken = '';
 async function initCsrfToken() {
   try {
     const resp = await fetch('/api/csrf-token', {
