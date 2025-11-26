@@ -96,7 +96,7 @@ body {
 /* ----- KERET ----- */
 .menu-portfolio .wrapper {
   position: relative;
-  max-width: 70rem;                  /* kicsit kisebb könyv (80 → 70rem) */
+  max-width: 70rem;
   margin: 0 auto;
   padding: 2.2rem 1.5rem 2.8rem;
   perspective: 2000px;
@@ -105,10 +105,10 @@ body {
 /* ----- KÖNYVTEST ----- */
 .menu-portfolio .book {
   position: relative;
-  min-height: 38rem;                 /* 10–15%-kal alacsonyabb (44 → 38rem) */
-  max-width: 70rem;                  /* a wrapperhez igazítva */
+  min-height: 38rem;
+  max-width: 70rem;
   width: 100%;
-  aspect-ratio: 4 / 3;               /* fix oldalarány (pl. 4:3) */
+  aspect-ratio: 4 / 3;
   border-radius: var(--radius-book);
   box-shadow: var(--shadow-outer);
   background: radial-gradient(120% 120% at 50% -10%, #fff 0%, #f7f3ea 80%);
@@ -171,8 +171,8 @@ body {
   position: absolute;
   width: 50%;
   height: 100%;
-  padding: 0; /* fontos: ne legyen dupla padding */
-  aspect-ratio: 1 / 1.5;   /* fix arány az egyes lapokra (könyvön belül) */
+  padding: 0;
+  aspect-ratio: 1 / 1.5;
 }
 
 .menu-portfolio .page-left {
@@ -195,7 +195,7 @@ body {
 .menu-portfolio .page-back {
   position: absolute;
   inset: 0;
-  padding: 1.25rem 1.7rem 4.5rem; /* + alsó hely az oldalszámnak / nyilaknak */
+  padding: 1.25rem 1.7rem 4.5rem; /* hely az alsó gomboknak */
   display: flex;
   flex-direction: column;
   backface-visibility: hidden;
@@ -225,7 +225,7 @@ body {
   pointer-events: none;
 }
 
-/* FEJLÉC TIPÓ (oldalcím) */
+/* FEJLÉC TIPÓ */
 .menu-portfolio .title {
   text-align: center;
   font-weight: 800;
@@ -243,7 +243,7 @@ body {
   gap: 1.1rem 1.15rem;
   flex: 1 1 auto;
   min-height: 0;
-  padding-bottom: 3.5rem; /* extra alsó hely, hogy a tartalom ne ütközzön a navba */
+  padding-bottom: 3.5rem;
 }
 
 /* Tétel */
@@ -309,8 +309,8 @@ body {
   font-size: 0.95rem;
   line-height: 1.5;
   display: block;
-  white-space: pre-line;  /* \n → valódi sortörés */
-  overflow: visible;      /* teljes szöveg látszik, nincs clamp */
+  white-space: pre-line;
+  overflow: visible;
 }
 
 .menu-portfolio .mi-tags {
@@ -346,7 +346,9 @@ body {
   letter-spacing: 0.01em;
 }
 
-/* ----- Oldalszám + lapozó gombok – egyszerű, oldalankénti logika ----- */
+/* ----------------------------------------------------------
+   ÚJ NAVIGÁCIÓS LOGIKA (FIXEN OLDALHOZ KÖTVE)
+   ---------------------------------------------------------- */
 
 /* Közös stílus minden nyílra */
 .menu-portfolio .nextprev-btn {
@@ -358,38 +360,42 @@ body {
   color: var(--accent-ink);
   display: grid;
   place-items: center;
+  transition: all 0.21s cubic-bezier(0.48, 0.13, 0.35, 1);
   cursor: pointer;
   z-index: 20;
   background: rgba(255, 255, 255, 0.76);
   border-radius: 50%;
   backdrop-filter: blur(6px);
   border: 1.3px solid #ead9b7;
-  transition: all 0.21s cubic-bezier(0.48, 0.13, 0.35, 1);
 }
 
-/* 1. oldal – bal lap (page-left), jobb alsó sarok, jobbra mutató nyíl (next) */
-.menu-portfolio .page-left .btn-page1-next {
-  right: 1.21rem;
-}
-
-/* 2. oldal – jobb lap front (page-right .page-front), ugyanott jobb alsó sarok, balra mutató nyíl (back) */
-.menu-portfolio .page-right .page-front .btn-page2-back {
-  right: 1.21rem;
-}
-
-/* 3. oldal – jobb lap back (page-right.turn .page-back), jobb alsó sarok, jobbra mutató nyíl (next) */
-.menu-portfolio .page-right.turn .page-back .btn-page3-next {
-  right: 1.21rem;
-}
-
-/* Hover maradhat globálisan */
+/* Hover effektus (globális) */
 .menu-portfolio .nextprev-btn:hover {
   color: var(--accent);
   background: #fff6e5;
   transform: scale(1.08);
 }
 
-/* Oldalszám: oldalpár gerinc felőli részén */
+/* 1. oldal (bal lap) – jobb alsó sarok, jobbra mutató */
+.menu-portfolio .page-left .btn-page1-next {
+  right: 1.21rem;
+  left: auto;
+}
+
+/* 2. oldal (jobb lap front) – jobb alsó sarok, balra mutató */
+.menu-portfolio .page-right .page-front .btn-page2-back {
+  right: 1.21rem;
+  left: auto;
+}
+
+/* 3. oldal (jobb lap back) – jobb alsó sarok, jobbra mutató */
+.menu-portfolio .page-right.turn .page-back .btn-page3-next {
+  right: 1.21rem;
+  left: auto;
+}
+
+
+/* ----- Oldalszámok ----- */
 .menu-portfolio .number-page {
   font-size: 1.04rem;
   color: var(--accent-ink);
@@ -403,18 +409,21 @@ body {
   z-index: 20;
 }
 
-/* Bal lap oldalszám – gerinc közelébe */
+/* Bal lap oldalszám – a gomb mellé balra (belső) */
 .menu-portfolio .page-left .number-page {
-  right: 2.8rem;   /* belső, a nyíl mellett */
+  right: 4.2rem; /* eltolva a gombtól */
 }
 
-/* Jobb lap oldalszám – gerinc közelébe, tükrösen */
+/* Jobb lap oldalszám – bal oldalon (gerinc felől), hogy ne ütközzön a gombbal */
 .menu-portfolio .page-right .page-front .number-page {
-  left: 2.8rem;
+  left: 1.21rem;
 }
+
+/* Jobb lap hátulja oldalszám – bal oldalon (most a gerinc a másik oldalon van, de a design miatt balra tehetjük) */
 .menu-portfolio .page-right.turn .page-back .number-page {
-  left: 2.8rem;
+  left: 1.21rem;
 }
+
 
 /* ----- PÖTTY NAVIGÁCIÓ ----- */
 .menu-portfolio .book-dots {
@@ -548,28 +557,12 @@ body {
   }
 }
 
-/* Finom „shake” visszajelzés, ha tiltva próbál lapozni */
+/* Finom „shake” visszajelzés */
 @keyframes book-shake {
-  10%,
-  90% {
-    transform: translateX(-1px);
-  }
-
-  20%,
-  80% {
-    transform: translateX(2px);
-  }
-
-  30%,
-  50%,
-  70% {
-    transform: translateX(-4px);
-  }
-
-  40%,
-  60% {
-    transform: translateX(4px);
-  }
+  10%, 90% { transform: translateX(-1px); }
+  20%, 80% { transform: translateX(2px); }
+  30%, 50%, 70% { transform: translateX(-4px); }
+  40%, 60% { transform: translateX(4px); }
 }
 
 .menu-portfolio .book.shake {
@@ -589,7 +582,7 @@ body {
   .menu-portfolio .book {
     min-height: 28rem;
     width: 100%;
-    aspect-ratio: auto;  /* mobilon engedjük szabadabban */
+    aspect-ratio: auto;
     overflow: hidden;
   }
 
@@ -633,7 +626,6 @@ body {
     font-size: 0.9rem;
   }
 
-  /* mobilon az oldalszám vissza a középre */
   .menu-portfolio .number-page {
     font-size: 0.87rem;
     left: 50%;
@@ -642,43 +634,37 @@ body {
     transform: translateX(-50%);
   }
 
-  /* mobilon minden nyíl jobb alsó sarokban, kicsinyítve */
   .menu-portfolio .nextprev-btn {
     width: 1.73rem;
     height: 1.73rem;
     font-size: 1.15rem;
     bottom: 0.56rem;
-    right: 0.51rem;
-    left: auto;
+    /* Mobilon minden gomb jobb alul maradjon */
+    right: 0.51rem !important;
+    left: auto !important;
   }
 }
 
 /* =========================================================
- * PDF-MÓD KIEGÉSZÍTÉSEK – CSAK .menu-portfolio.has-pdf ESETÉN
- * Nem érinti a sima (JSON-os) menüt.
- * ======================================================= */
-
-/* PDF módban nem kell a rácsos menülista */
+   PDF-MÓD KIEGÉSZÍTÉSEK
+   ======================================================= */
 .menu-portfolio.has-pdf .menu-items-grid {
   display: none;
 }
 
-/* A PDF-oldal képe kitölti a rendelkezésre álló teret */
 .menu-portfolio.has-pdf .page-front,
 .menu-portfolio.has-pdf .page-back {
   padding: 0;
 }
 
-/* A képet tartalmazó elem – a JS-ben .menu-book-page-img-ként tesszük be */
 .menu-portfolio.has-pdf .menu-book-page-img {
   width: 100%;
   height: 100%;
-  object-fit: contain;        /* a teljes oldal látszik, nem vágjuk le */
+  object-fit: contain;
   border-radius: var(--radius-page);
   display: block;
 }
 
-/* Oldalszám és nyilak kicsit közelebb a lap aljához PDF módban is */
 .menu-portfolio.has-pdf .number-page {
   bottom: 0.8rem;
 }
@@ -687,7 +673,6 @@ body {
   bottom: 0.8rem;
 }
 
-/* Sötét mód esetén a PDF-lap kerete is illeszkedjen */
 @media (prefers-color-scheme: dark) {
   .menu-portfolio.has-pdf .menu-book-page-img {
     box-shadow: 0 12px 28px rgba(0, 0, 0, 0.32);
