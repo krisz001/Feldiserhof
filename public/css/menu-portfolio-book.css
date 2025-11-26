@@ -346,8 +346,10 @@ body {
   letter-spacing: 0.01em;
 }
 
+
 /* ----------------------------------------------------------
-   ÚJ NAVIGÁCIÓS LOGIKA (FIXEN OLDALHOZ KÖTVE)
+   NAVIGÁCIÓS GOMBOK ÉS POZÍCIÓK
+   Generikus osztályokkal (btn-back / btn-next)
    ---------------------------------------------------------- */
 
 /* Közös stílus minden nyílra */
@@ -376,19 +378,36 @@ body {
   transform: scale(1.08);
 }
 
-/* 1. oldal (bal lap) – jobb alsó sarok, jobbra mutató */
+
+/* 1. oldal (bal lap) – fix, egyedi, jobbra nyíl */
 .menu-portfolio .page-left .btn-page1-next {
   right: 1.21rem;
   left: auto;
 }
 
-/* 2. oldal (jobb lap front) – jobb alsó sarok, balra mutató */
+
+/*
+   FRONT oldalak (Páros oldalak: 2., 4., 6. stb.)
+   Itt a VISSZA gombnak kell megjelennie.
+   Pozíció: Jobb alsó sarok.
+   Ikon: Balra mutató nyíl (<)
+   Osztály: .btn-back (és a legacy .btn-page2-back)
+*/
+.menu-portfolio .page-right .page-front .btn-back,
 .menu-portfolio .page-right .page-front .btn-page2-back {
   right: 1.21rem;
   left: auto;
 }
 
-/* 3. oldal (jobb lap back) – jobb alsó sarok, jobbra mutató */
+
+/*
+   BACK oldalak (Páratlan oldalak: 3., 5., 7. stb.)
+   Itt az ELŐRE gombnak kell megjelennie.
+   Pozíció: Jobb alsó sarok.
+   Ikon: Jobbra mutató nyíl (>)
+   Osztály: .btn-next (és a legacy .btn-page3-next)
+*/
+.menu-portfolio .page-right.turn .page-back .btn-next,
 .menu-portfolio .page-right.turn .page-back .btn-page3-next {
   right: 1.21rem;
   left: auto;
@@ -409,17 +428,20 @@ body {
   z-index: 20;
 }
 
+
 /* Bal lap oldalszám – a gomb mellé balra (belső) */
 .menu-portfolio .page-left .number-page {
   right: 4.2rem; /* eltolva a gombtól */
 }
 
-/* Jobb lap oldalszám – bal oldalon (gerinc felől), hogy ne ütközzön a gombbal */
+
+/* Jobb lap FRONT (páros) – bal oldalon (gerinc felől) */
 .menu-portfolio .page-right .page-front .number-page {
   left: 1.21rem;
 }
 
-/* Jobb lap hátulja oldalszám – bal oldalon (most a gerinc a másik oldalon van, de a design miatt balra tehetjük) */
+
+/* Jobb lap BACK (páratlan) – bal oldalon (most a külső szél, de designban balra tesszük) */
 .menu-portfolio .page-right.turn .page-back .number-page {
   left: 1.21rem;
 }

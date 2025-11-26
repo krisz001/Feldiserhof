@@ -1,8 +1,3 @@
-Igen, természetesen.
-
-Itt a **teljes, javított EJS kód**. Ebben már kicseréltem a gombokat a `<button>` elemekre, beírtam a helyes karaktereket (`›`, `‹`), és hozzáadtam a specifikus osztályokat (`btn-page1-next`, `btn-page2-back`, `btn-page3-next`), hogy pontosan illeszkedjen az előző CSS-hez.
-
-```html
 <%
   // ---- Menü adat biztonságos fallback ----
   const rawMenu = (typeof menuData !== 'undefined' && menuData && typeof menuData === 'object')
@@ -20,6 +15,8 @@ Itt a **teljes, javított EJS kód**. Ebben már kicseréltem a gombokat a `<but
   const safeFlags = (typeof flags !== 'undefined' && flags) ? flags : {};
 
   // ---- PDF oldalak fallback ----
+  // Ha a controller átadja: res.render(..., { menuPdfPages: [...] })
+  // akkor innen vesszük. Ha nem, akkor [] és a JS kérdezi le /api/menu-book-ból.
   const pdfPages = (typeof menuPdfPages !== 'undefined' && Array.isArray(menuPdfPages))
     ? menuPdfPages
     : [];
@@ -64,26 +61,20 @@ Itt a **teljes, javított EJS kód**. Ebben már kicseréltem a gombokat a `<but
           data-pdf-pages='<%- JSON.stringify(pdfPages).replace(/<\/(script)/gi, "<\\/$1") %>'
         <% } %>
       >
-        
-        <!-- === 1. OLDAL (BAL LAP) === -->
+        <!-- Bal nyitó oldal -->
         <div class="book-page page-left">
           <div class="profile-page profile-cover">
             <h1><%= titleTxt %></h1>
             <p><%= subtitleTxt %></p>
           </div>
-          
-          <!-- JAVÍTVA: 1. oldal gombja: jobb alsó, jobbra nyíl -->
-          <button class="nextprev-btn btn-page1-next" data-role="next">›</button>
         </div>
 
-        <!-- === JOBB OLDAL KONTÉNER (Front: 2. oldal / Back: 3. oldal) === -->
+        <!-- Jobb oldal sablon – JS tölti meg tartalommal / PDF képpel (ha nincs PDF, ez sablon a JSON-hoz) -->
         <div class="book-page page-right" data-sheet="1" id="turn-1" data-template="page">
-          
-          <!-- 2. OLDAL (FRONT) -->
           <div class="page-front">
             <h1 class="title"><%= titleTxt %></h1>
 
-            <!-- Dinamikus menü (JSON-ból) -->
+            <!-- Dinamikus menü (JSON-ból) – ha nincs PDF és nincs kategória, ezt látjuk -->
             <div class="menu-items-grid">
               <% if (!categories || !categories.length) { %>
                 <article class="menu-item">
@@ -94,19 +85,20 @@ Itt a **teljes, javított EJS kód**. Ebben már kicseréltem a gombokat a `<but
 
             <span class="number-page">1</span>
 
-            <!-- JAVÍTVA: 2. oldal gombja: jobb alsó, BALRA nyíl (vissza) -->
-            <button class="nextprev-btn btn-page2-back" data-role="prev">‹</button>
+            <span class="nextprev-btn" data-role="next">
+              <i class="bx bx-chevron-right"></i>
+            </span>
           </div>
 
-          <!-- 3. OLDAL (BACK) -->
           <div class="page-back">
             <h1 class="title"></h1>
             <div class="menu-items-grid"></div>
 
             <span class="number-page"></span>
 
-            <!-- JAVÍTVA: 3. oldal gombja: jobb alsó, JOBBRA nyíl (előre) -->
-            <button class="nextprev-btn btn-page3-next" data-role="next">›</button>
+            <span class="nextprev-btn back" data-role="prev">
+              <i class="bx bx-chevron-left"></i>
+            </span>
           </div>
         </div>
       </div>
@@ -118,7 +110,6 @@ Itt a **teljes, javított EJS kód**. Ebben már kicseréltem a gombokat a `<but
 
   <!-- Könyv CSS + ikonok -->
   <link rel="stylesheet" href="/css/menu-portfolio-book.css">
-  <!-- Boxicons maradhat a biztonság kedvéért, bár a nyilakhoz már nem használjuk -->
   <link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css">
 
   <!-- Menü JSON beágyazása a dinamikus (nem-PDF) módhoz -->
@@ -137,7 +128,10 @@ Itt a **teljes, javított EJS kód**. Ebben már kicseréltem a gombokat a `<but
     %>
   </script>
 
-  <!-- Aktiváló JS PDF módhoz -->
+  <!-- Aktiváló JS PDF módhoz:
+       - ha van beágyazott pdfPages → azt használjuk
+       - ha nincs, a menu-portfolio-book.js fallback-ként lehívhatja a /api/menu-book-ot
+  -->
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const pdfScriptEl = document.getElementById('pdfMenuPagesScript');
@@ -152,6 +146,7 @@ Itt a **teljes, javított EJS kód**. Ebben már kicseréltem a gombokat a `<but
       }
 
       if (Array.isArray(pdfPages) && pdfPages.length > 0) {
+        // Globális változó a menu-portfolio-book.js számára (extra biztosíték)
         window.menuPdfPages = pdfPages;
         document.body.dataset.pdfMenuActive = '1';
       }
