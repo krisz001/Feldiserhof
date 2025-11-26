@@ -307,23 +307,54 @@ const loadHeroBox = () => {
   }
 };
 
-// Segédfüggvény a PDF lapokhoz – KÖZPONTI, mindenhol ezt használjuk
+// Módosított getMenuPdfPages() – a sorrend szerinti PDF-eket kell vissza
 function getMenuPdfPages() {
-  try {
-    if (!fs.existsSync(menuPdfDir)) return [];
+  if (!fs.existsSync(menuPdfDir)) return [];
+  
+  // Olvasd be a sorrend JSON-t
+  let order = [];
+  const orderPath = path.join(__dirname, 'data', 'pdf-order.json');
+  if (fs.existsSync(orderPath)) {
+    try {
+      const data = JSON.parse(fs.readFileSync(orderPath, 'utf8'));
+      order = data.order || [];
+    } catch (e) {
+      console.error('PDF order JSON hiba:', e);
+    }
+  }
+
+  // Ha nincs explicit sorrend, akkor automatikus (az eredeti módszer)
+  if (!order.length) {
     return fs
       .readdirSync(menuPdfDir)
-      .filter((f) => /^page-\d+\.png$/i.test(f))
+      .filter(f => /^page-\d+\.png$/i.test(f))
       .sort((a, b) => {
-        const na = parseInt(a.match(/page-(\d+)\.png/i)[1], 10);
-        const nb = parseInt(b.match(/page-(\d+)\.png/i)[1], 10);
+        const na = parseInt(a.match(/page-(\d+)\.png/)[1], 10);
+        const nb = parseInt(b.match(/page-(\d+)\.png/)[1], 10);
         return na - nb;
       })
-      .map((f) => `/menu-pdf/${f}`);
-  } catch (err) {
-    console.error('❌ Menü PDF oldalak olvasási hiba:', err.message);
-    return [];
+      .map(f => `/menu-pdf/${f}`);
   }
+
+  // Ha van sorrend -> végig a sorrendezett lista, és gyűjt össze PDF oldalakat
+  const result = [];
+  order.forEach(pdfName => {
+    const pdfDir = path.join(menuPdfDir, pdfName);
+    if (fs.existsSync(pdfDir)) {
+      const pages = fs
+        .readdirSync(pdfDir)
+        .filter(f => /^page-\d+\.png$/i.test(f))
+        .sort((a, b) => {
+          const na = parseInt(a.match(/page-(\d+)\.png/)[1], 10);
+          const nb = parseInt(b.match(/page-(\d+)\.png/)[1], 10);
+          return na - nb;
+        })
+        .map(f => `/menu-pdf/${pdfName}/${f}`);
+      result.push(...pages);
+    }
+  });
+
+  return result;
 }
 
 // ============================================================

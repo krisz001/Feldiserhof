@@ -1,0 +1,124 @@
+<!-- views/admin/pdf-order.ejs -->
+<main class="admin-pdf-order">
+  <h1>PDF Sorrendezés</h1>
+  
+  <div id="pdfListContainer">
+    <p>Betöltés...</p>
+  </div>
+
+  <button id="savePdfOrder" class="btn btn-primary" style="margin-top: 20px;">
+    Sorrend Mentése
+  </button>
+</main>
+
+<script>
+(function() {
+  const container = document.getElementById('pdfListContainer');
+  const saveBtn = document.getElementById('savePdfOrder');
+  let currentOrder = [];
+
+  async function loadPdfs() {
+    const res = await fetch('/admin/api/pdf-pages');
+    const { pdfs } = await res.json();
+    
+    const orderRes = await fetch('/admin/api/pdf-order');
+    const { order } = await orderRes.json();
+    
+    // PDF nevek (mappák)
+    const pdfNames = Object.keys(pdfs);
+    
+    // Sorrendezz az order szerint, majd a maradékat
+    const ordered = [];
+    order.forEach(name => {
+      if (pdfNames.includes(name)) {
+        ordered.push(name);
+      }
+    });
+    pdfNames.forEach(name => {
+      if (!ordered.includes(name)) {
+        ordered.push(name);
+      }
+    });
+    
+    currentOrder = ordered;
+    
+    // UI generálása
+    container.innerHTML = '<ul id="pdfList" style="list-style: none; padding: 0;"></ul>';
+    const list = container.querySelector('#pdfList');
+    
+    ordered.forEach((pdfName, idx) => {
+      const pages = pdfs[pdfName] || [];
+      const li = document.createElement('li');
+      li.draggable = true;
+      li.dataset.pdfName = pdfName;
+      li.style.cssText = `
+        padding: 10px;
+        margin: 5px 0;
+        background: #f0f0f0;
+        border: 2px solid #ccc;
+        cursor: move;
+        border-radius: 4px;
+      `;
+      li.textContent = `${idx + 1}. ${pdfName} (${pages.length} oldal)`;
+      
+      // Előnézet első oldalkép
+      if (pages[0]) {
+        const preview = document.createElement('img');
+        preview.src = pages[0];
+        preview.style.cssText = 'max-width: 100px; max-height: 100px; margin: 5px 0;';
+        li.appendChild(document.createElement('br'));
+        li.appendChild(preview);
+      }
+      
+      list.appendChild(li);
+    });
+    
+    // Drag-drop kezelés
+    setupDragDrop(list);
+  }
+
+  function setupDragDrop(list) {
+    let draggedElement = null;
+    
+    list.addEventListener('dragstart', (e) => {
+      draggedElement = e.target.closest('li');
+      e.dataTransfer.effectAllowed = 'move';
+    });
+    
+    list.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      const target = e.target.closest('li');
+      if (target && target !== draggedElement) {
+        target.parentNode.insertBefore(draggedElement, target);
+      }
+    });
+    
+    list.addEventListener('drop', (e) => {
+      e.preventDefault();
+      // sorrend frissítése
+      const items = Array.from(list.querySelectorAll('li'));
+      currentOrder = items.map(li => li.dataset.pdfName);
+    });
+  }
+
+  saveBtn.addEventListener('click', async () => {
+    const res = await fetch('/admin/api/pdf-order', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content || ''
+      },
+      body: JSON.stringify({ order: currentOrder })
+    });
+    
+    if (res.ok) {
+      alert('✅ Sorrend mentve!');
+    } else {
+      alert('❌ Hiba történt!');
+    }
+  });
+
+  loadPdfs();
+})();
+</script>
