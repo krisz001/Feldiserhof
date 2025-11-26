@@ -1,5 +1,5 @@
 // ============================================================
-// feldiserhof-menu-book.js
+//menu-portfolio-book.js
 // 1) PDF alapú egyszerű lapozó (FELDISERHOF_PDF_PAGES vagy data-pdf-pages)
 // 2) Menü JSON -> dinamikus, magasság alapú lapozás + fejlett flipbook
 // Desktop: dupla oldal (front+back), mobil: 1 oldal / lap
