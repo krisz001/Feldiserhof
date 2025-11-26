@@ -67,66 +67,83 @@
   });
 
 function initPdfMenuBook(bookEl, pdfPages) {
-  // Töröljük a jelenlegi book tartalmat
+  // 1) TELJES TISZTÍTÁS
   bookEl.innerHTML = '';
 
-  // Minden img -> egy flipbook .book-page.page-right elem lesz
-  pdfPages.forEach(function(src, i) {
+  // 2) Ha nincs PDF oldal, ne csinálj semmit
+  if (!pdfPages || pdfPages.length === 0) {
+    console.warn('[menu-book] Nincsenek PDF oldalak.');
+    return;
+  }
+
+  // 3) Párosítsd a PDF lapokat: minden .book-page tartalmaz bal és jobb oldalt
+  // Pl. 6 oldal = 3 "lap" (3 dupla oldalak)
+  for (let i = 0; i < pdfPages.length; i += 2) {
     const pageEl = document.createElement('div');
     pageEl.className = 'book-page page-right';
-    pageEl.dataset.sheet = String(i + 1);
-    pageEl.id = `turn-${i + 1}`;
+    pageEl.dataset.sheet = String(Math.floor(i / 2) + 1);
+    pageEl.id = `turn-${Math.floor(i / 2) + 1}`;
 
-    // Page front
+    // ===== FRONT OLDAL (BAL PDF KÉP) =====
     const frontEl = document.createElement('div');
     frontEl.className = 'page-front';
 
-    // Maga a PDF oldalkép
-    const img = document.createElement('img');
-    img.src = src;
-    img.alt = `Speisekarte Seite ${i + 1}`;
-    img.className = 'menu-book-page-img';
+    if (pdfPages[i]) {
+      const imgLeft = document.createElement('img');
+      imgLeft.src = pdfPages[i];
+      imgLeft.alt = `Speisekarte Seite ${i + 1}`;
+      imgLeft.className = 'menu-book-page-img';
+      frontEl.appendChild(imgLeft);
+    }
 
-    frontEl.appendChild(img);
+    // Oldalszám (bal oldal száma)
+    const pageNumberFront = document.createElement('span');
+    pageNumberFront.className = 'number-page';
+    pageNumberFront.textContent = String(i + 1);
+    frontEl.appendChild(pageNumberFront);
 
-    // Számozás + navigáció
-    const pageNumber = document.createElement('span');
-    pageNumber.className = 'number-page';
-    pageNumber.textContent = String(i + 1);
-    frontEl.appendChild(pageNumber);
-
-    const nextBtn = document.createElement('span');
-    nextBtn.className = 'nextprev-btn';
-    nextBtn.setAttribute('data-role', 'next');
-    nextBtn.innerHTML = '<i class="bx bx-chevron-right"></i>';
-    frontEl.appendChild(nextBtn);
-
-    // Back oldal üresen (de kell a szerkezethez)
-    const backEl = document.createElement('div');
-    backEl.className = 'page-back';
-
-    const backPageNumber = document.createElement('span');
-    backPageNumber.className = 'number-page';
-    backEl.appendChild(backPageNumber);
-
+    // Balra nyíl (prev)
     const prevBtn = document.createElement('span');
     prevBtn.className = 'nextprev-btn back';
     prevBtn.setAttribute('data-role', 'prev');
     prevBtn.innerHTML = '<i class="bx bx-chevron-left"></i>';
-    backEl.appendChild(prevBtn);
+    frontEl.appendChild(prevBtn);
+
+    // ===== BACK OLDAL (JOBB PDF KÉP) =====
+    const backEl = document.createElement('div');
+    backEl.className = 'page-back';
+
+    if (pdfPages[i + 1]) {
+      const imgRight = document.createElement('img');
+      imgRight.src = pdfPages[i + 1];
+      imgRight.alt = `Speisekarte Seite ${i + 2}`;
+      imgRight.className = 'menu-book-page-img';
+      backEl.appendChild(imgRight);
+    }
+
+    // Oldalszám (jobb oldal száma)
+    const pageNumberBack = document.createElement('span');
+    pageNumberBack.className = 'number-page';
+    pageNumberBack.textContent = String(i + 2);
+    backEl.appendChild(pageNumberBack);
+
+    // Jobbra nyíl (next)
+    const nextBtn = document.createElement('span');
+    nextBtn.className = 'nextprev-btn';
+    nextBtn.setAttribute('data-role', 'next');
+    nextBtn.innerHTML = '<i class="bx bx-chevron-right"></i>';
+    backEl.appendChild(nextBtn);
 
     pageEl.appendChild(frontEl);
     pageEl.appendChild(backEl);
 
     bookEl.appendChild(pageEl);
-  });
+  }
 
-  // Indítsd el a flipbook animációkat, pötty navigációt, stb.
+  // 4) Indítsd el a flipbook logikát
   initMenuBook(bookEl.closest('.menu-portfolio'));
 }
-
-
-  // ------------------------------------------------------------
+ // ------------------------------------------------------------
   // Menü JSON kiolvasása (#menuDataScript vagy window.menuData)
   // ------------------------------------------------------------
   function getMenuDataFromDom() {
