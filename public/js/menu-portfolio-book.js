@@ -69,14 +69,20 @@ function initPdfMenuBook(bookEl, pdfPages) {
   // 1) TELJES TISZTÍTÁS
   bookEl.innerHTML = '';
 
+  // has-pdf class a root-ra (CSS miatt)
+  const root = bookEl.closest('.menu-portfolio');
+  if (root) {
+    root.classList.add('has-pdf');
+  }
+
   // 2) Ha nincs PDF oldal, ne csinálj semmit
   if (!pdfPages || pdfPages.length === 0) {
     console.warn('[menu-book] Nincsenek PDF oldalak.');
     return;
   }
 
-  // 3) Párosítsd a PDF lapokat: minden .book-page tartalmaz bal és jobb oldalt
-  // Pl. 6 oldal = 3 "lap" (3 dupla oldalak)
+  // 3) Párosítás: minden .book-page tartalmaz front+back oldalt
+  // pdfPages[0] = 1. oldal (jobb oldali első oldal)
   for (let i = 0; i < pdfPages.length; i += 2) {
     const sheetIndex = Math.floor(i / 2) + 1;
 
@@ -85,7 +91,7 @@ function initPdfMenuBook(bookEl, pdfPages) {
     pageEl.dataset.sheet = String(sheetIndex);
     pageEl.id = `turn-${sheetIndex}`;
 
-    // ===== FRONT OLDAL (BAL PDF KÉP) =====
+    // ===== FRONT OLDAL =====
     const frontEl = document.createElement('div');
     frontEl.className = 'page-front';
 
@@ -97,20 +103,22 @@ function initPdfMenuBook(bookEl, pdfPages) {
       frontEl.appendChild(imgLeft);
     }
 
-    // Oldalszám (bal oldal száma)
+    // Oldalszám (front)
     const pageNumberFront = document.createElement('span');
     pageNumberFront.className = 'number-page';
     pageNumberFront.textContent = String(i + 1);
     frontEl.appendChild(pageNumberFront);
 
-    // Balra nyíl (prev) – GENERIKUS btn-back
-    const prevBtn = document.createElement('span');
-    prevBtn.className = 'nextprev-btn btn-back';
-    prevBtn.setAttribute('data-role', 'prev');
-    prevBtn.innerHTML = '<i class="bx bx-chevron-left"></i>';
-    frontEl.appendChild(prevBtn);
+    // Balra nyíl (prev) – csak ha NEM az első logikai oldal
+    if (i > 0) {
+      const prevBtn = document.createElement('span');
+      prevBtn.className = 'nextprev-btn btn-back';
+      prevBtn.setAttribute('data-role', 'prev');
+      prevBtn.innerHTML = '<i class="bx bx-chevron-left"></i>';
+      frontEl.appendChild(prevBtn);
+    }
 
-    // ===== BACK OLDAL (JOBB PDF KÉP) =====
+    // ===== BACK OLDAL =====
     const backEl = document.createElement('div');
     backEl.className = 'page-back';
 
@@ -122,13 +130,13 @@ function initPdfMenuBook(bookEl, pdfPages) {
       backEl.appendChild(imgRight);
     }
 
-    // Oldalszám (jobb oldal száma)
+    // Oldalszám (back)
     const pageNumberBack = document.createElement('span');
     pageNumberBack.className = 'number-page';
     pageNumberBack.textContent = String(i + 2);
     backEl.appendChild(pageNumberBack);
 
-    // Jobbra nyíl (next) – GENERIKUS btn-next
+    // Jobbra nyíl (next) – GENERIKUS
     const nextBtn = document.createElement('span');
     nextBtn.className = 'nextprev-btn btn-next';
     nextBtn.setAttribute('data-role', 'next');
