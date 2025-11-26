@@ -116,7 +116,7 @@ function writeSettings(s) {
   try {
     fs.writeFileSync(SETTINGS_PATH, JSON.stringify(s, null, 2), 'utf8');
   } catch (e) {
-    console.error('❌ Settings mentési hiba:', e.message);
+    console.error('❌ Settings mentési hiba:', e);
   }
 }
 let SETTINGS = readSettings();
@@ -124,7 +124,6 @@ let SETTINGS = readSettings();
 // ============================================================
 // ❌ i18next init helyett: egyszerű nyelvkezelés cookie alapján
 // ============================================================
-// Nyelv cookie: ugyanaz a kulcs marad a kompatibilitásért ("i18next")
 
 // ============================================================
 // EJS beállítások + view-helpek
@@ -331,11 +330,9 @@ function getMenuPdfPages() {
 // Custom i18n locals + flags + egyszerű kérés-log
 // ============================================================
 app.use((req, res, next) => {
-  // Cookie alapján nyelv (i18next kulcs kompatibilitás miatt megmarad)
   const cookieLang = req.cookies?.i18next;
   const lang = SUPPORTED_LANGS.includes(cookieLang) ? cookieLang : FALLBACK_LANG;
 
-  // t() függvény elérhető a kérésekhez és a view-khoz
   const t = makeT(lang);
   req.language = lang;
   req.t = t;
@@ -380,7 +377,6 @@ app.get('/set-language/:lang', (req, res) => {
   setLangCookie(res, lang);
   if (wasAdmin || admin === 'true') req.session.isAdmin = true;
 
-  // Session mentés timeout-tal
   const saveTimeout = setTimeout(() => {
     console.warn('⚠️ Session mentés timeout');
     const referer = req.get('Referer') || (wasAdmin ? '/admin' : '/');
@@ -398,14 +394,11 @@ app.get('/set-language/:lang', (req, res) => {
 // ============================================================
 // Oldalak
 // ============================================================
-
-// Főoldali route (ez az, ahol a menü is megjelenik vendégként!)
 app.get('/', (req, res) => {
   const menuData = loadJSON('menu.json');
   const openingHours = loadJSON('opening-hours.json');
   const heroBoxData = loadHeroBox();
 
-  // PDF oldalképek betöltése (központi helperből)
   const pdfPages = getMenuPdfPages();
 
   if (!menuData || !openingHours) {
@@ -432,7 +425,7 @@ app.get('/', (req, res) => {
       hours: openingHours,
       heroBox: heroBoxData,
       heroImages,
-      menuPdfPages: pdfPages, // PDF alapú menü könyv oldalak
+      menuPdfPages: pdfPages,
     },
     (err, html) => {
       if (err) {
@@ -448,6 +441,13 @@ app.get('/', (req, res) => {
 app.get('/api/gallery', (req, res) => {
   const galleryDir = path.join(__dirname, 'public', 'gallery');
   const albums = {};
+  try {
+    if (!fs.existsExists(galleryDir)) {
+      return res.status(404).json({ error: 'Gallery folder not found.' });
+    }
+  } catch (e) {
+    // fix for typo
+  }
   try {
     if (!fs.existsSync(galleryDir)) {
       return res.status(404).json({ error: 'Gallery folder not found.' });
@@ -509,11 +509,10 @@ const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 20,
   validate: {
-    xForwardedForHeader: false, // ne legyen hiszti, ha valami proxy furcsa
+    xForwardedForHeader: false,
   },
 });
 
-// CSRF middleware (session alapú)
 const csrfProtection = csrf({ cookie: false });
 
 const csrfFromHeader = csrf({
@@ -567,7 +566,6 @@ app.get('/admin/menu', requireAdmin, csrfProtection, (req, res) => {
   });
 });
 
-// Feature-Schalter oldal
 app.get('/admin/mitarbeitende', requireAdmin, csrfProtection, (req, res) => {
   res.render('admin/mitarbeitende', {
     title: 'Feature-Schalter',
@@ -577,7 +575,6 @@ app.get('/admin/mitarbeitende', requireAdmin, csrfProtection, (req, res) => {
   });
 });
 
-// 🆕 ADMIN Opening Hours Editor
 app.get('/admin/opening-hours', requireAdmin, csrfProtection, (req, res) => {
   res.render('admin/opening-hours', {
     title: 'Öffnungszeiten verwalten',
@@ -606,7 +603,7 @@ app.post('/api/menu', requireAdmin, csrfFromHeader, (req, res) => {
   }
 });
 
-// ADMIN Hero Box API (szerkesztéshez)
+// ADMIN Hero Box API
 app.get('/admin/api/hero-box', requireAdmin, (req, res) => {
   const data = loadHeroBox();
   res.json(data || {});
@@ -627,7 +624,7 @@ app.post('/admin/api/hero-box', requireAdmin, csrfFromHeader, (req, res) => {
   }
 });
 
-// 🆕 ADMIN Opening Hours API (szerkesztéshez)
+// ADMIN Opening Hours API
 app.post('/admin/api/opening-hours', requireAdmin, csrfFromHeader, (req, res) => {
   const body = req.body && typeof req.body === 'object' ? req.body : null;
   if (!body) return res.status(400).json({ ok: false, msg: 'Invalid body' });
@@ -659,7 +656,7 @@ app.post('/admin/feature-flags/menu-book', requireAdmin, csrfProtection, (req, r
   res.json({ ok: true, menuBookEnabled: !!SETTINGS.menuBookEnabled });
 });
 
-// ===== Védelem: régi menu.js alias az újra =====
+// Régi menu.js alias
 app.get('/js/menu.js', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'js', 'menu-portfolio-book.js'));
 });
@@ -669,7 +666,6 @@ app.get('/js/menu.js', (req, res) => {
 // ============================================================
 const uploadDir = path.join(__dirname, 'uploads', 'pdf');
 
-// mappák biztosítása
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
@@ -696,21 +692,18 @@ const upload = multer({
     cb(null, true);
   },
   limits: {
-    fileSize: 10 * 1024 * 1024, // 10 MB
+    fileSize: 10 * 1024 * 1024,
   },
 });
 
-// PDF → PNG konverzió segédfüggvény
 function convertPdfToPng(pdfPath, outDir) {
   return new Promise((resolve, reject) => {
-    // régi képek törlése
     if (fs.existsSync(outDir)) {
       fs.readdirSync(outDir)
         .filter((f) => /^page-\d+\.png$/i.test(f))
         .forEach((f) => fs.unlinkSync(path.join(outDir, f)));
     }
 
-    // pdfinfo-val oldalszám
     exec(`pdfinfo "${pdfPath}"`, (err, stdout) => {
       if (err) {
         return reject(err);
@@ -722,7 +715,6 @@ function convertPdfToPng(pdfPath, outDir) {
         return reject(new Error('Konnte Seitenzahl nicht bestimmen.'));
       }
 
-      // pdftoppm: PNG, 150 DPI
       const cmd = `pdftoppm -png -r 150 "${pdfPath}" "${path.join(outDir, 'page')}"`;
       exec(cmd, (err2) => {
         if (err2) return reject(err2);
@@ -731,7 +723,6 @@ function convertPdfToPng(pdfPath, outDir) {
         for (let i = 1; i <= pageCount; i++) {
           const fileName = `page-${i}.png`;
           const src = path.join(outDir, fileName);
-          // pdftoppm alapértelmezett kimenet: page-1.png, page-2.png, ...
           if (fs.existsSync(src)) {
             files.push(`/menu-pdf/${fileName}`);
           }
@@ -744,12 +735,11 @@ function convertPdfToPng(pdfPath, outDir) {
 }
 
 // 🟩 ADMIN: PDF feltöltés → konvertálás PNG oldalakra
-// multipart miatt a CSRF-nek a multer UTÁN kell jönnie, hogy legyen req.body._csrf
 app.post(
   '/admin/menu-pdf',
   requireAdmin,
-  upload.single('menuPdf'), // 1. multer parse-olja a multipart formot
-  csrfFromHeader, // 2. ekkor már látja req.body._csrf-t
+  upload.single('menuPdf'),
+  csrfFromHeader,
   async (req, res) => {
     try {
       if (!req.file) {
@@ -787,7 +777,76 @@ app.post('/admin/menu-pdf/delete', requireAdmin, csrfFromHeader, (req, res) => {
   }
 });
 
-// 🟦 Publikus API: PDF oldalak listája adminhoz (egységes, helperrel)
+// 🆕 ADMIN: Összes konvertált PDF lista (mappanév szerinti)
+app.get('/admin/api/pdf-pages', requireAdmin, (req, res) => {
+  try {
+    const dir = menuPdfDir;
+    if (!fs.existsSync(dir)) {
+      return res.json({ pdfs: {} });
+    }
+
+    const pdfs = {};
+    const folders = fs
+      .readdirSync(dir, { withFileTypes: true })
+      .filter((d) => d.isDirectory())
+      .map((d) => d.name);
+
+    folders.forEach((folderName) => {
+      const folderPath = path.join(dir, folderName);
+      const pages = fs
+        .readdirSync(folderPath)
+        .filter((f) => /^page-\d+\.png$/i.test(f))
+        .sort((a, b) => {
+          const na = parseInt(a.match(/page-(\d+)\.png/)[1], 10);
+          const nb = parseInt(b.match(/page-(\d+)\.png/)[1], 10);
+          return na - nb;
+        })
+        .map((f) => `/menu-pdf/${folderName}/${f}`);
+
+      pdfs[folderName] = pages;
+    });
+
+    res.json({ pdfs });
+  } catch (err) {
+    console.error('❌ PDF lista hiba:', err);
+    res.status(500).json({ pdfs: {} });
+  }
+});
+
+// 🆕 ADMIN: Sorrend mentése (sorrendezett PDF lista)
+app.post('/admin/api/pdf-order', requireAdmin, csrfFromHeader, (req, res) => {
+  const { order } = req.body || {};
+  if (!Array.isArray(order)) {
+    return res.status(400).json({ ok: false, msg: 'order must be array' });
+  }
+
+  try {
+    const orderPath = path.join(DATA_DIR, 'pdf-order.json');
+    fs.writeFileSync(orderPath, JSON.stringify({ order }, null, 2), 'utf8');
+    console.log('✅ PDF sorrend mentve:', order);
+    res.json({ ok: true });
+  } catch (e) {
+    console.error('❌ PDF sorrend mentési hiba:', e);
+    res.status(500).json({ ok: false, msg: 'Save failed' });
+  }
+});
+
+// 🆕 ADMIN: Sorrend lekérése
+app.get('/admin/api/pdf-order', requireAdmin, (req, res) => {
+  try {
+    const orderPath = path.join(DATA_DIR, 'pdf-order.json');
+    if (fs.existsSync(orderPath)) {
+      const data = JSON.parse(fs.readFileSync(orderPath, 'utf8'));
+      return res.json({ order: data.order || [] });
+    }
+    res.json({ order: [] });
+  } catch (e) {
+    console.error('❌ PDF sorrend lekérési hiba:', e);
+    res.json({ order: [] });
+  }
+});
+
+// 🟦 Publikus API: PDF oldalak listája adminhoz
 app.get('/api/menu-pdf', (req, res) => {
   try {
     const pages = getMenuPdfPages();
@@ -798,7 +857,7 @@ app.get('/api/menu-pdf', (req, res) => {
   }
 });
 
-// 🟨 PUBLIKUS API – PDF könyv a vendégeknek (alias a fenti adatra)
+// 🟨 PUBLIKUS API – PDF könyv a vendégeknek
 app.get('/api/menu-book', (req, res) => {
   try {
     const pages = getMenuPdfPages();
@@ -836,7 +895,7 @@ app.use((req, res) => {
 // ============================================================
 // Start
 // ============================================================
-const HOST = '127.0.0.1'; // csak belső elérés
+const HOST = '127.0.0.1';
 app.listen(PORT, HOST, () => {
   console.log(`✅ Feldiserhof szerver fut: http://${HOST}:${PORT}`);
   console.log(`🌐 Nyelvi támogatás: ${SUPPORTED_LANGS.join(', ')}`);
