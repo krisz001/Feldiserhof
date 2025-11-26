@@ -353,7 +353,7 @@ body {
 /* Közös stílus minden nyílra */
 .menu-portfolio .nextprev-btn {
   position: absolute;
-  bottom: 1.01rem;
+  bottom: 0.1rem;
   width: 2.42rem;
   height: 2.42rem;
   font-size: 1.57rem;
@@ -408,7 +408,7 @@ body {
   font-weight: 700;
   box-shadow: 0 1px 7px rgba(226, 180, 115, 0.09);
   position: absolute;
-  bottom: 1.04rem;
+  bottom: 0.4rem;
   left: 50%;
   transform: translateX(-50%);
   z-index: 20;
@@ -618,14 +618,14 @@ body {
   /* mobilon is középen az oldalszám, csak lejjebb/kisebben */
   .menu-portfolio .number-page {
     font-size: 0.87rem;
-    bottom: 0.25rem;
+    bottom: 0.1rem;
   }
 
   .menu-portfolio .nextprev-btn {
     width: 1.73rem;
     height: 1.73rem;
     font-size: 1.15rem;
-    bottom: 0.25rem;
+    bottom: 0.1rem;
   }
 
   /* MOBIL: külön pozíciók NEXT / PREV számára */
@@ -668,7 +668,7 @@ body {
 }
 
 .menu-portfolio.has-pdf .nextprev-btn {
-  bottom: 0.8rem;
+  bottom: 0.1rem;
 }
 
 @media (prefers-color-scheme: dark) {
