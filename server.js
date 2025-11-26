@@ -613,6 +613,14 @@ app.get('/admin/opening-hours', requireAdmin, csrfProtection, (req, res) => {
     csrfToken: req.csrfToken(),
   });
 });
+// 🆕 ADMIN: PDF sorrendező oldal
+app.get('/admin/pdf-order', requireAdmin, csrfProtection, (req, res) => {
+  res.render('admin/pdf-order', {
+    title: 'PDF Sorrendezés',
+    description: 'PDF-ek sorrendjének megadása a menü könyvben',
+    csrfToken: req.csrfToken(),
+  });
+});
 
 // Menü API
 app.get('/api/menu', requireAdmin, (req, res) => {
