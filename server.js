@@ -13,6 +13,8 @@ import helmet from 'helmet';
 import csrf from 'csurf';
 import rateLimit from 'express-rate-limit';
 import cookieParser from 'cookie-parser';
+import multer from 'multer';
+import { exec } from 'child_process';
 
 // ❌ i18next eltávolítva – helyette egyszerű, saját i18n
 
@@ -671,10 +673,9 @@ app.get('/js/menu.js', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'js', 'menu-portfolio-book.js'));
 });
 
-// ===== PDF alapú menü könyv modul (upload + konverzió) =====
-import multer from 'multer';
-import { exec } from 'child_process';
-
+// ============================================================
+// PDF alapú menü könyv modul (upload + konverzió, egységesítve)
+// ============================================================
 const uploadDir = path.join(__dirname, 'uploads', 'pdf');
 const menuPdfDir = path.join(__dirname, 'public', 'menu-pdf');
 
@@ -713,9 +714,11 @@ const upload = multer({
 function convertPdfToPng(pdfPath, outDir) {
   return new Promise((resolve, reject) => {
     // régi képek törlése
-    fs.readdirSync(outDir)
-      .filter((f) => /^page-\d+\.png$/i.test(f))
-      .forEach((f) => fs.unlinkSync(path.join(outDir, f)));
+    if (fs.existsSync(outDir)) {
+      fs.readdirSync(outDir)
+        .filter((f) => /^page-\d+\.png$/i.test(f))
+        .forEach((f) => fs.unlinkSync(path.join(outDir, f)));
+    }
 
     // pdfinfo-val oldalszám
     exec(`pdfinfo "${pdfPath}"`, (err, stdout) => {
@@ -729,7 +732,7 @@ function convertPdfToPng(pdfPath, outDir) {
         return reject(new Error('Konnte Seitenzahl nicht bestimmen.'));
       }
 
-      // pdftoppm: svg helyett png, 150 DPI
+      // pdftoppm: PNG, 150 DPI
       const cmd = `pdftoppm -png -r 150 "${pdfPath}" "${path.join(outDir, 'page')}"`;
       exec(cmd, (err2) => {
         if (err2) return reject(err2);
@@ -737,11 +740,10 @@ function convertPdfToPng(pdfPath, outDir) {
         const files = [];
         for (let i = 1; i <= pageCount; i++) {
           const fileName = `page-${i}.png`;
-          const src = path.join(outDir, `page-${i}.png`);
+          const src = path.join(outDir, fileName);
           // pdftoppm alapértelmezett kimenet: page-1.png, page-2.png, ...
           if (fs.existsSync(src)) {
             files.push(`/menu-pdf/${fileName}`);
-            // ha kell átnevezés, itt intézhetjük – most a név már jó
           }
         }
 
@@ -751,13 +753,13 @@ function convertPdfToPng(pdfPath, outDir) {
   });
 }
 
-// 🆕 PDF feltöltés – FONTOS: upload.single ELŐTT csináljuk a CSRF-et?
-// IGEN, multipart miatt a CSRF-nek a multer UTÁN kell jönnie, hogy legyen req.body._csrf!
+// 🟩 ADMIN: PDF feltöltés → konvertálás PNG oldalakra
+// multipart miatt a CSRF-nek a multer UTÁN kell jönnie, hogy legyen req.body._csrf
 app.post(
   '/admin/menu-pdf',
   requireAdmin,
-  upload.single('menuPdf'),   // 🟢 1. multer parse-olja a multipart formot
-  csrfFromHeader,             // 🟢 2. ekkor már látja req.body._csrf-t
+  upload.single('menuPdf'), // 1. multer parse-olja a multipart formot
+  csrfFromHeader,           // 2. ekkor már látja req.body._csrf-t
   async (req, res) => {
     try {
       if (!req.file) {
@@ -765,7 +767,6 @@ app.post(
       }
 
       const pdfPath = req.file.path;
-
       const pages = await convertPdfToPng(pdfPath, menuPdfDir);
       if (!pages.length) {
         return res.status(500).json({ ok: false, msg: 'Keine Seiten erzeugt.' });
@@ -780,7 +781,7 @@ app.post(
   },
 );
 
-// 🆕 PDF törlése
+// 🟥 ADMIN: PDF törlése
 app.post('/admin/menu-pdf/delete', requireAdmin, csrfFromHeader, (req, res) => {
   try {
     if (fs.existsSync(menuPdfDir)) {
@@ -796,7 +797,7 @@ app.post('/admin/menu-pdf/delete', requireAdmin, csrfFromHeader, (req, res) => {
   }
 });
 
-// 🆕 Publikus API: PDF oldalak listája
+// 🟦 Publikus API: PDF oldalak listája adminhoz (egyszerű forma)
 app.get('/api/menu-pdf', (req, res) => {
   try {
     if (!fs.existsSync(menuPdfDir)) {
@@ -818,89 +819,29 @@ app.get('/api/menu-pdf', (req, res) => {
     res.status(500).json({ pages: [] });
   }
 });
-// ======================================================================
-// 🟩 ADMIN: PDF Feltöltés → Konvertálás PNG oldalakra
-// ======================================================================
-app.post('/admin/api/menu-book/upload', requireAdmin, csrfFromHeader, upload.single('pdf'), (req, res) => {
-  if (!req.file) return res.status(400).json({ ok: false, msg: 'No PDF uploaded' });
 
-  const pdfPath = req.file.path;
-  const baseName = path.basename(pdfPath, '.pdf');
-  const outputPattern = path.join(MENU_BOOK_DIR, baseName + '-page');
-
-  // Konvertálás pdftoppm-mel: PDF → PNG oldalak
-  const cmd = `pdftoppm -png "${pdfPath}" "${outputPattern}"`;
-
-  exec(cmd, (err) => {
-    if (err) {
-      console.error('❌ pdftoppm hiba:', err);
-      return res.status(500).json({ ok: false, msg: 'PDF konvertálás sikertelen' });
-    }
-
-    // generált PNG-k összegyűjtése
-    const files = fs.readdirSync(MENU_BOOK_DIR)
-      .filter(f => f.startsWith(baseName + '-page') && f.endsWith('.png'))
-      .sort((a, b) => {
-        // oldalszám szerinti rendezés
-        const getNum = (x) => parseInt(x.replace(/\D+/g, ''), 10);
-        return getNum(a) - getNum(b);
-      });
-
-    if (files.length === 0) {
-      return res.status(500).json({ ok: false, msg: 'No output images generated' });
-    }
-
-    // JSON frissítés
-    const data = readPdfJson();
-    data.pages = files.map(f => `/menu-book/${f}`);
-    writePdfJson(data);
-
-    console.log(`📄 PDF feldolgozva, oldalak:`, files.length);
-
-    res.json({ ok: true, pages: data.pages });
-  });
-});
-
-// ======================================================================
-// 🟦 ADMIN: PDF Könyv oldalainak lekérése
-// ======================================================================
-app.get('/admin/api/menu-book/pages', requireAdmin, (req, res) => {
-  const data = readPdfJson();
-  res.json({ ok: true, pages: data.pages });
-});
-
-// ======================================================================
-// 🟥 ADMIN: PDF Könyv törlése
-// ======================================================================
-app.post('/admin/api/menu-book/delete', requireAdmin, csrfFromHeader, (req, res) => {
-  const data = readPdfJson();
-
-  // PNG-k törlése
-  data.pages.forEach(p => {
-    const localPath = path.join(__dirname, 'public', p);
-    if (fs.existsSync(localPath)) fs.unlinkSync(localPath);
-  });
-
-  // PDF fájlok törlése (csak biztonság kedvéért)
-  const pdfFiles = fs.readdirSync(MENU_BOOK_DIR).filter(f => f.endsWith('.pdf'));
-  pdfFiles.forEach(pdf => {
-    fs.unlinkSync(path.join(MENU_BOOK_DIR, pdf));
-  });
-
-  data.pages = [];
-  writePdfJson(data);
-
-  console.log('🗑 Menü PDF + PNG oldalak törölve');
-
-  res.json({ ok: true });
-});
-
-// ======================================================================
-// PUBLIKUS API – PDF könyv jelenik meg a vendégeknek
-// ======================================================================
+// 🟨 PUBLIKUS API – PDF könyv a vendégeknek (alias a fenti adatra)
 app.get('/api/menu-book', (req, res) => {
-  const data = readPdfJson();
-  res.json({ ok: true, pages: data.pages });
+  try {
+    if (!fs.existsSync(menuPdfDir)) {
+      return res.json({ ok: true, pages: [] });
+    }
+
+    const files = fs
+      .readdirSync(menuPdfDir)
+      .filter((f) => /^page-\d+\.png$/i.test(f))
+      .sort((a, b) => {
+        const na = parseInt(a.match(/page-(\d+)\.png/i)[1], 10);
+        const nb = parseInt(b.match(/page-(\d+)\.png/i)[1], 10);
+        return na - nb;
+      })
+      .map((f) => `/menu-pdf/${f}`);
+
+    res.json({ ok: true, pages: files });
+  } catch (err) {
+    console.error('❌ Fehler beim Lesen der Menü-Buch-Seiten:', err);
+    res.status(500).json({ ok: false, pages: [] });
+  }
 });
 
 // ============================================================

@@ -610,6 +610,47 @@ body {
     right: 0.51rem;
   }
 }
+/* =========================================================
+ * PDF-MÓD KIEGÉSZÍTÉSEK – CSAK .menu-portfolio.has-pdf ESETÉN
+ * Nem érinti a sima (JSON-os) menüt.
+ * ======================================================= */
+
+/* PDF módban nem kell a rácsos menülista */
+.menu-portfolio.has-pdf .menu-items-grid {
+  display: none;
+}
+
+/* A PDF-oldal képe kitölti a rendelkezésre álló teret */
+.menu-portfolio.has-pdf .page-front,
+.menu-portfolio.has-pdf .page-back {
+  padding: 0;                 /* ne legyen belső padding, a kép menjen széléig */
+}
+
+/* A képet tartalmazó elem – a JS-ben .menu-book-page-img-ként tesszük be */
+.menu-portfolio.has-pdf .menu-book-page-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;        /* a teljes oldal látszik, nem vágjuk le */
+  border-radius: var(--radius-page);
+  display: block;
+}
+
+/* Oldalszám és nyilak kicsit közelebb a lap aljához PDF módban is,
+   de marad a szép, finom elhelyezés */
+.menu-portfolio.has-pdf .number-page {
+  bottom: 0.8rem;
+}
+
+.menu-portfolio.has-pdf .nextprev-btn {
+  bottom: 0.8rem;
+}
+
+/* Sötét mód esetén a PDF-lap kerete is illeszkedjen */
+@media (prefers-color-scheme: dark) {
+  .menu-portfolio.has-pdf .menu-book-page-img {
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.32);
+  }
+}
 
 /* ----- Sötét mód – teljes könyv ----- */
 @media (prefers-color-scheme: dark) {

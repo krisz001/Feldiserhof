@@ -1,6 +1,7 @@
 // ============================================================
 // feldiserhof-menu-book.js
-// Menü JSON -> dinamikus, magasság alapú lapozás + fejlett flipbook
+// 1) PDF alapú egyszerű lapozó (FELDISERHOF_PDF_PAGES vagy data-pdf-pages)
+// 2) Menü JSON -> dinamikus, magasság alapú lapozás + fejlett flipbook
 // Desktop: dupla oldal (front+back), mobil: 1 oldal / lap
 // ============================================================
 
@@ -24,6 +25,29 @@
       return;
     }
 
+    // 0) PDF alapú menükönyv előnyben, ha van konfig
+    let pdfPages = [];
+
+    if (window.FELDISERHOF_PDF_PAGES && Array.isArray(window.FELDISERHOF_PDF_PAGES)) {
+      pdfPages = window.FELDISERHOF_PDF_PAGES;
+    } else if (book.hasAttribute('data-pdf-pages')) {
+      const dataAttr = book.getAttribute('data-pdf-pages');
+      if (dataAttr) {
+        try {
+          pdfPages = JSON.parse(dataAttr);
+        } catch (e) {
+          console.error('[menu-book] PDF pages JSON parse error:', e);
+        }
+      }
+    }
+
+    if (pdfPages && pdfPages.length > 0) {
+      // PDF alapú nézet – NEM flipbook, hanem egyszerű lapozó képekkel
+      initPdfMenuBook(book, pdfPages);
+      return; // ha PDF van, nem építjük a dinamikus flipbookot
+    }
+
+    // 1) Ha NINCS PDF -> marad a régi JSON + flipbook logika
     const menu = getMenuDataFromDom();
     if (menu && Array.isArray(menu.categories) && menu.categories.length) {
       buildDynamicPagesByHeight(root, menu); // JSON -> oldalak magasság alapján
@@ -37,6 +61,79 @@
     // flipbook init (akkor is, ha csak statikus markup maradt)
     initMenuBook(root);
   });
+
+  // ============================================================
+  // PDF alapú menükönyv: minden elem = 1 kép (img src=pdfPages[i])
+  // ============================================================
+  function initPdfMenuBook(bookEl, pdfPages) {
+    // Töröljük a meglévő .book tartalmat (ha EJS tett bele valamit)
+    bookEl.innerHTML = '';
+
+    const container = document.createElement('div');
+    container.className = 'menu-book-pdf-wrapper';
+
+    const pageContainer = document.createElement('div');
+    pageContainer.className = 'menu-book-pages';
+    container.appendChild(pageContainer);
+
+    const navContainer = document.createElement('div');
+    navContainer.className = 'menu-book-nav';
+
+    const prevBtn = document.createElement('button');
+    prevBtn.className = 'menu-book-nav-btn prev';
+    prevBtn.type = 'button';
+    prevBtn.innerHTML = '&larr;';
+
+    const pageNumber = document.createElement('span');
+    pageNumber.className = 'menu-book-page-number';
+
+    const nextBtn = document.createElement('button');
+    nextBtn.className = 'menu-book-nav-btn next';
+    nextBtn.type = 'button';
+    nextBtn.innerHTML = '&rarr;';
+
+    navContainer.appendChild(prevBtn);
+    navContainer.appendChild(pageNumber);
+    navContainer.appendChild(nextBtn);
+
+    container.appendChild(navContainer);
+    bookEl.appendChild(container);
+
+    let currentIndex = 0;
+
+    function renderPage() {
+      pageContainer.innerHTML = '';
+
+      const img = document.createElement('img');
+      img.src = pdfPages[currentIndex];
+      img.alt = `Speisekarte Seite ${currentIndex + 1}`;
+      img.className = 'menu-book-page-img';
+
+      pageContainer.appendChild(img);
+
+      pageNumber.textContent = `${currentIndex + 1} / ${pdfPages.length}`;
+
+      prevBtn.disabled = currentIndex === 0;
+      nextBtn.disabled = currentIndex === pdfPages.length - 1;
+    }
+
+    prevBtn.addEventListener('click', function () {
+      if (currentIndex > 0) {
+        currentIndex -= 1;
+        renderPage();
+      }
+    });
+
+    nextBtn.addEventListener('click', function () {
+      if (currentIndex < pdfPages.length - 1) {
+        currentIndex += 1;
+        renderPage();
+      }
+    });
+
+    // első oldal kirakása
+    renderPage();
+  }
 
   // ------------------------------------------------------------
   // Menü JSON kiolvasása (#menuDataScript vagy window.menuData)
@@ -177,8 +274,8 @@
       window.innerWidth <= 768 ? 'mobil' : 'desktop'
     );
 
-    renumberPages(book);      // folyamatos lapszámozás (mobilon csak front)
-    setupMobileArrows(book);  // mobilon balra nyíl a fronton is
+    renumberPages(book); // folyamatos lapszámozás (mobilon csak front)
+    setupMobileArrows(book); // mobilon balra nyíl a fronton is
   }
 
   // Egy oldal (front vagy back) feltöltése annyi tétellel, amennyi kifér PIXEL ALAPON
@@ -230,7 +327,7 @@
       }
 
       used = true;
-      i++;
+      i += 1;
     }
 
     return { nextIndex: i, used };
