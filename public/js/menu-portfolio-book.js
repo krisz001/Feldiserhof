@@ -65,7 +65,6 @@
     // flipbook init (akkor is, ha csak statikus markup maradt)
     initMenuBook(root);
   });
-
 function initPdfMenuBook(bookEl, pdfPages) {
   // 1) TELJES TISZTÍTÁS
   bookEl.innerHTML = '';
@@ -79,10 +78,12 @@ function initPdfMenuBook(bookEl, pdfPages) {
   // 3) Párosítsd a PDF lapokat: minden .book-page tartalmaz bal és jobb oldalt
   // Pl. 6 oldal = 3 "lap" (3 dupla oldalak)
   for (let i = 0; i < pdfPages.length; i += 2) {
+    const sheetIndex = Math.floor(i / 2) + 1;
+
     const pageEl = document.createElement('div');
     pageEl.className = 'book-page page-right';
-    pageEl.dataset.sheet = String(Math.floor(i / 2) + 1);
-    pageEl.id = `turn-${Math.floor(i / 2) + 1}`;
+    pageEl.dataset.sheet = String(sheetIndex);
+    pageEl.id = `turn-${sheetIndex}`;
 
     // ===== FRONT OLDAL (BAL PDF KÉP) =====
     const frontEl = document.createElement('div');
@@ -102,9 +103,9 @@ function initPdfMenuBook(bookEl, pdfPages) {
     pageNumberFront.textContent = String(i + 1);
     frontEl.appendChild(pageNumberFront);
 
-    // Balra nyíl (prev)
+    // Balra nyíl (prev) – GENERIKUS btn-back
     const prevBtn = document.createElement('span');
-    prevBtn.className = 'nextprev-btn back';
+    prevBtn.className = 'nextprev-btn btn-back';
     prevBtn.setAttribute('data-role', 'prev');
     prevBtn.innerHTML = '<i class="bx bx-chevron-left"></i>';
     frontEl.appendChild(prevBtn);
@@ -127,9 +128,9 @@ function initPdfMenuBook(bookEl, pdfPages) {
     pageNumberBack.textContent = String(i + 2);
     backEl.appendChild(pageNumberBack);
 
-    // Jobbra nyíl (next)
+    // Jobbra nyíl (next) – GENERIKUS btn-next
     const nextBtn = document.createElement('span');
-    nextBtn.className = 'nextprev-btn';
+    nextBtn.className = 'nextprev-btn btn-next';
     nextBtn.setAttribute('data-role', 'next');
     nextBtn.innerHTML = '<i class="bx bx-chevron-right"></i>';
     backEl.appendChild(nextBtn);
@@ -143,6 +144,7 @@ function initPdfMenuBook(bookEl, pdfPages) {
   // 4) Indítsd el a flipbook logikát
   initMenuBook(bookEl.closest('.menu-portfolio'));
 }
+
  // ------------------------------------------------------------
   // Menü JSON kiolvasása (#menuDataScript vagy window.menuData)
   // ------------------------------------------------------------

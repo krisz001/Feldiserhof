@@ -346,10 +346,8 @@ body {
   letter-spacing: 0.01em;
 }
 
-
 /* ----------------------------------------------------------
-   NAVIGÁCIÓS GOMBOK ÉS POZÍCIÓK
-   Generikus osztályokkal (btn-back / btn-next)
+   GENERIKUS NAVIGÁCIÓS LOGIKA (bármennyi laphoz)
    ---------------------------------------------------------- */
 
 /* Közös stílus minden nyílra */
@@ -378,41 +376,25 @@ body {
   transform: scale(1.08);
 }
 
-
-/* 1. oldal (bal lap) – fix, egyedi, jobbra nyíl */
+/* 1. oldal (bal lap) – KÜLÖNC, mert ez a fix bal oldal (ELŐRE gomb) */
 .menu-portfolio .page-left .btn-page1-next {
   right: 1.21rem;
   left: auto;
 }
 
-
-/*
-   FRONT oldalak (Páros oldalak: 2., 4., 6. stb.)
-   Itt a VISSZA gombnak kell megjelennie.
-   Pozíció: Jobb alsó sarok.
-   Ikon: Balra mutató nyíl (<)
-   Osztály: .btn-back (és a legacy .btn-page2-back)
-*/
-.menu-portfolio .page-right .page-front .btn-back,
-.menu-portfolio .page-right .page-front .btn-page2-back {
+/* Minden PÁROS oldal (Front: 2, 4, 6...) – VISSZA gomb */
+/* A JS a .page-right .page-front-ra teszi a .btn-back gombot, „‹” ikonnal */
+.menu-portfolio .page-right .page-front .btn-back {
   right: 1.21rem;
   left: auto;
 }
 
-
-/*
-   BACK oldalak (Páratlan oldalak: 3., 5., 7. stb.)
-   Itt az ELŐRE gombnak kell megjelennie.
-   Pozíció: Jobb alsó sarok.
-   Ikon: Jobbra mutató nyíl (>)
-   Osztály: .btn-next (és a legacy .btn-page3-next)
-*/
-.menu-portfolio .page-right.turn .page-back .btn-next,
-.menu-portfolio .page-right.turn .page-back .btn-page3-next {
+/* Minden PÁRATLAN oldal (Back: 3, 5, 7...) – ELŐRE gomb */
+/* A JS a .page-right.turn .page-back-re teszi a .btn-next gombot, „›” ikonnal */
+.menu-portfolio .page-right.turn .page-back .btn-next {
   right: 1.21rem;
   left: auto;
 }
-
 
 /* ----- Oldalszámok ----- */
 .menu-portfolio .number-page {
@@ -428,24 +410,20 @@ body {
   z-index: 20;
 }
 
-
 /* Bal lap oldalszám – a gomb mellé balra (belső) */
 .menu-portfolio .page-left .number-page {
   right: 4.2rem; /* eltolva a gombtól */
 }
 
-
-/* Jobb lap FRONT (páros) – bal oldalon (gerinc felől) */
+/* Jobb lap oldalszám – bal oldalon (gerinc felől), hogy ne ütközzön a gombbal */
 .menu-portfolio .page-right .page-front .number-page {
   left: 1.21rem;
 }
 
-
-/* Jobb lap BACK (páratlan) – bal oldalon (most a külső szél, de designban balra tesszük) */
+/* Jobb lap hátulja oldalszám – bal oldalon */
 .menu-portfolio .page-right.turn .page-back .number-page {
   left: 1.21rem;
 }
-
 
 /* ----- PÖTTY NAVIGÁCIÓ ----- */
 .menu-portfolio .book-dots {
