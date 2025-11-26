@@ -1,5 +1,5 @@
 // ============================================================
-//menu-portfolio-book.js
+// menu-portfolio-book.js
 // 1) PDF alapú egyszerű lapozó (FELDISERHOF_PDF_PAGES vagy data-pdf-pages)
 // 2) Menü JSON -> dinamikus, magasság alapú lapozás + fejlett flipbook
 // Desktop: dupla oldal (front+back), mobil: 1 oldal / lap
@@ -25,7 +25,7 @@
       return;
     }
 
-        // 0) PDF alapú menükönyv előnyben, ha van konfig
+    // 0) PDF alapú menükönyv előnyben, ha van konfig
     let pdfPages = [];
 
     // IDE jön az új logika
@@ -65,95 +65,90 @@
     // flipbook init (akkor is, ha csak statikus markup maradt)
     initMenuBook(root);
   });
-function initPdfMenuBook(bookEl, pdfPages) {
-  // 1) TELJES TISZTÍTÁS
-  bookEl.innerHTML = '';
 
-  // has-pdf class a root-ra (CSS miatt)
-  const root = bookEl.closest('.menu-portfolio');
-  if (root) {
-    root.classList.add('has-pdf');
-  }
+  // ============================================================
+  // PDF MÓD - JAVÍTOTT GOMBOKKAL ÉS KARAKTEREKKEL
+  // ============================================================
+  function initPdfMenuBook(bookEl, pdfPages) {
+    // 1) TELJES TISZTÍTÁS
+    bookEl.innerHTML = '';
 
-  // 2) Ha nincs PDF oldal, ne csinálj semmit
-  if (!pdfPages || pdfPages.length === 0) {
-    console.warn('[menu-book] Nincsenek PDF oldalak.');
-    return;
-  }
-
-  // 3) Párosítás: minden .book-page tartalmaz front+back oldalt
-  // pdfPages[0] = 1. oldal (jobb oldali első oldal)
-  for (let i = 0; i < pdfPages.length; i += 2) {
-    const sheetIndex = Math.floor(i / 2) + 1;
-
-    const pageEl = document.createElement('div');
-    pageEl.className = 'book-page page-right';
-    pageEl.dataset.sheet = String(sheetIndex);
-    pageEl.id = `turn-${sheetIndex}`;
-
-    // ===== FRONT OLDAL =====
-    const frontEl = document.createElement('div');
-    frontEl.className = 'page-front';
-
-    if (pdfPages[i]) {
-      const imgLeft = document.createElement('img');
-      imgLeft.src = pdfPages[i];
-      imgLeft.alt = `Speisekarte Seite ${i + 1}`;
-      imgLeft.className = 'menu-book-page-img';
-      frontEl.appendChild(imgLeft);
+    // 2) Ha nincs PDF oldal, ne csinálj semmit
+    if (!pdfPages || pdfPages.length === 0) {
+      console.warn('[menu-book] Nincsenek PDF oldalak.');
+      return;
     }
 
-    // Oldalszám (front)
-    const pageNumberFront = document.createElement('span');
-    pageNumberFront.className = 'number-page';
-    pageNumberFront.textContent = String(i + 1);
-    frontEl.appendChild(pageNumberFront);
+    // 3) Párosítsd a PDF lapokat: minden .book-page tartalmaz bal és jobb oldalt
+    for (let i = 0; i < pdfPages.length; i += 2) {
+      const pageEl = document.createElement('div');
+      pageEl.className = 'book-page page-right';
+      pageEl.dataset.sheet = String(Math.floor(i / 2) + 1);
+      pageEl.id = `turn-${Math.floor(i / 2) + 1}`;
 
-    // Balra nyíl (prev) – csak ha NEM az első logikai oldal
-    if (i > 0) {
-      const prevBtn = document.createElement('span');
-      prevBtn.className = 'nextprev-btn btn-back';
+      // ===== FRONT OLDAL (BAL PDF KÉP) =====
+      const frontEl = document.createElement('div');
+      frontEl.className = 'page-front';
+
+      if (pdfPages[i]) {
+        const imgLeft = document.createElement('img');
+        imgLeft.src = pdfPages[i];
+        imgLeft.alt = `Speisekarte Seite ${i + 1}`;
+        imgLeft.className = 'menu-book-page-img';
+        frontEl.appendChild(imgLeft);
+      }
+
+      // Oldalszám (bal oldal száma)
+      const pageNumberFront = document.createElement('span');
+      pageNumberFront.className = 'number-page';
+      pageNumberFront.textContent = String(i + 1);
+      frontEl.appendChild(pageNumberFront);
+
+      // --- JAVÍTVA: Balra nyíl (prev/back) ---
+      // Front oldalon mindig VISSZA gomb van (páros oldalak)
+      const prevBtn = document.createElement('button'); // button jobb mint span
+      prevBtn.className = 'nextprev-btn btn-back'; // Generikus osztály
       prevBtn.setAttribute('data-role', 'prev');
-      prevBtn.innerHTML = '<i class="bx bx-chevron-left"></i>';
+      prevBtn.textContent = '‹'; // Karakter ikon helyett
       frontEl.appendChild(prevBtn);
+
+      // ===== BACK OLDAL (JOBB PDF KÉP) =====
+      const backEl = document.createElement('div');
+      backEl.className = 'page-back';
+
+      if (pdfPages[i + 1]) {
+        const imgRight = document.createElement('img');
+        imgRight.src = pdfPages[i + 1];
+        imgRight.alt = `Speisekarte Seite ${i + 2}`;
+        imgRight.className = 'menu-book-page-img';
+        backEl.appendChild(imgRight);
+      }
+
+      // Oldalszám (jobb oldal száma)
+      const pageNumberBack = document.createElement('span');
+      pageNumberBack.className = 'number-page';
+      pageNumberBack.textContent = String(i + 2);
+      backEl.appendChild(pageNumberBack);
+
+      // --- JAVÍTVA: Jobbra nyíl (next) ---
+      // Back oldalon mindig ELŐRE gomb van (páratlan oldalak)
+      const nextBtn = document.createElement('button'); // button jobb mint span
+      nextBtn.className = 'nextprev-btn btn-next'; // Generikus osztály
+      nextBtn.setAttribute('data-role', 'next');
+      nextBtn.textContent = '›'; // Karakter ikon helyett
+      backEl.appendChild(nextBtn);
+
+      pageEl.appendChild(frontEl);
+      pageEl.appendChild(backEl);
+
+      bookEl.appendChild(pageEl);
     }
 
-    // ===== BACK OLDAL =====
-    const backEl = document.createElement('div');
-    backEl.className = 'page-back';
-
-    if (pdfPages[i + 1]) {
-      const imgRight = document.createElement('img');
-      imgRight.src = pdfPages[i + 1];
-      imgRight.alt = `Speisekarte Seite ${i + 2}`;
-      imgRight.className = 'menu-book-page-img';
-      backEl.appendChild(imgRight);
-    }
-
-    // Oldalszám (back)
-    const pageNumberBack = document.createElement('span');
-    pageNumberBack.className = 'number-page';
-    pageNumberBack.textContent = String(i + 2);
-    backEl.appendChild(pageNumberBack);
-
-    // Jobbra nyíl (next) – GENERIKUS
-    const nextBtn = document.createElement('span');
-    nextBtn.className = 'nextprev-btn btn-next';
-    nextBtn.setAttribute('data-role', 'next');
-    nextBtn.innerHTML = '<i class="bx bx-chevron-right"></i>';
-    backEl.appendChild(nextBtn);
-
-    pageEl.appendChild(frontEl);
-    pageEl.appendChild(backEl);
-
-    bookEl.appendChild(pageEl);
+    // 4) Indítsd el a flipbook logikát
+    initMenuBook(bookEl.closest('.menu-portfolio'));
   }
 
-  // 4) Indítsd el a flipbook logikát
-  initMenuBook(bookEl.closest('.menu-portfolio'));
-}
-
- // ------------------------------------------------------------
+  // ------------------------------------------------------------
   // Menü JSON kiolvasása (#menuDataScript vagy window.menuData)
   // ------------------------------------------------------------
   function getMenuDataFromDom() {
@@ -176,7 +171,7 @@ function initPdfMenuBook(bookEl, pdfPages) {
     const book = root.querySelector('.book');
     if (!book) return;
 
-    const SAFE_MARGIN = 8; // pár px mozgástér az oldal alján
+    const SAFE_MARGIN = 8;
     const isMobile = window.innerWidth <= 768;
 
     // Sablon jobboldali laphoz – EJS markupból KÖTELEZŐEN legyen egy
@@ -194,6 +189,22 @@ function initPdfMenuBook(bookEl, pdfPages) {
     template.querySelectorAll('.menu-items-grid').forEach((el) => (el.innerHTML = ''));
     template.querySelectorAll('.title').forEach((el) => (el.textContent = ''));
     template.querySelectorAll('.number-page').forEach((el) => (el.textContent = ''));
+
+    // --- JAVÍTÁS: Gombok alaphelyzetbe állítása a sablonon ---
+    // Biztosítjuk, hogy a sablonban a megfelelő generikus osztályok és karakterek legyenek
+    const tplFrontBtn = template.querySelector('.page-front .nextprev-btn');
+    if (tplFrontBtn) {
+      tplFrontBtn.className = 'nextprev-btn btn-back'; // Generikus VISSZA
+      tplFrontBtn.textContent = '‹';
+      tplFrontBtn.setAttribute('data-role', 'prev');
+    }
+
+    const tplBackBtn = template.querySelector('.page-back .nextprev-btn');
+    if (tplBackBtn) {
+      tplBackBtn.className = 'nextprev-btn btn-next'; // Generikus ELŐRE
+      tplBackBtn.textContent = '›';
+      tplBackBtn.setAttribute('data-role', 'next');
+    }
 
     // az eredeti EJS-lapokat töröljük
     book.querySelectorAll('.book-page.page-right').forEach((p) => p.remove());
@@ -260,7 +271,6 @@ function initPdfMenuBook(bookEl, pdfPages) {
         pages.push(pageEl);
 
         if (!isMobile) {
-          // desktop: front+back -> 2-vel lépünk
           if (usedBack) {
             globalPageNo += 2;
             pageNoInCat += 2;
@@ -269,7 +279,6 @@ function initPdfMenuBook(bookEl, pdfPages) {
             pageNoInCat += 1;
           }
         } else {
-          // mobil: csak front számít
           if (usedFront) {
             globalPageNo += 1;
             pageNoInCat += 1;
@@ -322,7 +331,7 @@ function initPdfMenuBook(bookEl, pdfPages) {
         pageNoInCat === 1 ? baseName : `${baseName} (${pageNoInCat})`;
     }
     if (numEl) {
-      numEl.textContent = globalPageNo; // úgyis felülírja a renumberPages
+      numEl.textContent = globalPageNo;
     }
 
     // hasznos alsó határ
@@ -421,8 +430,6 @@ function initPdfMenuBook(bookEl, pdfPages) {
   }
 
   // Folyamatos lapszámozás
-  // Desktop: front+back = 1,2,3,4...
-  // Mobil: csak a front kap számot (1,2,3...), a back üres marad
   function renumberPages(book) {
     const pages = Array.from(book.querySelectorAll('.book-page.page-right'));
     const isMobile = window.innerWidth <= 768;
@@ -468,8 +475,9 @@ function initPdfMenuBook(bookEl, pdfPages) {
 
       // ha már van prev gomb a fronton, nem csinálunk semmit
       let prevOnFront = front.querySelector('.nextprev-btn[data-role="prev"]');
+      
       if (!prevOnFront) {
-        // sablon a back oldal prev gombjából, vagy a front next gombjából
+        // --- JAVÍTVA: Karakteres "Vissza" gomb klónozása ---
         let templatePrev =
           (back && back.querySelector('.nextprev-btn[data-role="prev"]')) ||
           front.querySelector('.nextprev-btn[data-role="next"]');
@@ -477,14 +485,10 @@ function initPdfMenuBook(bookEl, pdfPages) {
         if (templatePrev) {
           prevOnFront = templatePrev.cloneNode(true);
           prevOnFront.setAttribute('data-role', 'prev');
-          prevOnFront.classList.add('back'); // bal oldali pozíció (CSS-ből)
-
-          // ikon csere bal nyílra
-          const icon = prevOnFront.querySelector('i');
-          if (icon) {
-            icon.classList.remove('bx-chevron-right');
-            icon.classList.add('bx-chevron-left');
-          }
+          prevOnFront.classList.add('back'); // bal oldali pozíció (bár mobilon minden jobb oldalon van)
+          prevOnFront.classList.remove('btn-next'); // Generikus csere
+          prevOnFront.classList.add('btn-back');
+          prevOnFront.textContent = '‹'; // Karakter csere
 
           front.appendChild(prevOnFront);
         }
