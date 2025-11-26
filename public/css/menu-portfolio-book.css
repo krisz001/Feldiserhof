@@ -1,4 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@500;700;800&display=swap');
+/* === Font Import (Nunito + Playfair Display a könyves hatáshoz) === */
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@500;700;800&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap');
 
 /* === Stabil méretezési alap === */
 *,
@@ -349,10 +350,8 @@ body {
 }
 
 /* ----------------------------------------------------------
-   GENERIKUS NAVIGÁCIÓS LOGIKA (bármennyi laphoz)
+   GENERIKUS NAVIGÁCIÓS LOGIKA
    ---------------------------------------------------------- */
-
-/* Közös stílus minden nyílra */
 .menu-portfolio .nextprev-btn {
   position: absolute;
   bottom: 0.1rem;
@@ -373,7 +372,6 @@ body {
   border: 1.3px solid #ead9b7;
 }
 
-/* Hover effektus (globális) */
 .menu-portfolio .nextprev-btn:hover {
   color: var(--accent);
   background: #fff6e5;
@@ -381,22 +379,18 @@ body {
 }
 
 /* --- GOMB POZÍCIÓK DESKTOPON --- */
-
-/* JOBB OLDAL (Page-Front): ELŐRE gomb (›) */
 .menu-portfolio .page-front .nextprev-btn,
 .menu-portfolio .page-right .page-front .btn-next {
   right: 1rem !important;
   left: auto !important;
 }
 
-/* BAL OLDAL (Page-Back): VISSZA gomb (‹) */
 .menu-portfolio .page-back .nextprev-btn,
 .menu-portfolio .page-right.turn .page-back .btn-back {
   left: 1rem !important;
   right: auto !important;
 }
 
-/* Fix bal oldal (ha van) - Vissza gomb balra */
 .menu-portfolio .page-left .nextprev-btn {
   left: 1rem !important;
   right: auto !important;
@@ -444,7 +438,7 @@ body {
   transform: scale(1.15);
 }
 
-/* ----- Profil oldal ----- */
+/* ----- Profile oldal ----- */
 .menu-portfolio .profile-page {
   display: flex;
   flex-direction: column;
@@ -498,7 +492,6 @@ body {
   user-select: none !important;
 }
 
-/* Középre igazított üzenet overlay */
 .book-lock-overlay {
   position: absolute;
   inset: 0;
@@ -534,23 +527,6 @@ body {
   color: #444;
 }
 
-/* Sötét mód barát az overlayre */
-@media (prefers-color-scheme: dark) {
-  .book-lock-overlay .blo-card {
-    background: rgba(26, 26, 26, 0.92);
-    color: #eee;
-  }
-
-  .book-lock-overlay .blo-card h3 {
-    color: #fff;
-  }
-
-  .book-lock-overlay .blo-card p {
-    color: #ddd;
-  }
-}
-
-/* Finom „shake” visszajelzés */
 @keyframes book-shake {
   10%, 90% { transform: translateX(-1px); }
   20%, 80% { transform: translateX(2px); }
@@ -562,7 +538,128 @@ body {
   animation: book-shake 0.4s both;
 }
 
-/* ===== TABLET (iPad) – 1 oszlop + kisebb padding ===== */
+/* =========================================================
+   KÖSZÖNŐ / ZÁRÓ OLDAL STÍLUSA (ÚJ KIEGÉSZÍTÉS)
+   ======================================================= */
+.menu-portfolio .thank-you-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-align: center;
+  padding: 2rem;
+  border: 1px solid rgba(198, 169, 106, 0.3);
+  margin: 1rem;
+  border-radius: 8px;
+  background: linear-gradient(135deg, rgba(255,255,255,0.4) 0%, rgba(255,246,229,0.2) 100%);
+  box-shadow: inset 0 0 20px rgba(198, 169, 106, 0.1);
+}
+
+.menu-portfolio .thank-you-container h3 {
+  font-family: "Playfair Display", Georgia, "Times New Roman", serif;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--accent-ink);
+  margin-bottom: 1rem;
+  line-height: 1.3;
+  font-style: italic;
+}
+
+.menu-portfolio .thank-you-container p {
+  font-family: Nunito, sans-serif;
+  font-size: 1.1rem;
+  color: var(--muted);
+  margin-bottom: 2rem;
+}
+
+.menu-portfolio .thank-you-container::after {
+  content: "❦";
+  font-size: 1.5rem;
+  color: var(--accent);
+  opacity: 0.6;
+  margin-bottom: 1.5rem;
+  display: block;
+}
+
+.menu-portfolio .btn-custom-restart {
+  font-family: Nunito, sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--accent-ink);
+  background: transparent;
+  border: 2px solid var(--accent);
+  padding: 0.8rem 1.5rem;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(198, 169, 106, 0.15);
+  margin-top: auto;
+  margin-bottom: 1rem;
+}
+
+.menu-portfolio .btn-custom-restart:hover {
+  background: var(--accent);
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(198, 169, 106, 0.3);
+}
+
+.menu-portfolio .btn-custom-restart:active {
+  transform: translateY(0);
+}
+
+/* =========================================================
+   PDF-MÓD KIEGÉSZÍTÉSEK
+   ======================================================= */
+.menu-portfolio.has-pdf .menu-items-grid {
+  display: none;
+}
+
+.menu-portfolio.has-pdf .page-front,
+.menu-portfolio.has-pdf .page-back {
+  padding: 0;
+}
+
+.menu-portfolio.has-pdf .menu-book-page-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: var(--radius-page);
+  display: block;
+}
+
+.menu-portfolio.has-pdf .number-page {
+  bottom: -0.1rem;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.menu-portfolio.has-pdf .nextprev-btn {
+  bottom: 0.1rem;
+}
+
+.menu-portfolio.has-pdf .page-back.blank-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #b59a64;
+  font-size: 1rem;
+  font-weight: 600;
+  background: radial-gradient(circle at top, #fffaf0, #fbf4e4);
+}
+
+.menu-portfolio.has-pdf .page-back.blank-page::before {
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.9),
+    inset 0 0 0 2px rgba(208, 185, 112, 0.08);
+}
+
+/* ===== MEDIA QUERIES ===== */
+
+/* ----- TABLET (iPad) – 1 oszlop + kisebb padding ----- */
 @media (max-width: 1024px) {
   .menu-portfolio .wrapper {
     padding: 1.9rem 1.25rem 2.4rem;
@@ -658,7 +755,6 @@ body {
     font-size: 0.9rem;
   }
 
-  /* mobilon is középen az oldalszám, csak lejjebb/kisebben */
   .menu-portfolio .number-page {
     font-size: 0.87rem;
     bottom: 0.1rem;
@@ -671,7 +767,6 @@ body {
     bottom: 0.1rem;
   }
 
-  /* MOBIL: külön pozíciók NEXT / PREV számára */
   .menu-portfolio .nextprev-btn.btn-next {
     right: 0.51rem !important;
     left: auto !important;
@@ -701,9 +796,33 @@ body {
   .book-lock-overlay .blo-card {
     padding: 24px 20px;
   }
+
+  .menu-portfolio.has-pdf .book {
+    min-height: 24rem;
+  }
+
+  /* Thank You Page Mobil */
+  .menu-portfolio .thank-you-container {
+    margin: 0.5rem;
+    padding: 1.5rem;
+    border-width: 1px;
+  }
+
+  .menu-portfolio .thank-you-container h3 {
+    font-size: 1.5rem;
+  }
+
+  .menu-portfolio .thank-you-container p {
+    font-size: 1rem;
+  }
+
+  .menu-portfolio .btn-custom-restart {
+    padding: 0.7rem 1.2rem;
+    font-size: 0.85rem;
+  }
 }
 
-/* Extra kicsi mobil (pl. 360–400px szélesség) */
+/* Extra kicsi mobil */
 @media (max-width: 480px) {
   .menu-header {
     margin-bottom: 1.8rem;
@@ -794,68 +913,21 @@ body {
   }
 }
 
-/* =========================================================
-   PDF-MÓD KIEGÉSZÍTÉSEK
-   ======================================================= */
-.menu-portfolio.has-pdf .menu-items-grid {
-  display: none;
-}
-
-.menu-portfolio.has-pdf .page-front,
-.menu-portfolio.has-pdf .page-back {
-  padding: 0;
-}
-
-.menu-portfolio.has-pdf .menu-book-page-img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  border-radius: var(--radius-page);
-  display: block;
-}
-
-/* PDF módban is középre igazított oldalszám */
-.menu-portfolio.has-pdf .number-page {
-  bottom: -0.1rem;
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-.menu-portfolio.has-pdf .nextprev-btn {
-  bottom: 0.1rem;
-}
-
-.menu-portfolio.has-pdf .page-back.blank-page {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #b59a64;
-  font-size: 1rem;
-  font-weight: 600;
-  background: radial-gradient(circle at top, #fffaf0, #fbf4e4);
-}
-
-.menu-portfolio.has-pdf .page-back.blank-page::before {
-  /* hogy ne legyen túl erős a belső keret */
-  box-shadow:
-    inset 0 0 0 1px rgba(255, 255, 255, 0.9),
-    inset 0 0 0 2px rgba(208, 185, 112, 0.08);
-}
-
-@media (max-width: 768px) {
-  .menu-portfolio.has-pdf .book {
-    min-height: 24rem;
-  }
-}
-
+/* ----- SÖTÉT MÓD (Teljes könyv) ----- */
 @media (prefers-color-scheme: dark) {
-  .menu-portfolio.has-pdf .menu-book-page-img {
-    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.32);
+  .book-lock-overlay .blo-card {
+    background: rgba(26, 26, 26, 0.92);
+    color: #eee;
   }
-}
 
-/* ----- Sötét mód – teljes könyv ----- */
-@media (prefers-color-scheme: dark) {
+  .book-lock-overlay .blo-card h3 {
+    color: #fff;
+  }
+
+  .book-lock-overlay .blo-card p {
+    color: #ddd;
+  }
+
   .menu-portfolio {
     --paper-1: #292823;
     --paper-2: #35322c;
@@ -885,5 +957,34 @@ body {
     background: rgba(56, 47, 33, 0.83);
     color: #ecdcb0;
     border-color: #bfa76f;
+  }
+  
+  .menu-portfolio.has-pdf .menu-book-page-img {
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.32);
+  }
+
+  /* Thank You Page Dark Mode */
+  .menu-portfolio .thank-you-container {
+    background: rgba(255, 255, 255, 0.03);
+    border-color: rgba(255, 255, 255, 0.1);
+    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.2);
+  }
+  
+  .menu-portfolio .thank-you-container h3 {
+    color: #e0d5b9;
+  }
+  
+  .menu-portfolio .thank-you-container p {
+    color: #a79b7d;
+  }
+  
+  .menu-portfolio .btn-custom-restart {
+    color: #e0d5b9;
+    border-color: #8f7745;
+  }
+  
+  .menu-portfolio .btn-custom-restart:hover {
+    background: #8f7745;
+    color: #fff;
   }
 }
