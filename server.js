@@ -226,9 +226,6 @@ app.use(
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
-// Mindig proxy mögött futunk (Nginx), ezért engedjük:
-app.set('trust proxy', 1);
-
 
 app.use(
   session({
