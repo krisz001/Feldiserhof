@@ -172,7 +172,7 @@
         pageNumberFront.textContent = String(i + 1);
         frontEl.appendChild(pageNumberFront);
 
-        // FRONT (JOBB OLDAL) – IDE A NEXT GOMB, HA VAN MÉG TOVÁBBI OLDAL
+        // FRONT (JOBB OLDAL) – NEXT gomb, ha van még további oldal
         if (i + 2 < pdfPages.length) {
           const nextBtn = document.createElement('button');
           nextBtn.className = 'nextprev-btn btn-next';
@@ -192,15 +192,13 @@
           imgRight.alt = `Speisekarte Seite ${i + 2}`;
           imgRight.className = 'menu-book-page-img';
           backEl.appendChild(imgRight);
-        }
 
-        const pageNumberBack = document.createElement('span');
-        pageNumberBack.className = 'number-page';
-        pageNumberBack.textContent = String(i + 2);
-        backEl.appendChild(pageNumberBack);
+          const pageNumberBack = document.createElement('span');
+          pageNumberBack.className = 'number-page';
+          pageNumberBack.textContent = String(i + 2);
+          backEl.appendChild(pageNumberBack);
 
-        // BACK (BAL OLDAL) – IDE A PREV GOMB, HA NEM AZ ELSŐ LAP
-        if (i > 0) {
+          // BACK (BAL OLDAL) – MINDIG PREV GOMB, HA LÉTEZIK EZ AZ OLDAL
           const prevBtn = document.createElement('button');
           prevBtn.className = 'nextprev-btn btn-back';
           prevBtn.setAttribute('type', 'button');
