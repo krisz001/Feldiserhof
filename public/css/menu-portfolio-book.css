@@ -29,8 +29,11 @@ body {
   --muted: #6e7a84;
   --paper-1: #fff;
   --paper-2: #fbfaf8;
-  --shadow-outer: 0 22px 50px rgba(0, 0, 0, 0.08);
-  --shadow-page: 0 12px 28px rgba(0, 0, 0, 0.1);
+
+  /* erősebb árnyék a lebegő hatásért */
+  --shadow-outer: 0 26px 60px rgba(0, 0, 0, 0.14);
+  --shadow-page: 0 16px 36px rgba(0, 0, 0, 0.15);
+
   --radius-book: 18px;
   --radius-page: 12px;
 
@@ -93,16 +96,19 @@ body {
 /* ----- KERET ----- */
 .menu-portfolio .wrapper {
   position: relative;
-  max-width: 62rem;
+  max-width: 80rem;                  /* nagyobb könyv (korábban 62rem) */
   margin: 0 auto;
-  padding: 1.45rem 1.1rem 2.1rem;
+  padding: 2.2rem 1.5rem 2.8rem;     /* kicsit tágabb körülötte */
   perspective: 2000px;
 }
 
 /* ----- KÖNYVTEST ----- */
 .menu-portfolio .book {
   position: relative;
-  min-height: 32rem;
+  min-height: 44rem;                 /* magasabb könyv (korábban 32rem) */
+  max-width: 80rem;                  /* a wrapperhez igazítva */
+  width: 100%;
+  aspect-ratio: 4 / 3;               /* fix oldalarány (pl. 4:3) */
   border-radius: var(--radius-book);
   box-shadow: var(--shadow-outer);
   background: radial-gradient(120% 120% at 50% -10%, #fff 0%, #f7f3ea 80%);
@@ -120,12 +126,12 @@ body {
   background: linear-gradient(
     180deg,
     rgba(198, 169, 106, 0.12) 0%,
-    rgba(0, 0, 0, 0.15) 35%,
-    rgba(0, 0, 0, 0.08) 55%,
-    rgba(210, 169, 60, 0.1) 87%,
-    rgba(0, 0, 0, 0.12) 100%
+    rgba(0, 0, 0, 0.2) 35%,
+    rgba(0, 0, 0, 0.12) 55%,
+    rgba(210, 169, 60, 0.16) 87%,
+    rgba(0, 0, 0, 0.18) 100%
   );
-  opacity: 0.17;
+  opacity: 0.2;
   pointer-events: none;
   z-index: 5;
 }
@@ -138,8 +144,8 @@ body {
   left: 50%;
   width: 1px;
   transform: translateX(-0.5px);
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0.09) 0%, rgba(0, 0, 0, 0.03) 100%);
-  opacity: 0.15;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.14) 0%, rgba(0, 0, 0, 0.05) 100%);
+  opacity: 0.2;
   pointer-events: none;
   z-index: 4;
 }
@@ -166,6 +172,7 @@ body {
   width: 50%;
   height: 100%;
   padding: 0; /* fontos: ne legyen dupla padding */
+  aspect-ratio: 1 / 1.5;   /* fix arány az egyes lapokra (könyvön belül) */
 }
 
 .menu-portfolio .page-left {
@@ -213,8 +220,8 @@ body {
   inset: 0;
   border-radius: var(--radius-page);
   box-shadow:
-    inset 0 0 0 1px rgba(255, 255, 255, 0.8),
-    inset 0 0 0 2px rgba(208, 185, 112, 0.075);
+    inset 0 0 0 1px rgba(255, 255, 255, 0.85),
+    inset 0 0 0 2px rgba(208, 185, 112, 0.12);
   pointer-events: none;
 }
 
@@ -556,12 +563,16 @@ body {
 /* ----- MOBIL NÉZET ----- */
 @media (max-width: 768px) {
   .menu-portfolio .book {
-    min-height: 28rem;
+    min-height: 28rem;   /* mobilon marad alacsonyabb, hogy jól elférjen */
+    width: 100%;
+    aspect-ratio: auto;  /* mobilon engedjük kicsit szabadabban */
     overflow: hidden;
   }
 
   .menu-portfolio .book-page {
     width: 100%;
+    height: 100%;
+    aspect-ratio: auto;
   }
 
   /* bal oldal és gerinc elrejtése mobilon */
@@ -610,6 +621,7 @@ body {
     right: 0.51rem;
   }
 }
+
 /* =========================================================
  * PDF-MÓD KIEGÉSZÍTÉSEK – CSAK .menu-portfolio.has-pdf ESETÉN
  * Nem érinti a sima (JSON-os) menüt.
@@ -635,8 +647,7 @@ body {
   display: block;
 }
 
-/* Oldalszám és nyilak kicsit közelebb a lap aljához PDF módban is,
-   de marad a szép, finom elhelyezés */
+/* Oldalszám és nyilak kicsit közelebb a lap aljához PDF módban is */
 .menu-portfolio.has-pdf .number-page {
   bottom: 0.8rem;
 }
@@ -660,8 +671,8 @@ body {
     --ink: #e0e0ce;
     --text: #cbc5ac;
     --muted: #a79b7d;
-    --shadow-outer: 0 22px 50px rgba(0, 0, 0, 0.26);
-    --shadow-page: 0 12px 28px rgba(0, 0, 0, 0.18);
+    --shadow-outer: 0 30px 70px rgba(0, 0, 0, 0.4);
+    --shadow-page: 0 18px 40px rgba(0, 0, 0, 0.28);
   }
 
   .menu-portfolio .book {
