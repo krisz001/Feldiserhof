@@ -379,7 +379,6 @@ body {
 /* --- GOMB POZÍCIÓK --- */
 
 /* JOBB OLDAL (Page-Front): ELŐRE gomb (›) */
-/* A gomb a jobb alsó sarokban van */
 .menu-portfolio .page-front .nextprev-btn,
 .menu-portfolio .page-right .page-front .btn-next {
   right: 1.21rem !important;
@@ -387,7 +386,6 @@ body {
 }
 
 /* BAL OLDAL (Page-Back): VISSZA gomb (‹) */
-/* A gomb a bal alsó sarokban van (külső szél) */
 .menu-portfolio .page-back .nextprev-btn,
 .menu-portfolio .page-right.turn .page-back .btn-back {
   left: 1.21rem !important;
@@ -400,7 +398,7 @@ body {
   right: auto !important;
 }
 
-/* ----- Oldalszámok ----- */
+/* ----- Oldalszámok – MINDIG KÖZÉPEN ----- */
 .menu-portfolio .number-page {
   font-size: 1.04rem;
   color: var(--accent-ink);
@@ -411,24 +409,12 @@ body {
   box-shadow: 0 1px 7px rgba(226, 180, 115, 0.09);
   position: absolute;
   bottom: 1.04rem;
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 20;
 }
 
-/* --- OLDALSZÁM POZÍCIÓK (Ellentétes oldal a gombokkal) --- */
-
-/* JOBB OLDAL (Front): Szám a bal oldalon (gerinc felé) */
-.menu-portfolio .page-front .number-page,
-.menu-portfolio .page-right .page-front .number-page {
-  left: 1.21rem !important;
-  right: auto !important;
-}
-
-/* BAL OLDAL (Back): Szám a jobb oldalon (gerinc felé) */
-.menu-portfolio .page-back .number-page,
-.menu-portfolio .page-right.turn .page-back .number-page {
-  right: 1.21rem !important;
-  left: auto !important;
-}
+/* (!!) NINCS több front/back speciális oldalszám-pozíció, hogy mindig középen maradjon */
 
 
 /* ----- PÖTTY NAVIGÁCIÓ ----- */
@@ -632,12 +618,11 @@ body {
     font-size: 0.9rem;
   }
 
+  /* Mobilon is marad a középre igazított oldalszám,
+     csak kisebb mérettel / lejjebb */
   .menu-portfolio .number-page {
     font-size: 0.87rem;
-    left: 50%;
-    right: auto;
     bottom: 0.56rem;
-    transform: translateX(-50%);
   }
 
   .menu-portfolio .nextprev-btn {
@@ -671,8 +656,11 @@ body {
   display: block;
 }
 
+/* PDF módban is középre igazított oldalszám */
 .menu-portfolio.has-pdf .number-page {
   bottom: 0.8rem;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 .menu-portfolio.has-pdf .nextprev-btn {
