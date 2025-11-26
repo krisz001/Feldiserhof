@@ -632,6 +632,28 @@ function editItem(catIndex, itemIndex) {
 // Menü mentése a szerverre
 async function saveMenu() {
   try {
+    // 1. PDF oldalak lekérése
+    const pdfResponse = await fetch('/api/menu-pdf', {
+      headers: { 'CSRF-Token': await getCsrfToken() }
+    });
+    const pdfData = await pdfResponse.json();
+    const pdfPages = Array.isArray(pdfData.pages) ? pdfData.pages : [];
+    
+    // 2. PDF oldalak kategóriába fűzése, ha vannak
+    // Megakadályozzuk, hogy a PDF kategória duplán jelenjen meg
+    menuData.categories = menuData.categories.filter(cat => cat.type !== 'pdf');
+    if (pdfPages.length) {
+      menuData.categories.push({
+        name: 'PDF Menü',
+        type: 'pdf',
+        items: pdfPages.map((img, idx) => ({
+          name: `Seite ${idx+1}`,
+          image: img
+        }))
+      });
+    }
+    
+    // 3. Menü mentése szerverre
     const response = await fetch('/api/menu', {
       method: 'POST',
       headers: {
@@ -642,19 +664,21 @@ async function saveMenu() {
     });
 
     if (!response.ok) throw new Error('Failed to save menu');
-
     const result = await response.json();
-    
+
     if (result.ok) {
       alert(translations.menuSaved);
     } else {
       alert(translations.errorSaving + (result.msg || 'Unbekannter Fehler'));
     }
+    // Frissítés utáni render
+    await loadMenu();
   } catch (error) {
     console.error('Hiba a menü mentésekor:', error);
     alert(translations.errorSavingMenu);
   }
 }
+
 
 // Inicializálás
 document.addEventListener('DOMContentLoaded', function() {
