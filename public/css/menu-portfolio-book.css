@@ -347,7 +347,7 @@ body {
 }
 
 /* ----------------------------------------------------------
-   GENERIKUS NAVIGÁCIÓS LOGIKA (bármennyi laphoz) - JAVÍTOTT
+   GENERIKUS NAVIGÁCIÓS LOGIKA (bármennyi laphoz)
    ---------------------------------------------------------- */
 
 /* Közös stílus minden nyílra */
@@ -376,7 +376,7 @@ body {
   transform: scale(1.08);
 }
 
-/* --- GOMB POZÍCIÓK --- */
+/* --- GOMB POZÍCIÓK DESKTOPON --- */
 
 /* JOBB OLDAL (Page-Front): ELŐRE gomb (›) */
 .menu-portfolio .page-front .nextprev-btn,
@@ -413,9 +413,6 @@ body {
   transform: translateX(-50%);
   z-index: 20;
 }
-
-/* (!!) NINCS több front/back speciális oldalszám-pozíció, hogy mindig középen maradjon */
-
 
 /* ----- PÖTTY NAVIGÁCIÓ ----- */
 .menu-portfolio .book-dots {
@@ -618,8 +615,7 @@ body {
     font-size: 0.9rem;
   }
 
-  /* Mobilon is marad a középre igazított oldalszám,
-     csak kisebb mérettel / lejjebb */
+  /* mobilon is középen az oldalszám, csak lejjebb/kisebben */
   .menu-portfolio .number-page {
     font-size: 0.87rem;
     bottom: 0.56rem;
@@ -630,9 +626,17 @@ body {
     height: 1.73rem;
     font-size: 1.15rem;
     bottom: 0.56rem;
-    /* Mobilon minden gomb jobb alul maradjon */
+  }
+
+  /* MOBIL: külön pozíciók NEXT / PREV számára */
+  .menu-portfolio .nextprev-btn.btn-next {
     right: 0.51rem !important;
     left: auto !important;
+  }
+
+  .menu-portfolio .nextprev-btn.btn-back {
+    left: 0.51rem !important;
+    right: auto !important;
   }
 }
 
