@@ -383,20 +383,20 @@ body {
 /* JOBB OLDAL (Page-Front): ELŐRE gomb (›) */
 .menu-portfolio .page-front .nextprev-btn,
 .menu-portfolio .page-right .page-front .btn-next {
-  right: 1.21rem !important;
+  right: 1rem !important;
   left: auto !important;
 }
 
 /* BAL OLDAL (Page-Back): VISSZA gomb (‹) */
 .menu-portfolio .page-back .nextprev-btn,
 .menu-portfolio .page-right.turn .page-back .btn-back {
-  left: 1.21rem !important;
+  left: 1rem !important;
   right: auto !important;
 }
 
 /* Fix bal oldal (ha van) - Vissza gomb balra */
 .menu-portfolio .page-left .nextprev-btn {
-  left: 1.21rem !important;
+  left: 1rem !important;
   right: auto !important;
 }
 
