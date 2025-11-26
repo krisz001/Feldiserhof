@@ -307,13 +307,13 @@ const loadHeroBox = () => {
   }
 };
 
-// Módosított getMenuPdfPages() – a sorrend szerinti PDF-eket kell vissza
+// Módosított getMenuPdfPages() – több, egyedi mappás PDF támogatás + sorrend
 function getMenuPdfPages() {
   if (!fs.existsSync(menuPdfDir)) return [];
-  
-  // Olvasd be a sorrend JSON-t
+
+  // Sorrend JSON beolvasása (ha van)
   let order = [];
-  const orderPath = path.join(__dirname, 'data', 'pdf-order.json');
+  const orderPath = path.join(DATA_DIR, 'pdf-order.json');
   if (fs.existsSync(orderPath)) {
     try {
       const data = JSON.parse(fs.readFileSync(orderPath, 'utf8'));
@@ -323,35 +323,39 @@ function getMenuPdfPages() {
     }
   }
 
-  // Ha nincs explicit sorrend, akkor automatikus (az eredeti módszer)
-  if (!order.length) {
+  const collectPagesFromFolder = (folderName) => {
+    const folderPath = path.join(menuPdfDir, folderName);
+    if (!fs.existsSync(folderPath)) return [];
     return fs
-      .readdirSync(menuPdfDir)
-      .filter(f => /^page-\d+\.png$/i.test(f))
+      .readdirSync(folderPath)
+      .filter((f) => /^page-\d+\.png$/i.test(f))
       .sort((a, b) => {
         const na = parseInt(a.match(/page-(\d+)\.png/)[1], 10);
         const nb = parseInt(b.match(/page-(\d+)\.png/)[1], 10);
         return na - nb;
       })
-      .map(f => `/menu-pdf/${f}`);
+      .map((f) => `/menu-pdf/${folderName}/${f}`);
+  };
+
+  const result = [];
+
+  // Ha van explicit sorrend, azt használjuk
+  if (order.length) {
+    order.forEach((folderName) => {
+      result.push(...collectPagesFromFolder(folderName));
+    });
+    return result;
   }
 
-  // Ha van sorrend -> végig a sorrendezett lista, és gyűjt össze PDF oldalakat
-  const result = [];
-  order.forEach(pdfName => {
-    const pdfDir = path.join(menuPdfDir, pdfName);
-    if (fs.existsSync(pdfDir)) {
-      const pages = fs
-        .readdirSync(pdfDir)
-        .filter(f => /^page-\d+\.png$/i.test(f))
-        .sort((a, b) => {
-          const na = parseInt(a.match(/page-(\d+)\.png/)[1], 10);
-          const nb = parseInt(b.match(/page-(\d+)\.png/)[1], 10);
-          return na - nb;
-        })
-        .map(f => `/menu-pdf/${pdfName}/${f}`);
-      result.push(...pages);
-    }
+  // Ha nincs sorrend: összes mappa bejárása ábécé sorrendben
+  const folders = fs
+    .readdirSync(menuPdfDir, { withFileTypes: true })
+    .filter((d) => d.isDirectory())
+    .map((d) => d.name)
+    .sort();
+
+  folders.forEach((folderName) => {
+    result.push(...collectPagesFromFolder(folderName));
   });
 
   return result;
@@ -613,6 +617,7 @@ app.get('/admin/opening-hours', requireAdmin, csrfProtection, (req, res) => {
     csrfToken: req.csrfToken(),
   });
 });
+
 // 🆕 ADMIN: PDF sorrendező oldal
 app.get('/admin/pdf-order', requireAdmin, csrfProtection, (req, res) => {
   res.render('admin/pdf-order', {
@@ -701,24 +706,36 @@ app.get('/js/menu.js', (req, res) => {
 });
 
 // ============================================================
-// PDF alapú menü könyv modul (upload + konverzió, egységesítve)
+// PDF alapú menü könyv modul
+// – Minden feltöltött PDF külön mappába kerül: /public/menu-pdf/<timestamp-basename>/menu.pdf
+// – Ugyanebbe a mappába konvertáljuk a PNG oldalakat (page-1.png, page-2.png, ...)
 // ============================================================
-const uploadDir = path.join(__dirname, 'uploads', 'pdf');
 
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
+// Biztosítsuk, hogy a célkönyvtár létezik
 if (!fs.existsSync(menuPdfDir)) {
   fs.mkdirSync(menuPdfDir, { recursive: true });
 }
 
+// Multer storage: egyedi, mappánkénti tárolás
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, uploadDir);
+    // Egyedi, könnyen olvasható mappanév: timestamp-fájlnév
+    const baseName = path
+      .basename(file.originalname, path.extname(file.originalname))
+      .replace(/[^a-zA-Z0-9_-]/g, '')
+      .substring(0, 30); // max 30 karakter
+    const folder = `${Date.now()}-${baseName || 'menu'}`;
+
+    const fullFolder = path.join(menuPdfDir, folder);
+    fs.mkdirSync(fullFolder, { recursive: true });
+
+    // Tárold a generált mappanevet a request objektumon
+    req._uploadedPdfFolder = folder;
+
+    cb(null, fullFolder);
   },
   filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname) || '.pdf';
-    cb(null, 'menu.pdf'); // mindig ugyanaz a név – 1 aktuális menü
+    cb(null, 'menu.pdf');
   },
 });
 
@@ -735,8 +752,10 @@ const upload = multer({
   },
 });
 
+// PDF → PNG konverzió, adott mappán belül
 function convertPdfToPng(pdfPath, outDir) {
   return new Promise((resolve, reject) => {
+    // Tisztítsuk az aktuális mappából a régi page-*.png fájlokat
     if (fs.existsSync(outDir)) {
       fs.readdirSync(outDir)
         .filter((f) => /^page-\d+\.png$/i.test(f))
@@ -763,7 +782,9 @@ function convertPdfToPng(pdfPath, outDir) {
           const fileName = `page-${i}.png`;
           const src = path.join(outDir, fileName);
           if (fs.existsSync(src)) {
-            files.push(`/menu-pdf/${fileName}`);
+            // Relatív útvonal a /public/menu-pdf gyökértől
+            const rel = path.relative(menuPdfDir, src).split(path.sep).join('/');
+            files.push(`/menu-pdf/${rel}`);
           }
         }
 
@@ -773,7 +794,7 @@ function convertPdfToPng(pdfPath, outDir) {
   });
 }
 
-// 🟩 ADMIN: PDF feltöltés → konvertálás PNG oldalakra
+// 🟩 ADMIN: PDF feltöltés → egyedi mappa → konvertálás PNG oldalakra ugyanebbe a mappába
 app.post(
   '/admin/menu-pdf',
   requireAdmin,
@@ -781,18 +802,27 @@ app.post(
   csrfFromHeader,
   async (req, res) => {
     try {
-      if (!req.file) {
+      if (!req.file || !req._uploadedPdfFolder) {
         return res.status(400).json({ ok: false, msg: 'Keine Datei empfangen.' });
       }
 
-      const pdfPath = req.file.path;
-      const pages = await convertPdfToPng(pdfPath, menuPdfDir);
+      const outDir = path.join(menuPdfDir, req._uploadedPdfFolder);
+      const pdfPath = path.join(outDir, 'menu.pdf');
+
+      const pages = await convertPdfToPng(pdfPath, outDir);
       if (!pages.length) {
         return res.status(500).json({ ok: false, msg: 'Keine Seiten erzeugt.' });
       }
 
-      console.log('✅ Menü PDF konvertiert, Seiten:', pages.length);
-      return res.json({ ok: true, pages });
+      console.log(
+        `✅ Menü PDF konvertiert (${req._uploadedPdfFolder}), Seiten:`,
+        pages.length,
+      );
+      return res.json({
+        ok: true,
+        folder: req._uploadedPdfFolder,
+        pages,
+      });
     } catch (err) {
       console.error('❌ Menü PDF feldolgozási hiba:', err);
       return res.status(500).json({ ok: false, msg: 'PDF Verarbeitung fehlgeschlagen.' });
@@ -800,15 +830,27 @@ app.post(
   },
 );
 
-// 🟥 ADMIN: PDF törlése
+// 🟥 ADMIN: Összes konvertált PDF törlése (mappák + sorrend)
 app.post('/admin/menu-pdf/delete', requireAdmin, csrfFromHeader, (req, res) => {
   try {
     if (fs.existsSync(menuPdfDir)) {
-      fs.readdirSync(menuPdfDir)
-        .filter((f) => /^page-\d+\.png$/i.test(f))
-        .forEach((f) => fs.unlinkSync(path.join(menuPdfDir, f)));
+      const entries = fs.readdirSync(menuPdfDir, { withFileTypes: true });
+      entries.forEach((entry) => {
+        const fullPath = path.join(menuPdfDir, entry.name);
+        if (entry.isDirectory()) {
+          fs.rmSync(fullPath, { recursive: true, force: true });
+        } else if (/^page-\d+\.png$/i.test(entry.name) || entry.name === 'menu.pdf') {
+          fs.unlinkSync(fullPath);
+        }
+      });
     }
-    console.log('🗑 Menü PDF Seiten gelöscht.');
+
+    const orderPath = path.join(DATA_DIR, 'pdf-order.json');
+    if (fs.existsSync(orderPath)) {
+      fs.unlinkSync(orderPath);
+    }
+
+    console.log('🗑 Menü PDF könyvtárak és sorrend törölve.');
     res.json({ ok: true });
   } catch (err) {
     console.error('❌ Fehler beim Löschen der Menü-PDF-Seiten:', err);
